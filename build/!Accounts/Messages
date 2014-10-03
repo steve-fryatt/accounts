@@ -1,0 +1,327 @@
+;
+;  These are the text resources used by Accounts V5.00.
+;
+;  They were generated on 21st June 1993.
+;
+;  And subsequently modified on:
+;
+;    17th August    1993        (V5.01)
+;    19th August    1993        (V5.04)
+;    20th August    1993        (V5.05)
+;    27th August    1993        (V5.10)
+;     1st Setpember 1993        (V5.11)
+;     4th September 1993        (V5.15)
+;    17th October   1993        (V5.16) ((Most) Bugs removed!)
+;     6th November  1993        (V5.17) 
+;    22nd November  1993        (V5.18) (More bugs removed!)
+;    26th August    1994        (V5.19)
+;
+; Task Name
+;
+Task:Accounts
+;             
+; Warning Box Title
+;
+Wrn0:from Accounts!
+Wrn1:Message
+Wrn2:Warning
+;
+; Error Messages
+;
+Err0:Accounts has suffered an internal error (Error %0; %1 at line %2). Click 'OK' to continue, or 'Cancel' to exit program.
+Err1:The value that you have just tried to enter is too big.
+Err2:Unable to open output file. Leafname may be too long, or Directory does not exist.
+Err3:This file is not in Account format.
+Err4:There is no printer driver installed.
+Err5:Disc Not Present.
+Err6:Access Violation.
+Err7:This file is already open.
+Err8:Disc Full.
+Err9:Disc Not Found.
+Err10:The Resources: Filing system is read-only.
+Err11:Directory not found.
+Err12:Directory full.
+Err13:Disc Not Found.
+;
+; Filer Messages
+;
+Fil0:To save, drag the icon to a directory viewer.
+Fil1:To save, drag the icon to a directory viewer. Accounts does not support inter-application file transfers.
+Fil2:This is not an Account file or a CSV file. To load an account, drag an account file from a directory viewer to the Accounts icon.
+Fil3:Accounts is unable to save this file.
+Fil4:To load a CSV file, drag its icon to the Accounts icon on the icon bar.
+;
+; Exporting Errors
+;
+Exp0:You cannot export a single line. Set a new range and try again.
+Exp1:The range you have set does not make sense. Set a new range and try again.
+Exp2:There are not this many lines in the account. Set a new range and try again.
+Exp3:You cannot export a negative number of lines. Set a new range and try again.
+;
+; Printer Errors
+;
+Prn0:You cannot print a single line. Set a new range and try again.
+Prn1:The range you have set is impossible to print. Set a new range and try again.
+Prn2:There are not this many lines in the account. Set a new range and try again.
+Prn3:You cannot print a negative number of lines. Set a new range and try again.
+;
+; File Merge Errors
+;
+Mer0:There is not enough room in the account to merge the two files.
+;
+; CSV Load errors
+;
+Csv0:There is not enough room in the account to load the whole CSV file.
+Csv1:This line does not have enough fields in it to use the fields specified.
+;
+; Date errors
+;
+Dat0:Accounts can not find one of its date formats within this text string.
+;
+; Find & Replace Messages
+;
+Fin0:The text '%0' could not be found within the descriptions of this account.
+Fin1:The account has no entries to search.
+Fin2:- Not Found -
+;
+; Selection Errors
+;
+Sel0:There is no selected entry to delete. Select a line and try again.
+Sel1:There is no limit set for this function. Select a line and try again.
+Sel2:There is no selected entry to cut. Select a line and try again.
+Sel3:There is no selected entry to copy. Select a line and try again.
+Sel4:There is no selected entry for this instruction. Select a line and try again.
+Sel5:This is not a valid line.
+;
+; Confirmation Messages
+;
+OK1:Are you sure you wish to delete entry %0? This action can not be undone.
+OK2:Are you sure you wish to remove the entries up to and including entry %0? This action can not be undone.
+OK3:This account has not been saved. Are you sure you wish to clear this account?
+OK4:The current account has not been saved and loading this new file will delete it. Are you sure you wish to load the new file?
+OK5:This account has not been saved. Are you sure you wish to quit Accounts?
+OK6:This account has not been saved. Are you sure you wish to reset the computer?
+;
+; Range Errors
+;
+Val0:The resulting balance from this transaction is too low.
+Val1:The resulting balance from this transaction is too large.
+Val2:There is no free space in this account. You will have to remove some entries before you can add any more.
+;
+; Startup Messages
+;
+Int0:Accounts V5.19
+Int1:©Stephen Fryatt 1992, 1993
+Int2:”Accounts Editor•
+;
+; Information
+;
+Info:5.19 (26-August-1994)
+;
+; Help Messages
+;
+Hlp0:This is the Accounts application, a bank accounts manager.|MClick SELECT to open the current account.|MClick MENU to display the icon-bar menu.
+Hlp1:This is the Main Accounts window.|MEditing is done via the Enter window.|MClick SELECT to select an entry.|MClick MENU to display the main Accounts menu.
+Hlp2:This is the Accounts toolbox.|MThis icon is the Add Entry Icon.|MIt adds an entry to the end of the account.
+Hlp3:This is the Accounts toolbox.|MThis icon is the Insert Above Icon.|MIt inserts an entry above the currently selected line.
+Hlp4:This is the Accounts toolbox.|MThis icon is the Insert Below Icon.|MIt inserts an entry below the currently selected line.
+Hlp5:This is the Accounts toolbox.|MThis icon is the Modify Selection Icon.|MIt modifies the currently selected line.
+Hlp6:This is the Accounts toolbox.|MThis icon is the Delete Selection Icon.|MIt deletes the currently selected line.
+Hlp7:This is the Accounts toolbox.|MIt provides some of the more common features of Accounts.
+Hlp8:This is the Accounts Enter window.|MThis icon selects the current line for all input functions.
+Hlp9:This is the Accounts Enter window.|MThis icon selects the Clip-Board for all input functions.
+Hlp10:This is the Accounts Enter window.|MThis column allows you to enter new descriptions.|MClick in any of the white boxes to give Accounts input-focus.
+Hlp11:This is the Accounts Enter window.|MThis column allows you to enter new credits.|MClick in any of the white boxes to give Accounts input-focus.
+Hlp12:This is the Accounts Enter window.|MThis column allows you to enter new payments.|MClick in any of the white boxes to give Accounts input-focus.
+Hlp13:This is the Accounts Enter window.|MThis column lets you choose the current line or the clip-board for input.|MClick in any of the white boxes to give Accounts input-focus.
+Hlp14:This is the Accounts Enter window.|MThis icon lets you enter a new description.|MClick here to gain the caret.|MPressing RETURN moves to the next field.
+Hlp15:This is the Accounts Enter window.|MThis icon lets you enter a new credit.|MClick here to gain the caret.|MPressing RETURN moves to the next field.
+Hlp16:This is the Accounts Enter window.|MThis icon lets you enter a new payment.|MClick here to gain the caret.|MPressing RETURN adds this line to the end of the account.
+Hlp17:This is the Accounts Enter window.|MThis line shows the currently selected entry.
+Hlp18:This is the Accounts Enter window.|MThis line is the clip-board
+Hlp19:This is the Accounts Enter window.|MThis icon lets you enter a new description on the clip_board.|MClick here to gain the caret.|MPressing RETURN moves to the next field.
+Hlp20:This is the Accounts Enter window.|MThis icon lets you enter a new credit on the clip_board.|MClick here to gain the caret.|MPressing RETURN moves to the next field.
+Hlp21:This is the Accounts Enter window.|MThis icon lets you enter a new payment on the clip_board.|MClick here to gain the caret.|MPressing RETURN adds this line to the end of the account.
+Hlp22:This is the Accounts Enter window.|MIt allows you to add new entries to the current account.|MIt also contains the clip-board.|MClick in any of the white boxes to give Accounts input-focus.
+Hlp23:This is the Goto Line window.|MEnter the line you wish to go to,|Min the range 1-1000.|MClick here to get the caret.
+Hlp24:This is the Goto Line window.|MClick here to go to the line shown.
+Hlp25:This is the Goto Line window.|MIt allows you to go to any line in the account.
+Hlp26:This is the Find window.|MType in the string that you wish to search for.|MClick here to get the caret.
+Hlp27:This is the Find window.|MThis icon toggles case sensitivity on and off.
+Hlp28:This is the Find window.|MThis icon sets find to search for a sub-string within a description.
+Hlp29:This is the Find window.|MThis icon sets find to search for a complete match.
+Hlp30:This is the Find window.|MClick here to start the search.
+Hlp31:This is the Find window.|MClick here to cancel the search before it starts.
+Hlp32:This is the Find window.|MIt can be used to search for a particular description within an account.
+Hlp33:This is the Found window.|MThis icon displays the match found.
+Hlp34:This is the Found window.|MThis icon displays the line at wich the match was found.
+Hlp35:This is the Found window.|MClick here to continue the search.
+Hlp36:This is the Found window.|MClick here to end the search.
+Hlp37:This is the Found window.|MIt shows information about the match found.
+Hlp38:This is the New Header window.|MEnter a new value fro the initial balance here.|MClick here to get the caret.
+Hlp39:This is the New Header window.|MClick here to insert the new value.
+Hlp40:This is the New Header window.|MClick here to cancel the action.
+Hlp41:This is the New Header window.|MIt allows you to enter a new initial balance for the account.
+Hlp42:This is the Save window.|MDrag this icon to a director viewer to save the account.
+Hlp43:This is the Save window.|MType the file-name in here.
+Hlp44:This is the Save window.|MClick here if the file-name has a full path-name to save.
+Hlp45:This is the Save window.|MIt allows you to save your account to disc.
+Hlp46:This is the Export Text window.|MDrag this icon to a director viewer to save the text.
+Hlp47:This is the Export Text window.|MType the file-name in here.
+Hlp48:This is the Export Text window.|MClick here if the file-name has a full path-name to save.
+Hlp49:This is the Export Text window.|MThis section selects the lines to be exported.
+Hlp50:This is the Export Text window.|MThis sets the first line to be exported.|MClick here to lower the limit.
+Hlp51:This is the Export Text window.|MThis sets the last line to be exported.|MClick here to lower the limit.
+Hlp52:This is the Export Text window.|MThis sets the first line to be exported.|MClick here to raise the limit.
+Hlp53:This is the Export Text window.|MThis sets the last line to be exported.|MClick here to raise the limit.
+Hlp54:This is the Export Text window.|MThis line sets the first line to be exported.
+Hlp55:This is the Export Text window.|MThis sets the last line to be exported.
+Hlp56:This is the Export Text window.|MThis shows the first line to be exported.
+Hlp57:This is the Export Text window.|MThis shows the last line to be exported.
+Hlp58:This is the Export Text window.|MClick here to toggle the date and file name on and off|Mat the top of the file.
+Hlp59:This is the Export Text window.|MClick here to toggle the column headings on and off.
+Hlp60:This is the Export Text window.|MIt allows you to export text from an account as a text file.
+Hlp61:This is the Export CSV window.|MDrag this icon to a director viewer to save the CSV file.
+Hlp62:This is the Export CSV window.|MType the file-name in here.
+Hlp63:This is the Export CSV window.|MClick here if the file-name has a full path-name to save.
+Hlp64:This is the Export CSV window.|MThis section selects the lines to be exported.
+Hlp65:This is the Export CSV window.|MThis sets the first line to be exported.|MClick here to lower the limit.
+Hlp66:This is the Export CSV window.|MThis sets the last line to be exported.|MClick here to lower the limit.
+Hlp67:This is the Export CSV window.|MThis sets the first line to be exported.|MClick here to raise the limit.
+Hlp68:This is the Export CSV window.|MThis sets the last line to be exported.|MClick here to raise the limit.
+Hlp69:This is the Export CSV window.|MThis line sets the first line to be exported.
+Hlp70:This is the Export CSV window.|MThis sets the last line to be exported.
+Hli71:This is the Export CSV window.|MThis shows the first line to be exported.
+Hlp72:This is the Export CSV window.|MThis shows the last line to be exported.
+Hlp73:This is the Export CSV window.|MClick here to toggle the column headings on and off.
+Hlp74:This is the Export CSV window.|MIt allows you to export entries from an account as a|MComma Separated Values File, for use in spreadsheets.
+Hlp75:This is the Print window.|MThis section selects the lines to be printed.
+Hlp76:This is the Print window.|MThis sets the first line to be printed.|MClick here to lower the limit.
+Hlp77:This is the Print window.|MThis sets the last line to be printed.|MClick here to lower the limit.
+Hlp78:This is the Print window.|MThis sets the first line to be printed.|MClick here to raise the limit.
+Hlp79:This is the Print window.|MThis sets the last line to be printed.|MClick here to raise the limit.
+Hlp80:This is the Print window.|MThis line sets the first line to be printed.
+Hlp81:This is the Print window.|MThis sets the last line to be printed.
+Hlp82:This is the Print window.|MThis shows the first line to be printed.
+Hlp83:This is the Print window.|MThis shows the last line to be printed.
+Hlp84:This is the Print window.|MClick here to toggle the date and file name on and off|Mat the top of the page.
+Hlp85:This is the Print window.|MClick here to toggle the column headings on and off.
+Hlp86:This is the Print window.|MClick here to start the printer.
+Hlp87:This is the Print window.|MClick here to cancel.
+Hlp88:This is the Print window.|MIt allows you to print your accounts out|Mon a standard Dot-Matrix printer.
+Hlp89:This is the Info window.|MIt shows information about your version of Accounts.
+Hlp90:This is the File Info window.|MThis icon shows you if your account has been modified.
+Hlp91:This is the File Info window.|MThis icon shows you how many entries there are in the current account.
+Hlp92:This is the File Info window.|MThis icon shows you the current file size.
+Hlp93:This is the File Info window.|MThis icon shows you the current file name.
+Hlp94:This is the File Info window.|MIt shows inforamtion about the current account.
+Hlp95:This is the Accounts Error Window.|MIt is warning you of a mistake that you have made.|MMake your choice from the icons on the right.|MThe pointer cannot leave the window.
+Hlp96:This is the Printer Set Up window.|MThis section allows you to specify the number of lines that your printer|Mcan use on a page.
+Hlp97:This is the Printer Set Up window.|MThis section allows you to specify the number of lines that your printer|Mcan use on a page.|MType the number into this box.
+Hlp98:This is the Printer Set Up window.|MThis section allows you to specify the number of lines that your printer|Mcan use on a page.
+Hlp99:This is the Printer Set Up window.|MThis switch toggles Form Feed on and off.|MWhen on the paper is moved on to the next sheet between pages,|Mbut when off, this does not happen.
+Hlp100:This is the Printer Set Up window.|MThis section sets the contol codes that Accounts sends to your printer,|Mto control things like bold and underline.
+Hlp101:This is the Printer Set Up window.|MThis section sets the contol codes that Accounts sends to your printer,|Mto control things like bold and underline.
+Hlp102:This is the Printer Set Up window.|MThis line sets the code for a line feed.
+Hlp103:This is the Printer Set Up window.|MThis line sets the code for a form feed.
+Hlp104:This is the Printer Set Up window.|MThis line sets the code for turning bold on.
+Hlp105:This is the Printer Set Up window.|MThis line sets the code for turning bold off.
+Hlp106:This is the Printer Set Up window.|MThis line sets the code for turning underline on.
+Hlp107:This is the Printer Set Up window.|MThis line sets the code for turning underline off.
+Hlp108:This is the Printer Set Up window.|MThis line sets the code for a line feed.|MType the codes into this box, with the numbers separated by commas.
+Hlp109:This is the Printer Set Up window.|MThis line sets the code for a form feed.|MType the codes into this box, with the numbers separated by commas.
+Hlp110:This is the Printer Set Up window.|MThis line sets the code for turning bold on.|MType the codes into this box, with the numbers separated by commas.
+Hlp111:This is the Printer Set Up window.|MThis line sets the code for turning bold off.|MType the codes into this box, with the numbers separated by commas.
+Hlp112:This is the Printer Set Up window.|MThis line sets the code for turning underline on.|MType the codes into this box, with the numbers separated by commas.
+Hlp113:This is the Printer Set Up window.|MThis line sets the code for turning underline off.|MType the codes into this box, with the numbers separated by commas.
+Hlp114:This is the Printer Set Up window.|MClick here to forget any changes made.
+Hlp115:This is the Printer Set Up window.|MClick here to use the changes made and save them to disk for future use.
+Hlp116:This is the Printer Set Up window.|MClick here to use the changes made.
+Hlp117:This is the Printer Set Up window.|MIt allows you to set up Acounts' internal printer driver to suit your|Mprinter.
+Hlp118:This is the Printer Set Up window.|MThis section allows you to specify the number of lines that your printer|Mcan use on a page.|MClick here to raise the number.
+Hlp119:This is the Printer Set Up window.|MThis section allows you to specify the number of lines that your printer|Mcan use on a page.|MClick here to lower the number.
+Hlp120:This is the Find window.|MClick here to replace all the ocurrences of the string in the account.
+Hlp121:This is the Find window.|MType in the string that you wish to replace with.|MClick here to get the caret.
+Hlp122:This is the Found window.|MClick here to replace the match and continue the search.
+Hlp123:This is the Found window.|MClick here to replace all the remaining ocurrences of the string in the account.
+Hlp124:This is the Merge Files window.|MClick here to add the new file to the end.
+Hlp125:This is the Merge Files window.|MClick here to cancel the operation.
+Hlp126:This is the Merge Files window.|MClick here to insert the new file above the selected line.
+Hlp127:This is the Merge Files window.|MClick here to insert the new file below the selected line.
+Hlp128:This is the Merge Files window.|MIt allows you to merge two account files together.
+Hlp129:This is the Inport CSV File window.|MThis shows the column used for the descriptions.
+Hlp130:This is the Inport CSV File window.|MThis shows the column used for the credits.
+Hlp131:This is the Inport CSV File window.|MThis shows the column used for the payments.
+Hlp132:This is the Inport CSV File window.|MClick here to reduce the column number for the descriptions by one.
+Hlp133:This is the Inport CSV File window.|MClick here to increase the column number for the descriptions by one.
+Hlp134:This is the Inport CSV File window.|MClick here to reduce the column number for the credits by one.
+Hlp135:This is the Inport CSV File window.|MClick here to increase the column number for the credits by one.
+Hlp136:This is the Inport CSV File window.|MClick here to reduce the column number for the payments by one.
+Hlp137:This is the Inport CSV File window.|MClick here to increase the column number for the payments by one.
+Hlp138:This is the Inport CSV File window.|MThis shows the column used for the descriptions.
+Hlp139:This is the Inport CSV File window.|MThis shows the column used for the credits.
+Hlp140:This is the Inport CSV File window.|MThis shows the column used for the payments.
+Hlp141:This is the Inport CSV File window.|MClick here to cancel the load.
+Hlp142:This is the Inport CSV File window.|MClick here to load the CSV file.
+Hlp143:This is the Inport CSV File window.|MIt allows you to load CSV files into Accounts.
+Hlp144:This is the Preferences window.|MClick here to forget any changes made.
+Hlp145:This is the Preferences window.|MClick here to use the changes made, and save them to disc for future use.
+Hlp146:This is the Preferences window.|MClick here to use the changes made.
+Hlp147:This is the Preferences window.|MIt allows you to set up features of Accounts to suit your own method of working.
+Hlp148:This is the Preferences window.|MThis section relates only to the enter window.
+Hlp149:This is the Preferences window.|MSet this to return the caret to the 'descriptions' icon after pressing return in 'payments'.
+Hlp150:This is the Preferences window.|MSet this to make Accounts automatically select the clip-board after you cut or copy a line.
+Hlp151:This is the Preferences window.|MSet this to join the Enter window to the main one (as a 'pane').|MUnset it to give the Enter window a title bar and allow it to be moved separately.
+Hlp152:This is the Preferences window.|MThis section sets which windows open by default on clicking on the Accounts icon or loading a file.
+Hlp153:This is the Preferences window.|MSet this to open the Toolbox.
+Hlp154:This is the Preferences window.|MSet this to open the Enter window/pane.
+Hlp155:This is the Preferences window.|MThis section controls the automatic date insetion feature.
+Hlp156:This is the Preferences window.|MThis part controls the format of the date.
+Hlp157:This is the Preferences window.|MInsert the date in DD/MM/YY format.|M(eg. 28/04/93)
+Hlp158:This is the Preferences window.|MInsert the date in DD Mmm YY format.|M(eg. 28 Apr 93)
+Hlp159:This is the Preferences window.|MInsert the date in Mmm DD YY format.|M(eg. Apr 28 93)
+Hlp160:This is the Preferences window.|MThis part controls the way the date is inserted.
+Hlp161:This is the Preferences window.|MInsert tha date at the caret.
+Hlp162:This is the Preferences window.|MOverwite the text after the caret with the date.
+Hlp163:This is the Preferences window.|MInsert the date at the end, pushing the contents of the icon left.
+Hlp164:This is the Preferences window.|MOverwite the text at the end of the icon with the date.
+Hlp165:This is the Preferences window.|MApplies only to first two options:|MIf set, makes sure all the date is included, by moving the caret back if it is too close to the end of the line.
+Hlp166:This is the Preferences window.|MThis section sets the colours used in the main window.|MAll numbers are as in the WIMP palette.
+Hlp167:This is the Preferences window.|MThis sets the colour used for the entries.
+Hlp168:This is the Preferences window.|MThis sets the colour used for the line numbers.
+Hlp169:This is the Preferences window.|MThis sets the colour used for the background of the selected line.
+Hlp170:This is the Preferences window.|MThis sets the colour used for the unused lines.
+Hlp171:This is the Preferences window.|MThis section contains miscellaneous options.
+Hlp172:This is the Preferences window.|MSet this to make pressing F3 the same as clicking on 'OK' in the Save as: window, rather than just opening this window.
+Hlp173:This is the Preferences window.|MThis scrolling section contains all of the options, divided into sections.
+Hlp174:This is the Select Line window.|MEnter the line you wish to select here.
+Hlp175:This is the Select Line window.|MClick here to select the line.
+Hlp176:This is the Select Line window.|MIt allows you to selct a line from the keyboard.
+Hlp177:This is the main Accounts window.|MYou are now over the entry numbers.
+Hlp178:This is the main Accounts window.|MYou are now over the description column.
+Hlp179:This is the main Accounts window.|MYou are now over the credit column.
+Hlp180:This is the main Accounts window.|MYou are now over the payment column.
+Hlp181:This is the main Accounts window.|MYou are now over the balance column.
+Hlp182:This is the main Accounts window.|MYou are now over the column titles.
+Hlp183:This is the Find window.|MUse this section to set the search options.
+Hlp184:This is the Preferences window.|MClick here to open a menu containing all the colours that can be used for the entries.
+Hlp185:This is the Preferences window.|MClick here to open a menu containing all the colours that can be used for the row numbers.
+Hlp186:This is the Preferences window.|MClick here to open a menu containing all the colours that can be used for the selected line.
+Hlp187:This is the Preferences window.|MClick here to open a menu containing all the colours that can be used for the unused lines.
+Hlp188:This is the Accounts application, a bank accounts manager.|MThere is no help avaliable for this window.
+Hlp189:This is the Preferences window.|MSet this to turn the tool-bar at the top of the main window on or off.
+Hlp190:This is the Tool-bar.|MThis is the add entry icon.|MClick to add the contents of the enter window to the end of the account.
+Hlp191:This is the Tool-bar.|MThis is the insert above icon.|MClick to insert the contents of the enter window above the selected line.
+Hlp192:This is the Tool-bar.|MThis is the insert below icon.|MClick to insert the contents of the enter window below the selected line.
+Hlp193:This is the Tool-bar.|MThis is the modify icon.|MClick to updaye the selected line with the contents of the enter window.
+Hlp194:This is the Tool-bar.|MThis is the delete icon.|MClick to delete the selected line from the account.
+Hlp195:This is the Tool-bar.|MThis is the cut icon.|MClick to cut the selected line to the clip-board.
+Hlp196:This is the Tool-bar.|MThis is the copy icon.|MClick to copy the selected line to the clip-board.
+Hlp197:This is the Tool-bar.|MThis is the clear selection icon.|MClick to clear the selected line.
+Hlp198:This is the Tool-bar.|MThis is the filing icon.|MClick to open the save account window.|MDouble-click to open the export CSV window.
+Hlp199:This is the Tool-bar.|MThis is the search icon.|MClick to open the find and replace window.
+Hlp200:This is the Tool-bar.|MThis is the goto icon.|MClick to open the goto window.
+Hlp201:This is the Tool-bar.|MThis is the goto selection icon.|MClick to go to the selected line.
+Hlp202:This is the Tool-bar.|MThis is the new header icon.|MClick to insert a new initial balance for this account.
+Hlp203:This is the Tool-bar.|MThis is the printing icon.|MClick to open the print window.|MDouble-click to open the print set up window.
+Hlp204:This is the Tool-bar.|MIt contains icons to access many of the features of Accounts.|MOptions that are greyed out are only available when there is a selection.

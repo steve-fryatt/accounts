@@ -1,0 +1,15 @@
+| !Run file for Accounts V5.00 (RISC OS 3.5+)
+|
+IconSprites <Obey$Dir>.!Sprites
+|
+Set Alias$@RunType_1AC Run <Obey$Dir>.!Run %%*0
+Set File$Type_1AC Account
+Set File$Type_DFE CSV
+|
+Set Account$Dir <Obey$Dir>
+|
+Set Account$PrintFile printer:
+|
+WimpSlot -min 256K -max 256K 
+|
+Run <Obey$Dir>.!RunImage %*0

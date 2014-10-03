@@ -1,0 +1,7 @@
+| Boot file for Accounts V5.00
+|
+IconSprites <Obey$Dir>.!Sprites
+|
+Set Alias$@RunType_1AC Run <Obey$Dir>.!Run %%*0 
+Set File$Type_1AC Account
+Set File$Type_DFE CSV

@@ -1,0 +1,158 @@
+#############################################################################
+#                                                                           #
+#              Release Notes For Accounts V5.19 and Greater                 #
+#                                                                           #
+#===========================================================================#
+#                                                                           #
+#      Read this help file to get information on the new features included  #
+#                                                                           #
+#  in the recent versions of Accounts;  newer than version 5.15,  which is  #
+#                                                                           #
+#  documented in the latest User Guide.                                     #
+#                                                                           #
+#                                                                           #
+#      Read the User Guide for more information on the software.            #
+#                                                                           #
+#############################################################################
+
+Version 5.16
+============
+
+Menu Groupings
+--------------
+
+    Dotted lines have been added to the menus to split up the options into
+sensible groups.  This does not affect the use of the software in any way.
+
+Replace Bug Removed
+-------------------
+
+    The bug in the 'Replace all' option has been removed, so that replacing
+starts from the selected line, when initiated from the 'Text Found' dialogue
+box.
+
+Screen Redraw Improved
+----------------------
+
+    The screen redraw has been optimised, so that only the smallest part of
+the window possible is redrawn when an operation is carried out.  This makes
+most operations faster.
+
+Version 5.17
+============
+
+The Toolbar
+-----------
+
+    A toolbar has been added to the main Accounts window, which supersedes
+the toolbox, although the toolbox has been left for backwards compatability.
+The toolbar, when set, appears above the column headings of the main window,
+and contains a number of icons to activate or access several features of the
+software.  From left to right, these are:
+
+ADD ENTRY
+
+INSERT ABOVE SELECTION
+
+INSERT BELOW SELECTION
+
+MODIFY SELECTION
+
+DELETE SELECTION
+
+    These icons operate in the same manner as in the Toolbox.
+
+CUT SELECTION
+
+    This icon activates the cut feature, which is also found in the
+Clip-board menu and on F8 or Ctrl-V.
+
+COPY SELECTION
+
+    This icon activates the copy feature, which is also found in the
+Clip-board menu and on F7 or Ctrl-C.
+
+CLEAR SELECTION
+
+    This will clear the selection, in the same way as pressing Ctrl-Z.
+
+THE FILING ICON
+
+    Clicking on this icon opens the Save window.  Double-clicking on the
+icon opens the Export CSV window.
+
+FIND AND REPLACE
+
+    This icon opens the Find and Replace window.
+
+GOTO LINE
+
+    This icon opens the Goto window.
+
+GOTO SELECTION
+
+    This icon controls a new feature of Accounts.  Click on it to go
+directly to the selected line in the account.
+
+NEW HEADER
+
+    This icon opens the New Header window.
+
+THE PRINTER ICON
+
+    Click on this icon to open the Print Account window.  Double-click on it
+to open the Printer Set Up window.
+
+
+    The Toolbar can be turned on and off using a new 'Toolbar' option at the
+bottom of the Main Menu, or by pressing Ctrl-F2.  A new preference, in the
+Miscellaneous section, called 'Show Tool Bar', can be used to specify
+whether the tool bar appears when Accounts is first loaded.
+
+The Preferences Window
+----------------------
+
+    Two new icons have been added to this window: "Load" and "Defaults". 
+"Load" will load the preferences that are saved to disc bakc into the window
+for either changing or accepting; while "Defaults" will do the same for a
+new file called "Defaults" that is also found in the !Accounts directory,
+containing the default values for the setings.
+
+Version 5.18
+============
+
+The Toolbar
+-----------
+
+    Some of the bugs affectiong the use of the toolbar have been removed.
+
+The Home Key
+------------
+
+    A new option has been added to the program preferences, allowing the
+function of the Home key to be set.  The three settings heve the following
+meanings:
+
+    'Home main window'  will return the main account window to the top of
+        the account;
+
+    'Home caret' returns the caret to the top left icon of the enter pane;
+        and
+
+    'Home both' does both these actions together.
+    
+Version 5.19
+============
+
+Desktop Boot Files
+------------------
+
+    Accounts now responds to the desktop boot file feature of Risc OS 3.1. 
+This allows desktop boot files to be automaticaly created by the user from
+the Task Manager menu.
+
+Desktop Shutdown
+----------------
+
+    If your data is unsaved, Accounts will warn you prior to a desktop
+shutdown, so that you can save your work.

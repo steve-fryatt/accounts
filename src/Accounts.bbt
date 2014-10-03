@@ -1,0 +1,4103 @@
+REM >!RunImage
+:
+REM ***********************************************************************
+REM **************              !Accounts V5.19              **************
+REM **************                                           **************
+REM **************          Simple accounts manager,         **************
+REM **************                                           **************
+REM **************       and "bank statement" program.       **************
+REM **************                                           **************
+REM **************       © Stephen Fryatt. 1992, 1993.       **************
+REM **************                                           **************
+REM ************** This program is not in the Public Domain! **************
+REM ***********************************************************************
+:
+SYS "XOS_GetEnv" TO state$
+:
+PROCinit
+:
+ON ERROR PROCerror
+:
+WHILE NOT quit%
+PROCpoll
+ENDWHILE
+:
+PROCloose_fonts
+:
+IF reset% THEN SYS "Wimp_ProcessKey",&1FC
+:
+SYS "Wimp_CloseDown"
+END
+:
+DEF PROCpoll
+LOCAL ERROR
+ON ERROR LOCAL PROCerror
+SYS "Wimp_Poll",0,b% TO reason%
+CASE reason% OF
+WHEN 0 :IF intro_up% PROCclose_intro
+WHEN 1 :PROCredraw
+WHEN 2 :SYS "Wimp_OpenWindow",,b%
+IF !b%=main% OR !b%=prefs% THEN
+IF !b%=main% THEN
+!q%=pane%
+SYS "Wimp_GetWindowState",,q%
+q%!4=b%!4
+q%!16=b%!16
+IF FNmenu_state(mmenu%,8) THENq%!8=b%!16-136 ELSEq%!8=b%!16-36
+q%!12=b%!12
+q%!20=b%!20
+IF FNmenu_state(mmenu%,8) q%!24=0 ELSEq%!24=-96
+q%!28=b%!28
+SYS "Wimp_OpenWindow",,q%
+IF FNmenu_state(mmenu%,7) AND join_main% THEN
+!q%=enter%
+SYS "Wimp_GetWindowState",,q%
+q%!4=b%!4+40
+IF b%!8>236 THENover%=0
+IF b%!8<=236 AND b%!8>0 THENover%=236-b%!8
+IF b%!8<=0 THENover%=236
+q%!16=b%!8-44+over%
+q%!8=b%!8-236+over%
+q%!12=b%!4+1236
+q%!20=0
+q%!24=0
+q%!28=pane%
+SYS "Wimp_OpenWindow",,q%
+b%!28=enter%
+ELSE
+b%!28=pane%
+ENDIF
+SYS "Wimp_OpenWindow",,b%
+ELSE
+!q%=prefspane%
+SYS "Wimp_GetWindowState",,q%
+q%!4=b%!4+22
+q%!16=b%!8+402
+q%!8=b%!8+24
+q%!12=b%!4+502
+q%!28=b%!28
+SYS "Wimp_OpenWindow",,q%
+b%!28=prefspane%
+SYS "Wimp_OpenWindow",,b%
+ENDIF
+ELSE
+SYS "Wimp_OpenWindow",,b%
+ENDIF
+WHEN 3 :SYS "Wimp_CloseWindow",,b%
+IF !b%=main% THEN
+PROCclose_window(enter%)
+PROCclose_window(tools%)
+PROCclose_window(pane%)
+ENDIF
+IF !b%=prefs% THENPROCclose_window(prefspane%)
+WHEN 6 :PROCclick(b%!8,b%!12,b%!16)
+WHEN 7 :PROCstart_save(savesize%,savetype%,savepoint%)
+WHEN 8 :PROCkey_press(b%!24,!b%,b%!4)
+WHEN 9 :PROCmenu
+WHEN 17,18 :PROCrecieve
+WHEN 19:err%=FNwarning(mess$,FNdecode_message("Fil1",w$()),"OK",1,"",0,"",0)
+ENDCASE
+RESTORE ERROR
+ENDPROC
+:
+DEF PROCclose_intro
+IF TIME>=intro_up%+intro_time% THEN
+PROCclose_window(intro%)
+intro_up%=0
+ENDIF
+ENDPROC
+:
+DEF PROCclick(button%,wind%,icon%)
+LOCAL size%,loop%
+CASE wind% OF
+WHEN -2
+CASE button% OF
+WHEN 2 :PROCdisplay_bar_menu(imenu%,3,1,!b%)
+WHEN 4
+PROCopen_window(main%)
+PROCset_extent(TRUE)
+IF FNmenu_state(mmenu%,7) THEN
+PROCopen_window(enter%)
+PROCend_caret(enter%,6)
+ENDIF
+IF FNmenu_state(mmenu%,6) THENPROCopen_window(tools%)
+ENDCASE
+WHEN tools%
+CASE button% OF
+WHEN 1,4
+CASE icon% OF
+WHEN 0,1,2,3 :PROCaddval(icon%)
+WHEN 4       :PROCdelete
+ENDCASE
+WHEN 2 :PROCupdate_menu
+PROCdisplay_menu(mmenu%,!b%,b%!4)
+ENDCASE
+WHEN pane%
+CASE button% OF
+WHEN 1,4
+CASE icon% OF
+WHEN 1,2,3,4 :PROCaddval(icon%-1)
+WHEN 5       :PROCdelete
+WHEN 6       :PROCcut
+WHEN 7       :PROCcopy
+WHEN 8       :PROCclear_select
+WHEN 9       :PROCopen_as_menu(csv%)
+WHEN 10      :PROCopen_as_menu(find%)
+WHEN 11      :PROCopen_as_menu(goto%)
+WHEN 12      :PROCgoto_selection
+WHEN 13      :PROCopen_as_menu(newhead%)
+WHEN 14      :PROCopen_as_menu(printset%)
+ENDCASE
+WHEN 256,1024
+CASE icon% OF
+WHEN 9       :PROCopen_as_menu(save%)
+WHEN 14      :PROCopen_as_menu(print%)
+ENDCASE
+WHEN 2 :PROCupdate_menu
+PROCdisplay_menu(mmenu%,!b%,b%!4)
+ENDCASE
+WHEN main%
+CASE button% OF
+WHEN 4 :IF icon%=-1 PROCselect(b%!4)
+!q%=enter%
+SYS "Wimp_GetWindowState",,q%
+IF (q%!32 AND (1<<16)) THENPROCend_caret(enter%,6)
+WHEN 2 :PROCupdate_menu
+PROCdisplay_menu(mmenu%,!b%,b%!4)
+ENDCASE
+WHEN enter%
+CASE button% OF
+WHEN 1,4
+CASE icon% OF
+WHEN 0,1 :PROCcheck_select(wind%,icon%)
+ENDCASE
+WHEN 2 :PROCupdate_menu
+PROCdisplay_menu(mmenu%,!b%,b%!4)
+ENDCASE
+WHEN save%
+savetype%=account_file%
+savesize%=((entries%*15)+(entries%*22))
+savepoint%=file%
+CASE icon% OF
+WHEN 0 :IF (button% AND 64) PROCdrag_box(save%)
+WHEN 2 :IF (button% AND 5 ) PROCquick_save(file%)
+ENDCASE
+WHEN text%
+savetype%=text_file%
+size%=VAL($text2%)-VAL($text1%)
+savesize%=size%*80
+savepoint%=tfile%
+CASE icon% OF
+WHEN 0 :IF (button% AND 64) PROCdrag_box(text%)
+WHEN 2 :IF (button% AND 5 ) PROCquick_save(tfile%)
+WHEN 6
+IF button%=4 THEN
+IF VAL($text1%)<(entries%-1) $text1%=STR$(VAL($text1%)+1)
+PROCredraw_part(text%,148,-216,88,48)
+ELSE
+IF VAL($text1%)>1            $text1%=STR$(VAL($text1%)-1)
+PROCredraw_part(text%,148,-216,88,48)
+ENDIF
+WHEN 4
+IF button%=4 THEN
+IF VAL($text1%)>1            $text1%=STR$(VAL($text1%)-1)
+PROCredraw_part(text%,148,-216,88,48)
+ELSE
+IF VAL($text1%)<(entries%-1) $text1%=STR$(VAL($text1%)+1)
+PROCredraw_part(text%,148,-216,88,48)
+ENDIF
+WHEN 7
+IF button%=4 THEN
+IF VAL($text2%)<(entries%-1) $text2%=STR$(VAL($text2%)+1)
+PROCredraw_part(text%,148,-288,88,48)
+ELSE
+IF VAL($text2%)>1            $text2%=STR$(VAL($text2%)-1)
+PROCredraw_part(text%,148,-288,88,48)
+ENDIF
+WHEN 5
+IF button%=4 THEN
+IF VAL($text2%)>1            $text2%=STR$(VAL($text2%)-1)
+PROCredraw_part(text%,148,-288,88,48)
+ELSE
+IF VAL($text2%)<(entries%-1) $text2%=STR$(VAL($text2%)+1)
+PROCredraw_part(text%,148,-288,88,48)
+ENDIF
+ENDCASE
+WHEN csv%
+savetype%=csv_file%
+size%=VAL($csv2%)-VAL($csv1%)
+savesize%=(size%*SUMLEN(text$()))+(size%*18)
+savepoint%=cfile%
+CASE icon% OF
+WHEN 0 :IF (button% AND 64) PROCdrag_box(csv%)
+WHEN 2 :IF (button% AND 5 ) PROCquick_save(cfile%)
+WHEN 6
+IF button%=4 THEN
+IF VAL($csv1%)<(entries%-1) $csv1%=STR$(VAL($csv1%)+1)
+PROCredraw_part(csv%,148,-216,88,48)
+ELSE
+IF VAL($csv1%)>1            $csv1%=STR$(VAL($csv1%)-1)
+PROCredraw_part(csv%,148,-216,88,48)
+ENDIF
+WHEN 4
+IF button%=4 THEN
+IF VAL($csv1%)>1            $csv1%=STR$(VAL($csv1%)-1)
+PROCredraw_part(csv%,148,-216,88,48)
+ELSE
+IF VAL($csv1%)<(entries%-1) $csv1%=STR$(VAL($csv1%)+1)
+PROCredraw_part(csv%,148,-216,88,48)
+ENDIF
+WHEN 7
+IF button%=4 THEN
+IF VAL($csv2%)<(entries%-1) $csv2%=STR$(VAL($csv2%)+1)
+PROCredraw_part(csv%,148,-288,88,48)
+ELSE
+IF VAL($csv2%)>1            $csv2%=STR$(VAL($csv2%)-1)
+PROCredraw_part(csv%,148,-288,88,48)
+ENDIF
+WHEN 5
+IF button%=4 THEN
+IF VAL($csv2%)>1            $csv2%=STR$(VAL($csv2%)-1)
+PROCredraw_part(csv%,148,-288,88,48)
+ELSE
+IF VAL($csv2%)<(entries%-1) $csv2%=STR$(VAL($csv2%)+1)
+PROCredraw_part(csv%,148,-288,88,48)
+ENDIF
+ENDCASE
+WHEN print%
+CASE icon% OF
+WHEN 3
+IF button%=4 THEN
+IF VAL($print1%)<(entries%-1) $print1%=STR$(VAL($print1%)+1)
+PROCredraw_part(print%,150,-108,88,48)
+ELSE
+IF VAL($print1%)>1            $print1%=STR$(VAL($print1%)-1)
+PROCredraw_part(print%,150,-108,88,48)
+ENDIF
+WHEN 1
+IF button%=4 THEN
+IF VAL($print1%)>1            $print1%=STR$(VAL($print1%)-1)
+PROCredraw_part(print%,150,-108,88,48)
+ELSE
+IF VAL($print1%)<(entries%-1) $print1%=STR$(VAL($print1%)+1)
+PROCredraw_part(print%,150,-108,88,48)
+ENDIF
+WHEN 4
+IF button%=4 THEN
+IF VAL($print2%)<(entries%-1) $print2%=STR$(VAL($print2%)+1)
+PROCredraw_part(print%,150,-180,88,48)
+ELSE
+IF VAL($print2%)>1            $print2%=STR$(VAL($print2%)-1)
+PROCredraw_part(print%,150,-180,88,48)
+ENDIF
+WHEN 2
+IF button%=4 THEN
+IF VAL($print2%)>1            $print2%=STR$(VAL($print2%)-1)
+PROCredraw_part(print%,150,-180,88,48)
+ELSE
+IF VAL($print2%)<(entries%-1) $print2%=STR$(VAL($print2%)+1)
+PROCredraw_part(print%,150,-180,88,48)
+ENDIF
+WHEN 11
+PROCprint
+PROCdisplay_menu(-1,0,0)
+WHEN 12
+PROCdisplay_menu(-1,0,0)
+ENDCASE
+WHEN goto%
+IF icon%=1 PROCgoto
+WHEN selline%
+IF icon%=1 PROCkey_select
+WHEN find%
+CASE icon% OF
+WHEN 3,4 :PROCcheck_select(wind%,icon%)
+WHEN 5 :PROCfind(TRUE,FALSE,FALSE)
+WHEN 6 :PROCdisplay_menu(-1,0,0)
+WHEN 7 :PROCfind(TRUE,TRUE,FALSE)
+ENDCASE
+WHEN foundw%
+CASE icon% OF
+WHEN 4 :IF button%=4 OR button%=1 PROCfind(FALSE,FALSE,FALSE)
+WHEN 6 :IF button%=4 OR button%=1 PROCfind(FALSE,FALSE,TRUE)
+WHEN 7 :IF button%=4 OR button%=1 PROCfind(FALSE,TRUE,FALSE)
+WHEN 5
+PROCclose_window(foundw%)
+PROCclear_button(foundw%,4)
+PROCclear_button(foundw%,6)
+PROCclear_button(foundw%,7)
+$foundtext%=""
+ENDCASE
+WHEN newhead%
+CASE icon% OF
+WHEN 2 :PROCnew_header
+WHEN 3 :PROCdisplay_menu(-1,0,0)
+ENDCASE
+WHEN printset%
+CASE icon% OF
+WHEN 18 :PROCcancel_printcodes
+WHEN 19 :PROCsave_printcodes
+WHEN 20 :PROCset_printcodes
+WHEN 21
+IF button%=4 THEN
+IF VAL($page_length%)<999 $page_length%=STR$(VAL($page_length%)+1)
+PROCredraw_part(printset%,220,-68,80,48)
+ELSE
+IF VAL($page_length%)>1   $page_length%=STR$(VAL($page_length%)-1)
+PROCredraw_part(printset%,220,-68,80,48)
+WHEN 22
+IF button%=4 THEN
+IF VAL($page_length%)>1   $page_length%=STR$(VAL($page_length%)-1)
+PROCredraw_part(printset%,220,-68,80,48)
+ELSE
+IF VAL($page_length%)<999 $page_length%=STR$(VAL($page_length%)+1)
+PROCredraw_part(printset%,220,-68,80,48)
+ENDCASE
+WHEN prefs%
+CASE icon% OF
+WHEN 0 :PROCload_dft_prefs(FALSE)
+WHEN 1 :PROCsave_prefs(TRUE)
+WHEN 2 :PROCload_dft_prefs(TRUE)
+WHEN 3 :PROCload_prefs(FALSE)
+PROCclose_window(prefs%)
+PROCclose_window(prefspane%)
+WHEN 4 :PROCsave_prefs(FALSE)
+ENDCASE
+WHEN prefspane%
+CASE icon% OF
+WHEN 12,13,14 :PROCcheck_select(wind%,icon%)
+WHEN 16,17,18,19 :PROCcheck_select(wind%,icon%)
+WHEN 47,48,49 :PROCcheck_select(wind%,icon%)
+WHEN 34,35,36,37,52
+FOR loop%=0 TO 15
+PROCset_menu_state(wmenu%,loop%,0,0)
+NEXT loop%
+CASE icon% OF
+WHEN 34 :PROCset_menu_state(wmenu%,VAL($entry_c%),1,0)
+WHEN 35 :PROCset_menu_state(wmenu%,VAL($numb_c%),1,0)
+WHEN 36 :PROCset_menu_state(wmenu%,VAL($sel_c%),1,0)
+WHEN 37 :PROCset_menu_state(wmenu%,VAL($unused_c%),1,0)
+WHEN 52 :PROCset_menu_state(wmenu%,VAL($overdrawn_c%),1,0)
+ENDCASE
+PROCdisplay_menu(wmenu%,!b%,b%!4)
+prefs_menu%=icon%
+ENDCASE
+WHEN merge%
+CASE icon% OF
+WHEN 0 :PROCmerge_files(0)
+WHEN 1 :PROCdisplay_menu(-1,0,0)
+WHEN 2 :IF button%<>2 PROCmerge_files(1)
+WHEN 3 :IF button%<>2 PROCmerge_files(2)
+ENDCASE
+WHEN loadcsv%
+CASE icon% OF
+WHEN 3  :IF button%=4 PROCcsv_columns(0,-1) ELSEPROCcsv_columns(0,1)
+WHEN 4  :IF button%=4 PROCcsv_columns(0,1) ELSEPROCcsv_columns(0,-1)
+WHEN 5  :IF button%=4 PROCcsv_columns(1,-1) ELSEPROCcsv_columns(1,1)
+WHEN 6  :IF button%=4 PROCcsv_columns(1,1) ELSEPROCcsv_columns(1,-1)
+WHEN 7  :IF button%=4 PROCcsv_columns(2,-1) ELSEPROCcsv_columns(2,1)
+WHEN 8  :IF button%=4 PROCcsv_columns(2,1) ELSEPROCcsv_columns(2,-1)
+WHEN 12 :PROCdisplay_menu(-1,0,0)
+WHEN 13 :PROCcsv_load
+ENDCASE
+ENDCASE
+ENDPROC
+:
+DEF PROCmenu
+LOCAL sel1%,sel2%,sel3%,button%,loop%
+sel1%=!b%
+sel2%=b%!4
+sel3%=b%!8
+SYS "Wimp_GetPointerInfo",,b%
+button%=b%!8
+CASE menuup% OF
+WHEN imenu%
+CASE sel1% OF
+WHEN 0 :PROCopen_as_menu(info%) :button%=4
+WHEN 1 :PROCopen_window(prefs%) :PROCend_caret(prefspane%,23)
+WHEN 2 :quit%=FNsaved
+ENDCASE
+WHEN wmenu%
+FOR loop%=0 TO 15
+PROCset_menu_state(wmenu%,loop%,0,0)
+NEXT loop%
+CASE prefs_menu% OF
+WHEN 34
+$entry_c%=STR$(sel1%)
+PROCredraw_part(prefspane%,42,-1352,50,48)
+PROCset_menu_state(wmenu%,VAL($entry_c%),1,0)
+WHEN 35
+$numb_c%=STR$(sel1%)
+PROCredraw_part(prefspane%,42,-1428,50,48)
+PROCset_menu_state(wmenu%,VAL($numb_c%),1,0)
+WHEN 36
+$sel_c%=STR$(sel1%)
+PROCredraw_part(prefspane%,42,-1508,50,48)
+PROCset_menu_state(wmenu%,VAL($sel_c%),1,0)
+WHEN 37
+$unused_c%=STR$(sel1%)
+PROCredraw_part(prefspane%,42,-1588,50,48)
+PROCset_menu_state(wmenu%,VAL($unused_c%),1,0)
+WHEN 52
+$overdrawn_c%=STR$(sel1%)
+PROCredraw_part(prefspane%,42,-1668,50,48)
+PROCset_menu_state(wmenu%,VAL($overdrawn_c%),1,0)
+ENDCASE
+WHEN mmenu%
+CASE sel1% OF
+WHEN 0
+CASE sel2% OF
+WHEN 0 :PROCopen_as_menu(info%) :button%=4
+WHEN 1 :PROCopen_as_menu(fileinf%) :button%=4
+WHEN 2 :PROCopen_as_menu(find%) :button%=4
+WHEN 3 :PROCopen_as_menu(goto%) :button%=4
+WHEN 4 :PROCopen_as_menu(newhead%) :button%=4
+WHEN 5 :PROCclear
+ENDCASE
+WHEN 1
+CASE sel2% OF
+WHEN -1,0 :PROCquick_save(file%)
+WHEN 1 :PROCopen_as_menu(text%) :button%=4
+WHEN 2 :PROCopen_as_menu(csv%) :button%=4
+ENDCASE
+WHEN 2 :IF sel2%>-1 THENPROCaddval(sel2%)
+WHEN 3
+CASE sel2% OF
+WHEN -1,0 :PROCopen_as_menu(selline%) :button%=4
+WHEN 1 :PROCremove
+WHEN 2 :PROCdelete
+WHEN 3 :PROCaddval(3)
+WHEN 4 :PROCclear_select
+ENDCASE
+WHEN 4
+CASE sel2% OF
+WHEN 0 :PROCcut
+WHEN 1 :PROCcopy
+WHEN 2 :PROCcurrent
+WHEN 3 :PROCclip_clear
+ENDCASE
+WHEN 5
+CASE sel2% OF
+WHEN -1,0 :PROCopen_as_menu(print%) :button%=4
+WHEN 1 :PROCopen_as_menu(printset%) :button%=4
+ENDCASE
+WHEN 6
+!b%=tools%
+SYS "Wimp_GetWindowState",,b%
+IF b%!32 AND 1<<16 THEN
+PROCclose_window(tools%)
+PROCset_menu_state(mmenu%,6,0,0)
+ELSE
+PROCopen_window(tools%)
+PROCset_menu_state(mmenu%,6,1,0)
+ENDIF
+WHEN 7
+!b%=enter%
+SYS "Wimp_GetWindowState",,b%
+IF b%!32 AND 1<<16 THEN
+PROCclose_window(enter%)
+PROCset_menu_state(mmenu%,7,0,0)
+ELSE
+!b%=enter%
+SYS "Wimp_GetWindowState",,b%
+!q%=main%
+SYS "Wimp_GetWindowState",,q%
+b%!4=q%!4+40
+b%!16=q%!8-44
+b%!8=q%!8-236
+b%!12=q%!4+1236
+b%!20=0
+b%!24=0
+b%!28=pane%
+SYS "Wimp_OpenWindow",,b%
+PROCend_caret(enter%,6)
+PROCset_menu_state(mmenu%,7,1,0)
+ENDIF
+WHEN 8
+IF FNmenu_state(mmenu%,8) THEN
+!b%=pane%
+SYS "Wimp_GetWindowState",,b%
+!q%=main%
+SYS "Wimp_GetWindowState",,q%
+b%!4=q%!4
+b%!16=q%!16
+b%!8=q%!16-36
+b%!12=q%!12
+b%!20=0
+b%!24=0
+b%!28=q%!28
+SYS "Wimp_OpenWindow",,b%
+PROCset_menu_state(mmenu%,8,0,0)
+ELSE
+!b%=pane%
+SYS "Wimp_GetWindowState",,b%
+b%!4=q%!4
+b%!16=q%!16-100
+b%!8=q%!16-136
+b%!12=q%!12
+b%!20=0
+b%!24=0
+b%!28=q%!28
+SYS "Wimp_OpenWindow",,b%
+PROCset_menu_state(mmenu%,8,1,0)
+ENDIF
+PROCredraw_main
+PROCset_extent(0)
+ENDCASE
+ENDCASE
+IF button%=1 PROCupdate_menu :PROCdisplay_menu(menuup%,0,0)
+ENDPROC
+:
+DEF PROCkey_press(key%,whan%,icon%)
+CASE key% OF
+WHEN 4  :PROCdate(whan%,icon%,b%!20)
+WHEN 13 :
+CASE whan% OF
+WHEN save%      :PROCquick_save(file%)
+WHEN text%      :PROCquick_save(tfile%)
+WHEN csv%       :PROCquick_save(cfile%)
+WHEN find%      :PROCfind(TRUE,FALSE,FALSE)
+WHEN newhead%   :PROCnew_header
+WHEN goto%      :PROCgoto
+WHEN selline%   :PROCkey_select
+WHEN print%     :PROCprint
+WHEN printset%  :PROCset_printcodes
+WHEN prefspane% :PROCsave_prefs(FALSE)
+WHEN enter%
+CASE icon% OF
+WHEN 6  :PROCend_caret(enter%,7)
+WHEN 7  :PROCend_caret(enter%,8)
+WHEN 8
+PROCset_icon_state(enter%,0,1,0,0)
+PROCset_icon_state(enter%,1,0,0,0)
+PROCaddval(0)
+IF return_caret% THENPROCend_caret(enter%,6)
+WHEN 11 :PROCend_caret(enter%,12)
+WHEN 12 :PROCend_caret(enter%,13)
+WHEN 13
+PROCset_icon_state(enter%,0,0,0,0)
+PROCset_icon_state(enter%,1,1,0,0)
+PROCaddval(0)
+IF return_caret% THENPROCend_caret(enter%,6)
+ENDCASE
+ENDCASE
+WHEN 19 :PROCswap(whan%,icon%,b%!20)
+WHEN 20 :PROCnew_date(whan%,icon%)
+WHEN 26 :PROCclear_select
+WHEN 30
+CASE home_key% OF
+WHEN 1 :PROCpage_home
+WHEN 2 :PROCend_caret(enter%,6)
+WHEN 3 :PROCpage_home :PROCend_caret(enter%,6)
+ENDCASE
+WHEN &180 :PROCopen_as_menu(print%)
+WHEN &190 :PROCopen_as_menu(printset%)
+WHEN &181 :PROCaddval(0)
+WHEN &191
+!b%=tools%
+SYS "Wimp_GetWindowState",,b%
+IF b%!32 AND 1<<16 THEN
+PROCclose_window(tools%)
+PROCset_menu_state(mmenu%,6,0,0)
+ELSE
+PROCopen_window(tools%)
+PROCset_menu_state(mmenu%,6,1,0)
+ENDIF
+WHEN &1A1
+!b%=enter%
+SYS "Wimp_GetWindowState",,b%
+IF b%!32 AND 1<<16 THEN
+PROCclose_window(enter%)
+PROCset_menu_state(mmenu%,7,0,0)
+ELSE
+!b%=enter%
+SYS "Wimp_GetWindowState",,b%
+!q%=main%
+SYS "Wimp_GetWindowState",,q%
+b%!4=q%!4+42
+IF q%!8>236 THENover%=0
+IF q%!8<=236 AND b%!8>0 THENover%=236-b%!8
+IF q%!8<=0 THENover%=236
+b%!16=q%!8-44+over%
+b%!8=q%!8-206+over%
+b%!12=q%!4+1238
+b%!20=0
+b%!24=0
+b%!28=pane%
+SYS "Wimp_OpenWindow",,b%
+PROCend_caret(enter%,6)
+PROCset_menu_state(mmenu%,7,1,0)
+ENDIF
+WHEN &1A2
+IF FNmenu_state(mmenu%,8) THEN
+!b%=pane%
+SYS "Wimp_GetWindowState",,b%
+!q%=main%
+SYS "Wimp_GetWindowState",,q%
+b%!4=q%!4
+b%!16=q%!16
+b%!8=q%!16-36
+b%!12=q%!12
+b%!20=0
+b%!24=0
+b%!28=q%!28
+SYS "Wimp_OpenWindow",,b%
+PROCset_menu_state(mmenu%,8,0,0)
+ELSE
+!b%=pane%
+SYS "Wimp_GetWindowState",,b%
+b%!4=q%!4
+b%!16=q%!16
+b%!8=q%!16-136
+b%!12=q%!12
+b%!20=0
+b%!24=0
+b%!28=q%!28
+SYS "Wimp_OpenWindow",,b%
+PROCset_menu_state(mmenu%,8,1,0)
+ENDIF
+PROCredraw_main
+PROCset_extent(0)
+WHEN &182,&1CD :PROCaddval(2)
+WHEN &192,&1DD :PROCaddval(1)
+WHEN &183      :IF F3_qsave% THEN
+PROCquick_save(file%)
+ELSE
+PROCopen_as_menu(save%)
+ENDIF
+WHEN &193      :PROCopen_as_menu(text%)
+WHEN &1A3      :PROCopen_as_menu(csv%)
+WHEN &184      :PROCopen_as_menu(find%)
+WHEN &194      :PROCopen_as_menu(selline%)
+WHEN &185,24   :PROCdelete
+WHEN &195      :PROCremove
+WHEN &186      :PROCaddval(3)
+WHEN &187,3    :PROCcopy
+WHEN &197      :PROCcurrent
+WHEN &188,22   :PROCcut
+WHEN &189      :PROCclip_clear
+WHEN &18C,&19C
+IF whan%=enter%
+CASE icon% OF
+WHEN 7  :PROCend_caret(enter%,6)
+WHEN 8  :PROCend_caret(enter%,7)
+WHEN 12 :PROCend_caret(enter%,11)
+WHEN 13 :PROCend_caret(enter%,12)
+ENDCASE
+ENDIF
+WHEN &18D,&19D
+IF whan%=enter%
+CASE icon% OF
+WHEN 6  :PROCend_caret(enter%,7)
+WHEN 7  :PROCend_caret(enter%,8)
+WHEN 11 :PROCend_caret(enter%,12)
+WHEN 12 :PROCend_caret(enter%,13)
+ENDCASE
+ENDIF
+WHEN &1AC,&1BC :
+IF whan%=enter%
+CASE icon% OF
+WHEN 7,8   :PROCend_caret(enter%,6)
+WHEN 12,13 :PROCend_caret(enter%,11)
+ENDCASE
+ENDIF
+WHEN &1AD,&1BD :
+IF whan%=enter%
+CASE icon% OF
+WHEN 6,7   :PROCend_caret(enter%,8)
+WHEN 11,12 :PROCend_caret(enter%,13)
+ENDCASE
+ENDIF
+WHEN &1A9 :PROCclear
+WHEN &1CA :PROCopen_as_menu(goto%)
+WHEN &1CB :PROCopen_as_menu(newhead%)
+WHEN &18E
+CASE whan% OF
+WHEN enter% :PROCline_down
+WHEN find%
+CASE icon% OF
+WHEN 1 :PROCend_caret(find%,9)
+WHEN 9 :PROCend_caret(find%,1)
+ENDCASE
+WHEN text%
+CASE icon% OF
+WHEN 1  :PROCend_caret(text%,10)
+WHEN 10 :PROCend_caret(text%,11)
+WHEN 11 :PROCend_caret(text%,1)
+ENDCASE
+WHEN csv%
+CASE icon% OF
+WHEN 1  :PROCend_caret(csv%,10)
+WHEN 10 :PROCend_caret(csv%,11)
+WHEN 11 :PROCend_caret(csv%,1)
+ENDCASE
+WHEN print%
+CASE icon% OF
+WHEN 7 :PROCend_caret(print%,8)
+WHEN 8 :PROCend_caret(print%,7)
+ENDCASE
+WHEN printset%
+CASE icon% OF
+WHEN 1 :PROCend_caret(printset%,12)
+WHEN 12,13,14,15,16 :PROCend_caret(printset%,icon%+1)
+WHEN 17 :PROCend_caret(printset%,1)
+ENDCASE
+WHEN prefspane%
+CASE icon% OF
+WHEN 23 :PROCend_caret(prefspane%,25)
+WHEN 25 :PROCend_caret(prefspane%,27)
+WHEN 27 :PROCend_caret(prefspane%,29)
+WHEN 29 :PROCend_caret(prefspane%,23)
+ENDCASE
+ENDCASE
+WHEN &18F
+CASE whan% OF
+WHEN enter% :PROCline_up
+WHEN find%
+CASE icon% OF
+WHEN 1 :PROCend_caret(find%,9)
+WHEN 9 :PROCend_caret(find%,1)
+ENDCASE
+WHEN text%
+CASE icon% OF
+WHEN 1  :PROCend_caret(text%,11)
+WHEN 10 :PROCend_caret(text%,1)
+WHEN 11 :PROCend_caret(text%,10)
+ENDCASE
+WHEN csv%
+CASE icon% OF
+WHEN 1  :PROCend_caret(csv%,11)
+WHEN 10 :PROCend_caret(csv%,1)
+WHEN 11 :PROCend_caret(csv%,10)
+ENDCASE
+WHEN print%
+CASE icon% OF
+WHEN 7 :PROCend_caret(print%,8)
+WHEN 8 :PROCend_caret(print%,7)
+ENDCASE
+WHEN printset%
+CASE icon% OF
+WHEN 1 :PROCend_caret(printset%,17)
+WHEN 12 :PROCend_caret(printset%,1)
+WHEN 13,14,15,16,17 :PROCend_caret(printset%,icon%-1)
+ENDCASE
+WHEN prefspane%
+CASE icon% OF
+WHEN 23 :PROCend_caret(prefspane%,29)
+WHEN 25 :PROCend_caret(prefspane%,23)
+WHEN 27 :PROCend_caret(prefspane%,25)
+WHEN 29 :PROCend_caret(prefspane%,27)
+ENDCASE
+ENDCASE
+WHEN &19E :PROCpage_down
+WHEN &19F :PROCpage_up
+WHEN &1AE :PROCpage_end
+WHEN &1AF :PROCpage_home
+OTHERWISE :SYS "Wimp_ProcessKey",key%
+ENDCASE
+ENDPROC
+:
+DEF PROCrecieve
+CASE b%!16 OF
+WHEN 0 :quit%=TRUE
+WHEN 2 :PROCsave
+WHEN 3 :PROCdataload
+WHEN 5 :PROCquick_load
+WHEN 8 :PROCpre_quit
+WHEN 10 : PROCsave_desktop
+WHEN &502 :PROChelp
+WHEN &400C1 :PROCget_mode_vars
+ENDCASE
+ENDPROC
+:
+DEF PROCaddval(opp%)
+IF opp%<>0 AND select%=0 err%=FNwarning(mess$,FNdecode_message("Sel4",w$()),"OK",1,"",0,"",0):ENDPROC
+LOCAL push%,text$,credit%,payment%
+IF opp%<>3 AND entries%>1000 err%=FNwarning(mess$,FNdecode_message("Val2",w$()),"OK",1,"",0,"",0):ENDPROC
+IF FNicon_state(enter%,0) THEN
+text$=$string%
+credit%=FNval($cred%)
+payment%=FNval($pay%)
+ELSE
+text$=$clip_string%
+credit%=FNval($clip_cred%)
+payment%=FNval($clip_pay%)
+ENDIF
+inc%=FALSE
+CASE opp% OF
+WHEN 3
+IF select%<>0 THEN
+text$(select%)=text$
+credit%(select%)=credit%
+payment%(select%)=payment%
+ENDIF
+WHEN 0
+text$(entries%)=text$
+credit%(entries%)=credit%
+payment%(entries%)=payment%
+entries%+=1
+WHEN 1,2
+SYS "Hourglass_On"
+IF opp%=2 THEN
+FOR push%=entries%+2 TO select%+2 STEP -1
+text$(push%)=text$(push%-1)
+credit%(push%)=credit%(push%-1)
+payment%(push%)=payment%(push%-1)
+balance%(push%)=balance%(push%-1)
+NEXT
+text$(select%+1)=text$
+credit%(select%+1)=credit%
+payment%(select%+1)=payment%
+entries%+=1
+ELSE
+IF select%<>0 THEN
+FOR push%=entries%+2 TO select% STEP -1
+text$(push%)=text$(push%-1)
+credit%(push%)=credit%(push%-1)
+payment%(push%)=payment%(push%-1)
+balance%(push%)=balance%(push%-1)
+NEXT
+text$(select%)=text$
+credit%(select%)=credit%
+payment%(select%)=payment%
+entries%+=1
+select%+=1
+ENDIF
+ENDIF
+SYS "Hourglass_Off"
+ENDCASE
+PROCrecalc
+CASE opp% OF
+WHEN 0 :PROCredraw_line(entries%-1)
+WHEN 1 :PROCredraw_from(select%-1)
+WHEN 2 :PROCredraw_from(select%+1)
+WHEN 3 :PROCredraw_from(select%)
+OTHERWISE
+PROCredraw_main
+ENDCASE
+PROCupdate_tools(select%)
+PROCredraw_enter
+modified%=TRUE
+PROCupdate_title
+PROCset_extent(0)
+IF opp%=0 THENPROCpage_end
+ENDPROC
+:
+DEF PROCdelete
+IF select%=0 err%=FNwarning(mess$,FNdecode_message("Sel0",w$()),"OK",1,"",0,"",0):ENDPROC
+LOCAL push%
+w$(0)=STR$(select%)
+err%=FNwarning(warn$,FNdecode_message("OK1",w$()),"Delete",1,"Cancel",0,"",0)
+IF err%=1 ENDPROC
+SYS "Hourglass_On"
+FOR push%=select% TO entries%-2
+text$(push%)=text$(push%+1)
+credit%(push%)=credit%(push%+1)
+payment%(push%)=payment%(push%+1)
+balance%(push%)=balance%(push%+1)
+NEXT
+text$(entries%-1)=""
+credit%(entries%-1)=0
+payment%(entries%-1)=0
+balance%(entries%-1)=0
+entries%-=1
+SYS "Hourglass_Off"
+PROCrecalc
+entries%+=1
+PROCredraw_from(select%)
+entries%-=1
+modified%=TRUE
+PROCupdate_title
+PROCupdate_tools(select%)
+PROCredraw_enter
+PROCclear_select
+PROCset_extent(0)
+ENDPROC
+:
+DEF PROCremove
+IF select%=0 err%=FNwarning(mess$,FNdecode_message("Sel1",w$()),"OK",1,"",0,"",0):ENDPROC
+w$(0)=STR$(select%)
+err%=FNwarning(warn$,FNdecode_message("OK2",w$()),"Remove",1,"Cancel",0,"",0)
+IF err%=1 ENDPROC
+LOCAL push%
+SYS "Hourglass_On"
+balance%(0)=balance%(select%)
+FOR push%=select%+1 TO entries%-1
+text$(push%-select%)=text$(push%)
+credit%(push%-select%)=credit%(push%)
+payment%(push%-select%)=payment%(push%)
+balance%(push%-select%)=balance%(push%)
+NEXT
+FOR push%=entries%-select% TO entries%-1
+text$(push%)=""
+credit%(push%)=0
+payment%(push%)=0
+balance%(push%)=0
+NEXT
+entries%-=select%
+SYS "Hourglass_Off"
+PROCclear_select
+PROCrecalc
+PROCredraw_main
+modified%=TRUE
+PROCupdate_title
+PROCupdate_tools(select%)
+PROCredraw_enter
+PROCpage_home
+PROCset_extent(0)
+ENDPROC
+:
+DEF PROCcut
+IF select%=0 err%=FNwarning(mess$,FNdecode_message("Sel2",w$()),"OK",1,"",0,"",0):ENDPROC
+LOCAL push%
+$clip_string%=text$(select%)
+$clip_cred%=FNpoint(credit%(select%))
+$clip_pay%=FNpoint(payment%(select%))
+SYS "Hourglass_On"
+FOR push%= select% TO entries%-2
+text$(push%)=text$(push%+1)
+credit%(push%)=credit%(push%+1)
+payment%(push%)=payment%(push%+1)
+balance%(push%)=balance%(push%+1)
+NEXT
+SYS "Hourglass_Off"
+text$(entries%-1)=""
+credit%(entries%-1)=0
+payment%(entries%-1)=0
+balance%(entries%-1)=0
+entries%-=1
+IF select%=entries% select%-=1
+modified%=TRUE
+PROCrecalc
+IF set_clip% THEN
+PROCset_icon_state(enter%,0,0,0,0)
+PROCset_icon_state(enter%,1,1,0,0)
+ENDIF
+PROCupdate_tools(select%)
+PROCupdate_title
+PROCredraw_enter
+entries%+=1
+PROCredraw_from(select%)
+entries%-=1
+PROCclear_select
+PROCset_extent(0)
+ENDPROC
+:
+DEF PROCcopy
+IF select%=0 err%=FNwarning(mess$,FNdecode_message("Sel3",w$()),"OK",1,"",0,"",0):ENDPROC
+$clip_string%=text$(select%)
+$clip_cred%=FNpoint(credit%(select%))
+$clip_pay%=FNpoint(payment%(select%))
+IF set_clip% THEN
+PROCset_icon_state(enter%,0,0,0,0)
+PROCset_icon_state(enter%,1,1,0,0)
+ENDIF
+PROCredraw_enter
+ENDPROC
+:
+DEF PROCcurrent
+$clip_string%=$string%
+$clip_cred%=$cred%
+$clip_pay%=$pay%
+PROCredraw_enter
+ENDPROC
+:
+DEF PROCnew_header
+balance%(0)=FNval($header%)
+PROCrecalc
+PROCredraw_from(1)
+PROCupdate_tools(select%)
+PROCredraw_enter
+PROCdisplay_menu(-1,0,0)
+ENDPROC
+:
+DEF PROCselect(my%)
+LOCAL into%,yoff%,row%,o%
+!b%=main%
+SYS "Wimp_GetWindowState",,b%
+yoff%=-b%!24
+into%=b%!16-my%
+IF FNmenu_state(mmenu%,8) THENinto%-=100
+row%=((yoff%+into%-12) DIV 32)
+IF row%>=entries% OR row%=0 ENDPROC
+o%=select%
+select%=row%
+PROCredraw_line(o%)
+PROCredraw_line(select%)
+PROCupdate_tools(select%)
+PROCupdate_menu
+PROCredraw_enter
+ENDPROC
+:
+DEF PROCkey_select
+LOCAL val%,o%
+val%=VAL($selctline%)
+IF val%<1 OR val%>=entries% THENerr%=FNwarning(mess$,FNdecode_message("Sel5",w$()),"OK",1,"",0,"",0) :ENDPROC
+o%=select%
+select%=val%
+PROCredraw_line(o%)
+PROCredraw_line(select%)
+PROCupdate_tools(select%)
+PROCupdate_menu
+PROCredraw_enter
+PROCdisplay_menu(-1,0,0)
+$selctline%=""
+ENDPROC
+:
+DEF PROCclear_select
+LOCAL o%
+o%=select%
+select%=0
+PROCredraw_line(o%)
+PROCupdate_tools(select%)
+PROCredraw_enter
+PROCupdate_menu
+ENDPROC
+:
+DEF PROCclip_clear
+$clip_string%=""
+$clip_cred%="0.00"
+$clip_pay%="0.00"
+PROCupdate_tools(select%)
+PROCredraw_enter
+PROCset_icon_state(enter%,0,1,0,0)
+PROCset_icon_state(enter%,1,0,0,0)
+ENDPROC
+:
+DEF PROCclear
+err%=0
+IF modified% err%=FNwarning(warn$,FNdecode_message("OK3",w$()),"Clear",1,"Cancel",0,"",0)
+IF err%=1 ENDPROC
+text$()=""
+credit%()=0
+payment%()=0
+balance%()=0
+entries%=1
+select%=0
+$file%="Account"
+$tfile%="TextFile"
+$cfile%="CSVFile"
+$string%=""
+$cred%="0.00"
+$pay%="0.00"
+modified%=FALSE
+PROCupdate_tools(select%)
+PROCupdate_menu
+PROCupdate_title
+PROCpage_home
+PROCset_extent(TRUE)
+PROCredraw_main
+PROCredraw_enter
+ENDPROC
+:
+DEF PROCrecalc
+LOCAL calc%
+SYS "Hourglass_On"
+FOR calc%=1 TO entries%-1
+balance%(calc%)=balance%(calc%-1)+credit%(calc%)-payment%(calc%)
+NEXT
+SYS "Hourglass_Off"
+PROCcheck_size
+ENDPROC
+:
+DEF PROCcheck_size
+IF balance%(entries%-1)>2000000000 THEN
+err%=FNwarning(mess$,FNdecode_message("Val0",w$()),"OK",1,"",0,"",0)
+entries%-=1
+text$(entries%)=""
+credit%(entries%)=0
+payment%(entries%)=0
+balance%(entries%)=0
+ENDIF
+IF balance%(entries%-1)<-2000000000 THEN
+err%=FNwarning(mess$,FNdecode_message("Val1",w$()),"OK",1,"",0,"",0)
+entries%-=1
+text$(entries%)=""
+credit%(entries%)=0
+payment%(entries%)=0
+balance%(entries%)=0
+ENDIF
+ENDPROC
+:
+DEF PROCredraw
+LOCAL left%,lmargin%,right%,top%,base%,visible%,relleft%,tool%,ts%
+IF FNmenu_state(mmenu%,8) tool%=4 :ts%=3 ELSEtool%=0 :ts%=0
+SYS "Hourglass_On"
+SYS "Wimp_RedrawWindow",,b% TO more%
+ox%=b%!4-b%!20
+oy%=b%!16-b%!24
+WHILE more%
+top%=((oy%-b%!40) DIV 32)-1
+IF top%<0 top%=0
+base%=(58+oy%-b%!32) DIV 32
+left%=(ox%+b%!28) DIV 16
+relleft%=(b%!28-ox%) DIV 16
+IF left%<0 left%=0
+IF relleft%<0 relleft%=0
+right%=((ox%+b%!36) DIV 16)+1
+visible%=((b%!36-b%!28) DIV 16)+2
+i%=top%
+font_l%=relleft%<<4
+font_v%=visible%<<4
+WHILE i%<=max%+3 AND i%<=base%
+IF i%-ts%=select% AND i%-ts%<>0 THEN
+SYS "Wimp_SetColour",colour_selection%
+RECTANGLE FILL ox%,oy%-((i%)<<5)-40-tool%,1236,28
+ELSE
+IF balance%(i%-ts%)<0 THEN
+SYS "Wimp_SetColour",colour_overdrawn%
+RECTANGLE FILL ox%+962,oy%-((i%)<<5)-40-tool%,272,28
+ENDIF
+ENDIF
+IF i%-ts%=select% AND i%-ts%<>0 THEN
+IF use_font% THEN
+SYS "Wimp_SetFontColours",,colour_selection%,FNinverse_colour(colour_selection%)
+ELSE
+SYS "Wimp_SetColour",FNinverse_colour(colour_selection%)
+ENDIF
+ELSE
+IF use_font% THEN
+SYS "Wimp_SetFontColours",,1,colour_numbers%
+ELSE
+SYS "Wimp_SetColour",colour_numbers%
+ENDIF
+ENDIF
+IF relleft%<5 THEN
+IF use_font% THEN
+IF i%-ts%>0 AND relleft%<5 THEN
+SYS "Font_SetFont",disp_font%
+SYS "Font_Paint",,STR$(i%-ts%),16,ox%+74-FNtext_len(STR$(i%-ts%)),oy%-(i%<<5)-32-tool%
+ENDIF
+ELSE
+MOVE ox%,oy%-(i%<<5)-12-tool%
+IF i%-ts%>0 THEN
+PRINT;FNtext(STR$(i%-ts%),4,FALSE)
+ENDIF
+ENDIF
+ENDIF
+IF i%-ts%>=entries% THEN
+IF use_font% THEN
+SYS "Wimp_SetFontColours",,1,colour_unused%
+ELSE
+SYS "Wimp_SetColour",colour_unused%
+ENDIF
+ELSE
+IF i%-ts%=select% AND i%<>0 THEN
+IF use_font% THEN
+SYS "Wimp_SetFontColours",,colour_selection%,FNinverse_colour(colour_selection%)
+ELSE
+SYS "Wimp_SetColour",FNinverse_colour(colour_selection%)
+ENDIF
+ELSE
+IF use_font% THEN
+SYS "Wimp_SetFontColours",,1,colour_entries%
+ELSE
+SYS "Wimp_SetColour",colour_entries%
+ENDIF
+ENDIF
+ENDIF
+IF use_font% THEN
+IF i%-ts%>0 THEN
+SYS "Font_SetFont",disp_font%
+IF (font_l%<100 AND font_l%+font_v%>100) OR (font_l%>100 AND font_l%<490) THEN
+SYS "Font_Paint",,text$(i%-ts%),16,ox%+100,oy%-(i%<<5)-32-tool%
+ENDIF
+IF (font_l%<490 AND font_l%+font_v%>490) OR (font_l%>490 AND font_l%<686) THEN
+text$=FNpoint(credit%(i%-ts%))
+SYS "Font_Paint",,text$,16,ox%+686-FNtext_len(text$),oy%-(i%<<5)-32-tool%
+ENDIF
+IF (font_l%<686 AND font_l%+font_v%>686) OR (font_l%>686 AND font_l%<958) THEN
+text$=FNpoint(payment%(i%-ts%))
+SYS "Font_Paint",,text$,16,ox%+958-FNtext_len(text$),oy%-(i%<<5)-32-tool%
+ENDIF
+IF (font_l%<958 AND font_l%+font_v%>958) OR (font_l%>958 AND font_l%<1230) THEN
+IF balance%(i%-ts%)<0 THEN
+IF i%-ts%=select% THEN
+SYS"Wimp_SetFontColours",,colour_selection%,colour_overdrawn%
+ELSE
+SYS"Wimp_SetFontColours",,colour_overdrawn%,colour_entries%
+ENDIF
+ENDIF
+text$=FNpoint(balance%(i%-ts%))
+SYS "Font_Paint",,text$,16,ox%+1230-FNtext_len(text$),oy%-(i%<<5)-32-tool%
+ENDIF
+ENDIF
+ELSE
+IF i%-ts%>0 THEN
+line$=FNtext(text$(i%-ts%),20,TRUE)+"  "+FNtext(FNpoint(credit%(i%-ts%)),15,FALSE)+"  "+FNtext(FNpoint(payment%(i%-ts%)),15,FALSE)+"  "+FNtext(FNpoint(balance%(i%-ts%)),15,FALSE)
+ELSE
+line$=STRING$(80," ")
+ENDIF
+IF relleft%<6 THEN lmargin%=6 ELSE lmargin%=relleft%
+MOVE ox%+(lmargin%<<4),oy%-(i%<<5)-12-tool%
+PRINT;MID$(line$,lmargin%-5,visible%)
+ENDIF
+i%+=1
+ENDWHILE
+SYS "Wimp_GetRectangle",,b% TO more%
+ENDWHILE
+SYS "Hourglass_Off"
+ENDPROC
+:
+DEF PROCset_extent(reset%)
+LOCAL size%
+!b%=0
+size%=(entries%-1)*-32
+IF size%>=-480 THENsize%=-480
+size%-=40
+IF FNmenu_state(mmenu%,8) size%-=100
+b%!4=size%
+b%!8=1234
+b%!12=0
+SYS "Wimp_SetExtent",main%,b%
+!b%=main%
+SYS "Wimp_GetWindowState",,b%
+IF reset% THEN
+b%!8=b%!16-520
+IF FNmenu_state(mmenu%,8) THENb%!8=b%!8-100
+ENDIF
+SYS "Wimp_OpenWindow",,b%
+PROCopen_window(main%)
+ENDPROC
+:
+DEF FNinverse_colour(c%)
+IF c%<8 THEN=7-c%
+IF c%>7 THEN=15-(c%-8)
+:
+DEF FNtext_len(t$)
+SYS "Font_Converttopoints",,1280,40 TO ,xpts%,ypts%
+SYS "Font_StringWidth",,t$,xpts%,ypts%,32,LEN(t$)+1 TO ,,xopt%,yopt%
+SYS "Font_ConverttoOS",,xopt%,yopt% TO ,xo%
+=xo%
+:
+DEF PROCredraw_line(line%)
+y1%=-((line%+1)<<5)-8
+y2%=-((line%)<<5)-8
+IF FNmenu_state(mmenu%,8) THENy1%-=100 :y2%-=100
+SYS "Wimp_ForceRedraw",main%,0,y1%,1236,y2%
+ENDPROC
+:
+DEF PROCredraw_main
+LOCAL wth%,hht%
+!b%=main%
+SYS "Wimp_GetWindowState",,b%
+wth%=b%!12-b%!4
+hht%=b%!16-b%!8
+SYS "Wimp_ForceRedraw",main%,b%!20,b%!24-hht%,b%!20+wth%,b%!24
+ENDPROC
+:
+DEF PROCredraw_enter
+SYS "Wimp_ForceRedraw",enter%,234,-100,624,-52
+SYS "Wimp_ForceRedraw",enter%,234,-172,624,-124
+SYS "Wimp_ForceRedraw",enter%,652,-100,862,-52
+SYS "Wimp_ForceRedraw",enter%,652,-172,862,-124
+SYS "Wimp_ForceRedraw",enter%,890,-100,1100,-52
+SYS "Wimp_ForceRedraw",enter%,890,-172,1100,-124
+SYS "Wimp_ForceRedraw",enter%,1118,-100,1180,-52
+SYS "Wimp_ForceRedraw",enter%,1118,-172,1180,-124
+ENDPROC
+:
+DEF PROCredraw_from(line%)
+LOCAL wth%,top%,base%
+top%=-((line%)<<5)-8
+base%=-((entries%)<<5)-8
+!b%=main%
+SYS "Wimp_GetWindowState",,b%
+IF FNmenu_state(mmenu%,8) THENtop%-=100 :base%-=100
+wth%=b%!12-b%!4
+SYS "Wimp_ForceRedraw",main%,b%!20,base%,b%!20+wth%,top%
+ENDPROC
+:
+DEF PROCupdate_title
+IF $file%<>"Account" THEN
+IF modified% $title%=$file%+" *" ELSE$title%=$file%
+$fileinf_name%=$file%
+ELSE
+IF modified% $title%="<Untitled> *" ELSE$title%="<Untitled>"
+$fileinf_name%="<Untitled>"
+ENDIF
+IF modified% THEN
+$safe%="Yes"
+ELSE
+$safe%="No"
+ENDIF
+!b%=main%
+SYS "Wimp_GetWindowState",,b%
+SYS "Wimp_ForceRedraw",-1,b%!4,b%!16,b%!12,b%!16+54
+ENDPROC
+:
+DEF PROCupdate_tools(no%)
+LOCAL size%
+$string%=text$(no%)
+$cred%=FNpoint(credit%(no%))
+$pay%=FNpoint(payment%(no%))
+$filesize%=STR$(entries%-1)
+$header%=FNpoint(balance%(0))
+$text2%=STR$(entries%-1)
+$csv2%=STR$(entries%-1)
+$print2%=STR$(entries%-1)
+size%=entries%*15
+size%+=entries%*2
+size%+=SUMLEN(text$())
+IF size%<10240 THEN
+$units%="bytes"
+ELSE
+$units%="K"
+size%=(size% DIV 1024)+1
+ENDIF
+$bfilesize%=STR$(size%)
+IF modified% THEN
+$safe%="Yes"
+ELSE
+$safe%="No"
+ENDIF
+SYS "Wimp_GetCaretPosition",,b%
+IF !b%=enter% THENPROCplace_caret(!b%,b%!4,b%!20)
+ENDPROC
+:
+DEF PROCupdate_menu
+IF select%=0 THEN
+PROCset_menu_state(cmenu%,0,0,1)
+PROCset_menu_state(cmenu%,1,0,1)
+PROCset_menu_state(emenu%,1,0,1)
+PROCset_menu_state(emenu%,2,0,1)
+PROCset_menu_state(smenu%,1,0,1)
+PROCset_menu_state(smenu%,2,0,1)
+PROCset_menu_state(smenu%,3,0,1)
+PROCset_menu_state(smenu%,4,0,1)
+PROCset_icon_state(tools%,1,0,1,0)
+PROCset_icon_state(tools%,2,0,1,0)
+PROCset_icon_state(tools%,3,0,1,0)
+PROCset_icon_state(tools%,4,0,1,0)
+PROCset_icon_state(pane%,2,0,1,0)
+PROCset_icon_state(pane%,3,0,1,0)
+PROCset_icon_state(pane%,4,0,1,0)
+PROCset_icon_state(pane%,5,0,1,0)
+PROCset_icon_state(pane%,6,0,1,0)
+PROCset_icon_state(pane%,7,0,1,0)
+PROCset_icon_state(pane%,8,0,1,0)
+PROCset_icon_state(pane%,12,0,1,0)
+ELSE
+PROCset_menu_state(cmenu%,0,0,0)
+PROCset_menu_state(cmenu%,1,0,0)
+PROCset_menu_state(emenu%,1,0,0)
+PROCset_menu_state(emenu%,2,0,0)
+PROCset_menu_state(smenu%,1,0,0)
+PROCset_menu_state(smenu%,2,0,0)
+PROCset_menu_state(smenu%,3,0,0)
+PROCset_menu_state(smenu%,4,0,0)
+PROCset_icon_state(tools%,1,0,0,0)
+PROCset_icon_state(tools%,2,0,0,0)
+PROCset_icon_state(tools%,3,0,0,0)
+PROCset_icon_state(tools%,4,0,0,0)
+PROCset_icon_state(pane%,2,0,0,0)
+PROCset_icon_state(pane%,3,0,0,0)
+PROCset_icon_state(pane%,4,0,0,0)
+PROCset_icon_state(pane%,5,0,0,0)
+PROCset_icon_state(pane%,6,0,0,0)
+PROCset_icon_state(pane%,7,0,0,0)
+PROCset_icon_state(pane%,8,0,0,0)
+PROCset_icon_state(pane%,12,0,0,0)
+ENDIF
+ENDPROC
+:
+DEF FNtext(t$,field%,left%)
+LOCAL len%,pad%
+len%=LENt$
+IF len%>field% t$=LEFT$(t$,field%)
+pad%=field%-len%
+IF left% THEN
+t$=t$+STRING$(pad%," ")
+ELSE
+t$=STRING$(pad%," ")+t$
+ENDIF
+=t$
+:
+DEF FNpoint(val%)
+LOCAL len%,val$
+val$=STR$val%
+len%=LENval$
+CASE len% OF
+WHEN 1 :val$="0.0"+val$
+WHEN 2 :val$="0."+val$
+OTHERWISE
+val$=LEFT$(val$,LENval$-2)+"."+RIGHT$(val$,2)
+ENDCASE
+=val$
+:
+DEF FNval(s$)
+LOCAL point%,out$
+point%=INSTR(s$,".")
+IF point%<>0 THEN
+out$=LEFT$(s$,point%-1)+MID$(s$,point%+1)
+ELSE
+out$=s$+"00"
+ENDIF
+=VALout$
+:
+DEF PROCfind(opt%,all%,rep%)
+LOCAL search$,text$,done%,found%,flag%,o%
+PROCdisplay_menu(-1,0,0)
+PROCclose_window(foundw%)
+done%=FALSE :flag%=FALSE
+IF entries%=1 err%=FNwarning(mess$,FNdecode_message("Fin1",w$()),"OK",1,"",0,"",0) :ENDPROC
+IF rep% THEN
+IF insert_replace% THEN
+text$(findno%)=LEFT$(LEFT$(text$(findno%),replace_pos%-1)+$replacetext%+MID$(text$(findno%),replace_pos%+replace_len%),20)
+ELSE
+text$(findno%)=LEFT$($replacetext%,20)
+ENDIF
+modified%=TRUE
+PROCupdate_title
+ENDIF
+IF all% THENfindno%-=1
+search$=$findtext%
+IF FNicon_state(find%,2)=0 search$=FNupper(search$)
+found%=FALSE
+IF opt% THENfindno%=0
+IF findno%>=entries%-1 THEN
+$foundtext%=FNdecode_message("Fin2",w$())
+$foundline%="-"
+PROCshade_button(foundw%,4)
+PROCshade_button(foundw%,6)
+PROCshade_button(foundw%,7)
+PROCopen_at(foundw%,(width%/2)-334,456)
+o%=select%
+select%=0
+PROCredraw_line(o%)
+ENDIF
+IF findno%>=entries%-1 ENDPROC
+SYS "Hourglass_On"
+IF FNicon_state(find%,3) THEN
+REPEAT
+findno%+=1
+text$=text$(findno%)
+IF FNicon_state(find%,2)=0 text$=FNupper(text$)
+IF INSTR(text$,search$) THEN
+IF NOT all% THENfound%=TRUE
+replace_pos%=INSTR(text$,search$)
+replace_len%=LEN(search$)
+insert_replace%=TRUE
+IF all% THEN
+text$(findno%)=LEFT$(LEFT$(text$(findno%),replace_pos%-1)+$replacetext%+MID$(text$(findno%),replace_pos%+replace_len%),20)
+flag%=TRUE
+IF NOT done% THEN
+done%=TRUE
+modified%=TRUE
+PROCupdate_title
+ENDIF
+ENDIF
+ENDIF
+UNTIL findno%>=entries%-1 OR found%
+ELSE
+REPEAT
+findno%+=1
+text$=text$(findno%)
+IF FNicon_state(find%,2)=0 text$=FNupper(text$)
+IF text$=search$ THEN
+IF NOT all% THENfound%=TRUE
+insert_replace%=FALSE
+IF all% THEN
+text$(findno%)=LEFT$($replacetext%,20)
+flag%=TRUE
+IF NOT done% THEN
+done%=TRUE
+modified%=TRUE
+PROCupdate_title
+ENDIF
+ENDIF
+ENDIF
+UNTIL findno%>=entries%-1 OR found%
+ENDIF
+SYS "Hourglass_Off"
+IF found% THEN
+o%=select%
+select%=findno%
+IF o%<>0 PROCredraw_line(o%)
+PROCupdate_tools(select%)
+PROCredraw_enter
+$gotoline%=STR$(findno%)
+PROCgoto
+$foundtext%=text$(findno%)
+$foundline%=STR$(findno%)
+PROCopen_at(foundw%,(width%/2)-334,456)
+PROCredraw_line(select%)
+ELSE
+IF NOT all% THEN
+IF opt% THEN
+w$(0)=$findtext%
+err%=FNwarning(mess$,FNdecode_message("Fin0",w$()),"OK",1,"",0,"",0)
+PROCpage_home
+ELSE
+$foundtext%=FNdecode_message("Fin2",w$())
+$foundline%="-"
+PROCshade_button(foundw%,4)
+PROCshade_button(foundw%,6)
+PROCshade_button(foundw%,7)
+PROCopen_at(foundw%,(width%/2)-334,456)
+o%=select%
+select%=0
+PROCredraw_line(o%)
+ENDIF
+ELSE
+PROCpage_home
+IF NOT flag% THENw$(0)=$findtext% :err%=FNwarning(mess$,FNdecode_message("Fin0",w$()),"OK",1,"",0,"",0)
+ENDIF
+ENDIF
+IF all% THENPROCredraw_main
+ENDPROC
+:
+DEF FNupper(s$)
+LOCAL t$,z$,switch%
+FOR switch%=1 TO LEN(s$)
+z$=MID$(s$,switch%,1)
+IF ASC(z$)>=97 AND ASC(z$)<=122 THENz$=CHR$(ASC(z$)-32)
+t$+=z$
+NEXT switch%
+=t$
+:
+DEF PROCgoto
+LOCAL line%,offset%
+line%=VAL($gotoline%)
+IF line%>1000 line%=1000
+offset%=-32*(line%-1)
+IF FNmenu_state(mmenu%,8) THENoffset%-=0
+!b%=main%
+SYS "Wimp_GetWindowState",,b%
+b%!24=offset%
+SYS "Wimp_OpenWindow",,b%
+$gotoline%=""
+PROCdisplay_menu(-1,0,0)
+ENDPROC
+:
+DEF PROCgoto_selection
+LOCAL line%,offset%
+line%=select%
+IF line%>1000 line%=1000
+offset%=-32*(line%-1)
+IF FNmenu_state(mmenu%,8) THENoffset%-=0
+!b%=main%
+SYS "Wimp_GetWindowState",,b%
+b%!24=offset%
+SYS "Wimp_OpenWindow",,b%
+$gotoline%=""
+PROCdisplay_menu(-1,0,0)
+ENDPROC
+:
+DEF PROCpage_up
+LOCAL offset%,yh%
+!b%=main%
+SYS "Wimp_GetWindowState",,b%
+yh%=(b%!16-b%!8)-40
+IF FNmenu_state(mmenu%,8) THENyh%-=68
+IF yh% MOD 32<>0 THENyh%-=(yh% MOD 32)
+offset%=b%!24
+offset%+=yh%
+IF offset%>0 offest%=0
+b%!24=offset%
+SYS "Wimp_OpenWindow",,b%
+ENDPROC
+:
+DEF PROCpage_down
+LOCAL offset%,yh%
+!b%=main%
+SYS "Wimp_GetWindowState",,b%
+yh%=(b%!16-b%!8)-40
+IF FNmenu_state(mmenu%,8) THENyh%-=68
+IF yh% MOD 32<>0 THENyh%-=(yh% MOD 32)
+offset%=b%!24
+offset%-=yh%
+IF offset%<-31520 offest%=-31520
+b%!24=offset%
+SYS "Wimp_OpenWindow",,b%
+ENDPROC
+:
+DEF PROCpage_home
+!q%=main%
+SYS "Wimp_GetWindowState",,q%
+q%!24=0
+SYS "Wimp_OpenWindow",,q%
+ENDPROC
+:
+DEF PROCpage_end
+!b%=main%
+SYS "Wimp_GetWindowState",,b%
+b%!24=(entries%-2)*-32
+SYS "Wimp_OpenWindow",,b%
+ENDPROC
+:
+DEF PROCline_up
+LOCAL offset%
+!b%=main%
+SYS "Wimp_GetWindowState",,b%
+offset%=b%!24
+offset%+=32
+IF offset%>0 offest%=0
+b%!24=offset%
+SYS "Wimp_OpenWindow",,b%
+ENDPROC
+:
+DEF PROCline_down
+LOCAL offset%
+!b%=main%
+SYS "Wimp_GetWindowState",,b%
+offset%=b%!24
+offset%-=32
+IF offset%<-31520 offest%=-31520
+b%!24=offset%
+SYS "Wimp_OpenWindow",,b%
+ENDPROC
+:
+DEF PROCinit_load(file$)
+b%!40=account_file%
+$(b%+44)=file$+CHR$0
+b%!20=-2
+PROCdataload
+ENDPROC
+:
+DEF PROCquick_load
+IF b%!40<>account_file% ENDPROC
+b%!12=b%!8
+b%!16=4
+SYS "Wimp_SendMessage",17,b%,b%!4
+b%!20=-2
+PROCdataload
+ENDPROC
+:
+DEF PROCdataload
+LOCAL tf$,csv%
+csv%=FALSE
+IF b%!20<>-2 AND b%!20<>main% THENENDPROC
+IF b%!40<>account_file% AND b%!40<>csv_file% err%=FNreport(255,FNdecode_message("Fil2",w$()),1,app$,1,0):ENDPROC
+IF b%!20=main% AND b%!40=csv_file% THENerr%=FNwarning(mess$,FNdecode_message("Fil4",w$()),"OK",1,"",0,"",0):ENDPROC
+tf$=FNstring(b%+44)
+IF b%!20=main% THENPROCopen_merge_window :mergef$=tf$ :ENDPROC
+err%=0
+IF b%!40=csv_file% THENcsv%=TRUE
+IF modified% THENerr%=FNwarning(warn$,FNdecode_message("OK4",w$()),"Load",1,"Cancel",0,"",0)
+IF err%=1 THENENDPROC
+text$()=""
+credit%()=0
+payment%()=0
+balance%()=0
+entries%=1
+select%=0
+$file%="Account"
+$string%=""
+$cred%="0.00"
+$pay%="0.00"
+modified%=FALSE
+PROCupdate_tools(select%)
+PROCupdate_title
+!q%=main%
+SYS "Wimp_GetWindowState",,q%
+IF (q%!32 AND (1<<16)) THENPROCpage_home
+PROCredraw_main
+ENDIF
+PROCredraw_enter
+IF csv% THENPROCopen_as_menu(loadcsv%) :csvf$=tf$ :ENDPROC
+file$=tf$
+c%=-1
+SYS "Hourglass_On"
+i%=OPENIN(file$)
+REPEAT
+c%+=1
+INPUT#i%,text$(c%)
+INPUT#i%,credit%(c%)
+INPUT#i%,payment%(c%)
+INPUT#i%,balance%(c%)
+UNTIL EOF#i%
+CLOSE#i%
+SYS "Hourglass_Off"
+$file%=file$
+entries%=c%+1
+modified%=FALSE
+PROCupdate_title
+PROCupdate_tools(select%)
+!b%=main%
+SYS "Wimp_GetWindowState",,b%
+PROCopen_window(main%)
+PROCset_extent(TRUE)
+PROCredraw_main
+!b%=enter%
+SYS "Wimp_GetWindowState",,b%
+IF FNmenu_state(mmenu%,7) THEN
+PROCopen_window(enter%)
+PROCend_caret(enter%,6)
+ENDIF
+IF FNmenu_state(mmenu%,6) PROCopen_window(tools%)
+PROCset_icon_state(enter%,0,1,0,0)
+PROCset_icon_state(enter%,1,0,0,0)
+ENDPROC
+:
+DEF PROCopen_merge_window
+IF select%<>0 THEN
+PROCclear_button(merge%,2)
+PROCclear_button(merge%,3)
+ELSE
+PROCshade_button(merge%,2)
+PROCshade_button(merge%,3)
+ENDIF
+PROCopen_as_menu(merge%)
+ENDPROC
+:
+DEF PROCmerge_files(method%)
+LOCAL finished%,s$,s%,c%,push%
+finished%=TRUE
+SYS "Hourglass_On"
+i%=OPENIN(mergef$)
+INPUT#i%,s$
+INPUT#i%,s%
+INPUT#i%,s%
+INPUT#i%,s%
+CASE method% OF
+WHEN 0
+REPEAT
+INPUT#i%,text$(entries%)
+INPUT#i%,credit%(entries%)
+INPUT#i%,payment%(entries%)
+INPUT#i%,balance%(entries%)
+entries%+=1
+UNTIL EOF#i% OR entries%>max%
+WHEN 1,2
+c%=select%
+IF method%=2 THENc%+=1
+REPEAT
+FOR push%=entries% TO c%+1 STEP -1
+text$(push%)=text$(push%-1)
+credit%(push%)=credit%(push%-1)
+payment%(push%)=payment%(push%-1)
+balance%(push%)=balance%(push%-1)
+NEXT push%
+INPUT#i%,text$(c%)
+INPUT#i%,credit%(c%)
+INPUT#i%,payment%(c%)
+INPUT#i%,balance%(c%)
+entries%+=1 :c%+=1
+UNTIL EOF#i% OR entries%>max%
+ENDCASE
+IF NOT EOF#i% THENfinished%=FALSE
+CLOSE#i%
+SYS "Hourglass_Off"
+IF NOT finished% THENerr%=FNwarning(mess$,FNdecode_message("Mer0",w$()),"OK",1,"",0,"",0)
+PROCrecalc
+PROCdisplay_menu(-1,0,0)
+modified%=TRUE
+PROCupdate_title
+PROCupdate_tools(select%)
+PROCredraw_main
+PROCset_extent(0)
+ENDPROC
+:
+DEF PROCcsv_columns(icon%,dir%)
+LOCAL val%
+CASE icon% OF
+WHEN 0 :val%=VAL(MID$($cl_desc%,8))
+WHEN 1 :val%=VAL(MID$($cl_cred%,8))
+WHEN 2 :val%=VAL(MID$($cl_pay%,8))
+ENDCASE
+IF val%>0 AND val%<100 val%+=dir%
+IF val%=0 THENval%=1
+IF val%=100 THENval%=100
+CASE icon% OF
+WHEN 0 :$cl_desc%="Column "+STR$(val%)
+PROCredraw_part(loadcsv%,282,-108,170,48)
+WHEN 1 :$cl_cred%="Column "+STR$(val%)
+PROCredraw_part(loadcsv%,282,-168,170,48)
+WHEN 2 :$cl_pay%="Column "+STR$(val%)
+PROCredraw_part(loadcsv%,282,-228,170,48)
+ENDCASE
+ENDPROC
+:
+DEF PROCcsv_load
+LOCAL finished%,s$,line$,d_off%,c_off%,p_off%,failed%
+finished%=TRUE :failed%=FALSE
+SYS "Hourglass_On"
+d_off%=VAL(MID$($cl_desc%,8))
+c_off%=VAL(MID$($cl_cred%,8))
+p_off%=VAL(MID$($cl_pay%,8))
+i%=OPENIN(csvf$)
+entries%=1
+REPEAT
+line$=GET$#i%
+IF LEFT$(line$,1)<>";" AND LEFT$(line$,1)<>"|" AND line$<>"" THEN
+text$(entries%)=LEFT$(FNcsv_field(line$,d_off%,failed%),20)
+credit%(entries%)=FNval(FNcsv_field(line$,c_off%,failed%))
+payment%(entries%)=FNval(FNcsv_field(line$,p_off%,failed%))
+entries%+=1
+ENDIF
+UNTIL EOF#i% OR entries%>max% OR failed%
+IF NOT EOF#i% AND NOT failed% THENfinished%=FALSE
+CLOSE#i%
+SYS "Hourglass_Off"
+IF NOT finished% THENerr%=FNwarning(mess$,FNdecode_message("Csv0",w$()),"OK",1,"",0,"",0)
+IF failed% THENerr%=FNwarning(mess$,FNdecode_message("Csv1",w$()),"OK",1,"",0,"",0)
+$file%=csvf$
+PROCrecalc
+modified%=FALSE
+PROCupdate_title
+PROCupdate_tools(select%)
+!b%=main%
+SYS "Wimp_GetWindowState",,b%
+PROCopen_window(main%)
+PROCredraw_main
+PROCset_extent(TRUE)
+!b%=enter%
+SYS "Wimp_GetWindowState",,b%
+IF FNmenu_state(mmenu%,7) THEN
+PROCopen_window(enter%)
+PROCend_caret(enter%,6)
+ENDIF
+IF FNmenu_state(mmenu%,6) PROCopen_window(tools%)
+PROCdisplay_menu(-1,0,0)
+ENDPROC
+:
+DEF FNcsv_field(s$,off%,RETURN e%)
+LOCAL in%,f%,len%
+f%=1 :in%=-1
+IF off%>1 THEN
+REPEAT
+in%=INSTR(s$,",",in%+1)
+f%+=1
+UNTIL f%=off% OR in%=0
+ENDIF
+len%=INSTR(s$,",",in%+1)-in%
+s$=MID$(s$,in%+1,len%-1)
+IF in%=0 AND f%<>1 e%=TRUE
+=s$
+:
+DEF PROCsave
+CASE savetype% OF
+WHEN account_file%
+$file%=FNstring(b%+44)
+PROCdatasave
+WHEN text_file%
+$tfile%=FNstring(b%+44)
+PROCtextsave
+WHEN csv_file%
+$cfile%=FNstring(b%+44)
+PROCcsvsave
+ENDCASE
+b%!12=b%!8
+b%!16=3 :!b%=256
+SYS "Wimp_SendMessage",18,b%,b%!20,b%!24
+ENDPROC
+ENDPROC
+:
+DEF FNstring(ptr%)
+LOCAL a$
+WHILE ?ptr%<>0
+a$+=CHR$(?ptr%):ptr%+=1
+ENDWHILE
+=a$
+:
+DEF PROCstart_save(len%,type%,text%)
+IF drag_stop%<>-1 SYS drag_stop%
+SYS "Wimp_GetPointerInfo",,q%
+q%!20=q%!12
+q%!24=q%!16
+q%!28=!q%
+q%!32=q%!4
+q%!36=len%
+!q%=64
+q%!12=0
+q%!16=1
+q%!40=type%
+$(q%+44)=FNgetleaf($text%)
+SYS "Wimp_SendMessage",18,q%,q%!20,q%!24
+ENDPROC
+:
+DEF FNgetleaf(a$)
+WHILE INSTR(a$,".")
+a$=MID$(a$,INSTR(a$,".")+1)
+ENDWHILE
+=a$+CHR$0
+:
+DEF PROCdrag_box(whan%)
+LOCAL ox%,oy%,spr$
+!q%=whan%
+SYS "Wimp_GetWindowState",,q%
+ox%=q%!4-q%!20
+oy%=q%!16-q%!24
+q%!4=0
+SYS "Wimp_GetIconState",,q%
+CASE whan% OF
+WHEN save% :spr$="file_1ac"
+WHEN text% :spr$="file_fff"
+WHEN csv% :spr$="file_dfe"
+ENDCASE
+q%!4=5
+q%!8=ox%+q%!8
+q%!12=oy%+q%!12
+q%!16=ox%+q%!16
+q%!20=oy%+q%!20
+q%!24=0
+q%!28=0
+q%!32=&7FFFFFFF
+q%!36=&7FFFFFFF
+IF drag_start%=-1 THEN
+SYS "Wimp_DragBox",,q%
+ELSE
+SYS drag_start%,%11000101,1,spr$,q%+8,q%+24
+ENDIF
+ENDPROC
+:
+DEF PROCquick_save(ptr%)
+IF INSTR($ptr%,".") THEN
+CASE ptr% OF
+WHEN file% :PROCdatasave
+WHEN tfile% :PROCtextsave
+WHEN cfile% :PROCcsvsave
+ENDCASE
+ELSE
+err%=FNreport(255,FNdecode_message("Fil0",w$()),1,app$,1,0)
+ENDIF
+ENDPROC
+:
+DEF PROCdatasave
+LOCAL c%
+SYS "Hourglass_On"
+o%=OPENOUT($file%)
+FOR c%=0 TO entries%-1
+PRINT#o%,text$(c%)
+PRINT#o%,credit%(c%)
+PRINT#o%,payment%(c%)
+PRINT#o%,balance%(c%)
+NEXT
+CLOSE#o%
+SYS "OS_File",&12,$file%,account_file%
+SYS "Hourglass_Off"
+modified%=FALSE
+PROCupdate_title
+PROCdisplay_menu(-1,0,0)
+ENDPROC
+:
+DEF PROCtextsave
+LOCAL c%,percent%
+IF VAL($text1%)=VAL($text2%) PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp0",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($text1%)>VAL($text2%) PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp1",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($text1%)>=entries% OR VAL($text2%)>=entries% PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp2",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($text1%)<=0 OR VAL($text2%)<=0 PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp3",w$()),"OK",1,"",1,"",0):ENDPROC
+SYS "Hourglass_On"
+o%=OPENOUT($tfile%)
+IF FNicon_state(text%,12) THEN
+BPUT#o%,"      "+FNtext("Date: "+LEFT$(TIME$,15),34,TRUE);
+BPUT#o%,FNtext("File: "+LEFT$(FNgetleaf($file%),LENFNgetleaf($file%)-1),32,FALSE)
+BPUT#o%," "
+ENDIF
+IF FNicon_state(text%,13) THEN
+BPUT#o%,FNtext("No.",4,FALSE)+"  ";
+BPUT#o%,FNtext("Description",20,TRUE)+"  ";
+BPUT#o%,FNtext("Credits",15,FALSE)+"  ";
+BPUT#o%,FNtext("Payments",15,FALSE)+"  ";
+BPUT#o%,FNtext("Balance",15,FALSE)+"  "
+ENDIF
+FOR c%=VAL($text1%) TO VAL($text2%)
+BPUT#o%,FNtext(STR$c%,4,FALSE)+"  ";
+BPUT#o%,FNtext(text$(c%),20,TRUE)+"  ";
+BPUT#o%,FNtext(FNpoint(credit%(c%)),15,FALSE)+"  ";
+BPUT#o%,FNtext(FNpoint(payment%(c%)),15,FALSE)+"  ";
+BPUT#o%,FNtext(FNpoint(balance%(c%)),15,FALSE)
+percent%=(c%-VAL($text1%))/(VAL($text2%)-VAL($text1%))*100
+SYS "Hourglass_Percentage",percent%
+NEXT
+CLOSE#o%
+SYS "OS_File",&12,$tfile%,text_file%
+SYS "Hourglass_Off"
+$tfile%="TextFile"
+PROCdisplay_menu(-1,0,0)
+ENDPROC
+:
+DEF PROCcsvsave
+LOCAL c%,percent%
+IF VAL($csv1%)=VAL($csv2%) PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp0",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($csv1%)>VAL($csv2%) PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp1",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($csv1%)>=entries% OR VAL($csv2%)>=entries% PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp2",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($csv1%)<=0 OR VAL($csv2%)<=0 PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp3",w$()),"OK",1,"",1,"",0):ENDPROC
+SYS "Hourglass_On"
+o%=OPENOUT($cfile%)
+IF FNicon_state(csv%,12) THEN
+BPUT#o%,"No.,";
+BPUT#o%,"Description,";
+BPUT#o%,"Credits,";
+BPUT#o%,"Payments,";
+BPUT#o%,"Balance"
+ENDIF
+FOR c%=VAL($csv1%) TO VAL($csv2%)
+BPUT#o%,STR$(c%)+",";
+BPUT#o%,text$(c%)+",";
+BPUT#o%,FNpoint(credit%(c%))+",";
+BPUT#o%,FNpoint(payment%(c%))+",";
+BPUT#o%,FNpoint(balance%(c%))
+percent%=(c%-VAL($csv1%))/(VAL($csv2%)-VAL($csv1%))*100
+SYS "Hourglass_Percentage",percent%
+NEXT
+CLOSE#o%
+SYS "OS_File",&12,$cfile%,csv_file%
+SYS "Hourglass_Off"
+$cfile%="CSVFile"
+PROCdisplay_menu(-1,0,0)
+ENDPROC
+:
+DEF FNsaved
+IF modified%=FALSE = TRUE
+oktoquit%=FNwarning(warn$,FNdecode_message("OK5",w$()),"Quit",1,"Save",1,"Cancel",0)
+IF oktoquit%=1  PROCopen_as_menu(save%)
+=(oktoquit%=0)
+:
+DEF PROCprint
+LOCAL c%,percent%,s%,top_of_form%,current_line%
+IF VAL($print1%)=VAL($print2%) PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Prn0",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($print1%)>VAL($print2%) PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Prn1",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($print1%)>=entries% OR VAL($print2%)>=entries% PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Prn2",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($print1%)<=0 OR VAL($print2%)<=0 PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Prn3",w$()),"OK",1,"",1,"",0):ENDPROC
+SYS &80140 TO,s%
+SYS "Hourglass_On"
+o%=OPENOUT("<Account$PrintFile>")
+current_line%=pagelength%
+top_of_form%=TRUE
+FOR c%=VAL($print1%) TO VAL($print2%)
+IF top_of_form% AND FNicon_state(print%,9) THEN
+BPUT#o%,"      "+FNtext("Date: "+LEFT$(TIME$,15),34,TRUE);
+BPUT#o%,FNtext("File: "+LEFT$(FNgetleaf($file%),LENFNgetleaf($file%)-1),32,FALSE)+CHR$(13)
+current_line%-=1
+ENDIF
+IF top_of_form% THEN
+BPUT#o%,uline_on$+bold_on$;
+BPUT#o%,STRING$(79," ");
+BPUT#o%,uline_off$+bold_off$+line_feed$
+current_line%-=1
+ENDIF
+IF top_of_form% AND FNicon_state(print%,10) THEN
+BPUT#o%,uline_on$+bold_on$;
+BPUT#o%,FNtext("No.",4,FALSE)+" | ";
+BPUT#o%,FNtext("Description",20,TRUE)+"  ";
+BPUT#o%,FNtext("Credits",15,FALSE)+"  ";
+BPUT#o%,FNtext("Payments",15,FALSE)+"  ";
+BPUT#o%,FNtext("Balance",15,FALSE)+" ";
+BPUT#o%,uline_off$+bold_off$+line_feed$
+current_line%-=1
+ENDIF
+IF top_of_form% THENtop_of_form%=FALSE
+IF current_line%=1 OR c%=VAL($print2%) THENBPUT#o%,uline_on$;
+BPUT#o%,FNtext(STR$c%,4,FALSE)+" | ";
+BPUT#o%,FNtext(text$(c%),20,TRUE)+"  ";
+BPUT#o%,FNtext(FNpoint(credit%(c%)),15,FALSE)+"  ";
+BPUT#o%,FNtext(FNpoint(payment%(c%)),15,FALSE)+"  ";
+BPUT#o%,FNtext(FNpoint(balance%(c%)),15,FALSE)+" "+line_feed$
+IF current_line%=1 OR c%=VAL($print2%) THENBPUT#o%,uline_off$
+percent%=(c%-VAL($text1%))/(VAL($text2%)-VAL($text1%))*100
+SYS "Hourglass_Percentage",percent%
+current_line%-=1
+IF current_line%=0 THEN
+current_line%=pagelength%
+top_of_form%=TRUE
+IF form_feeds% THENBPUT#o%,form_feed$
+ENDIF
+NEXT
+IF form_feeds% AND top_of_form%=FALSE THENBPUT#o%,form_feed$
+CLOSE#o%
+SYS "Hourglass_Off"
+PROCclose_window(print%)
+PROCdisplay_menu(-1,0,0)
+ENDPROC
+:
+DEF PROCload_printcodes
+in%=OPENIN("<Account$Dir>.PrintCodes")
+$page_length%=GET$#in%
+form_feeds%=VAL(GET$#in%)
+$line_feed%=GET$#in%
+$form_feed%=GET$#in%
+$bold_on%=GET$#in%
+$bold_off%=GET$#in%
+$uline_on%=GET$#in%
+$uline_off%=GET$#in%
+CLOSE#in%
+PROCset_icon_state(printset%,3,form_feeds%,0,0)
+pagelength%=VAL($page_length%)
+line_feed$=FNtrans_string($line_feed%)
+form_feed$=FNtrans_string($form_feed%)
+bold_on$=FNtrans_string($bold_on%)
+bold_off$=FNtrans_string($bold_off%)
+uline_on$=FNtrans_string($uline_on%)
+uline_off$=FNtrans_string($uline_off%)
+ENDPROC
+:
+DEF PROCset_printcodes
+IF FNicon_state(printset%,3) THENform_feeds%=1 ELSEform_feeds%=0
+pagelength%=VAL($page_length%)
+line_feed$=FNtrans_string($line_feed%)
+form_feed$=FNtrans_string($form_feed%)
+bold_on$=FNtrans_string($bold_on%)
+bold_off$=FNtrans_string($bold_off%)
+uline_on$=FNtrans_string($uline_on%)
+uline_off$=FNtrans_string($uline_off%)
+PROCdisplay_menu(-1,0,0)
+ENDPROC
+:
+DEF PROCsave_printcodes
+IF FNicon_state(printset%,3) THENform_feeds%=1 ELSEform_feeds%=0
+pagelength%=VAL($page_length%)
+line_feed$=FNtrans_string($line_feed%)
+form_feed$=FNtrans_string($form_feed%)
+bold_on$=FNtrans_string($bold_on%)
+bold_off$=FNtrans_string($bold_off%)
+uline_on$=FNtrans_string($uline_on%)
+uline_off$=FNtrans_string($uline_off%)
+out%=OPENOUT("<Account$Dir>.PrintCodes")
+BPUT#out%,$page_length%
+BPUT#out%,STR$(form_feeds%)
+BPUT#out%,$line_feed%
+BPUT#out%,$form_feed%
+BPUT#out%,$bold_on%
+BPUT#out%,$bold_off%
+BPUT#out%,$uline_on%
+BPUT#out%,$uline_off%
+CLOSE#in%
+PROCdisplay_menu(-1,0,0)
+ENDPROC
+:
+DEF PROCcancel_printcodes
+PROCset_icon_state(printset%,3,form_feeds%,0,0)
+$page_length%=STR$(pagelength%)
+$line_feed%=FNtrans_codes(line_feed$)
+$form_feed%=FNtrans_codes(form_feed$)
+$bold_on%=FNtrans_codes(bold_on$)
+$bold_off%=FNtrans_codes(bold_off$)
+$uline_on%=FNtrans_codes(uline_on$)
+$uline_off%=FNtrans_codes(uline_off$)
+PROCdisplay_menu(-1,0,0)
+ENDPROC
+:
+DEF FNtrans_string(s$)
+LOCAL o$,pos%
+WHILE LEN(s$)>0
+IF INSTR(s$,",") THEN
+pos%=INSTR(s$,",")
+o$+=CHR$(VAL(LEFT$(s$,pos%-1)))
+s$=MID$(s$,pos%+1)
+ELSE
+o$+=CHR$(VAL(s$))
+s$=""
+ENDIF
+ENDWHILE
+=o$
+:
+DEF FNtrans_codes(s$)
+LOCAL o$
+WHILE LEN(s$)>0
+o$+=STR$(ASC(LEFT$(s$,1)))+","
+s$=MID$(s$,2)
+ENDWHILE
+=LEFT$(o$,LEN(o$)-1)
+:
+DEF PROCsave_prefs(save_prefs%)
+LOCAL open%,oj%
+oj%=join_main%
+IF save_prefs% THENout%=OPENOUT("<Account$Dir>.Choices")
+IF FNicon_state(prefspane%,2) THEN
+return_caret%=TRUE
+IF save_prefs% THENPRINT#out%,TRUE
+ELSE
+return_caret%=FALSE
+IF save_prefs% THENPRINT#out%,FALSE
+ENDIF
+IF FNicon_state(prefspane%,3) THEN
+set_clip%=TRUE
+IF save_prefs% THENPRINT#out%,TRUE
+ELSE
+set_clip%=FALSE
+IF save_prefs% THENPRINT#out%,FALSE
+ENDIF
+IF FNicon_state(prefspane%,4) THEN
+join_main%=TRUE
+IF save_prefs% THENPRINT#out%,TRUE
+ELSE
+join_main%=FALSE
+IF save_prefs% THENPRINT#out%,FALSE
+ENDIF
+IF FNicon_state(prefspane%,7) THEN
+open_tools%=TRUE
+IF save_prefs% THENPRINT#out%,TRUE
+ELSE
+open_tools%=FALSE
+IF save_prefs% THENPRINT#out%,FALSE
+ENDIF
+IF FNicon_state(prefspane%,8) THEN
+open_enter%=TRUE
+IF save_prefs% THENPRINT#out%,TRUE
+ELSE
+open_enter%=FALSE
+IF save_prefs% THENPRINT#out%,FALSE
+ENDIF
+IF FNicon_state(prefspane%,12) THEN
+date_format%=1
+IF save_prefs% THENPRINT#out%,1
+ENDIF
+IF FNicon_state(prefspane%,13) THEN
+date_format%=2
+IF save_prefs% THENPRINT#out%,2
+ENDIF
+IF FNicon_state(prefspane%,14) THEN
+date_format%=3
+IF save_prefs% THENPRINT#out%,3
+ENDIF
+IF FNicon_state(prefspane%,16) THEN
+date_option%=1
+IF save_prefs% THENPRINT#out%,1
+ENDIF
+IF FNicon_state(prefspane%,17) THEN
+date_option%=2
+IF save_prefs% THENPRINT#out%,2
+ENDIF
+IF FNicon_state(prefspane%,18) THEN
+date_option%=3
+IF save_prefs% THENPRINT#out%,3
+ENDIF
+IF FNicon_state(prefspane%,19) THEN
+date_option%=4
+IF save_prefs% THENPRINT#out%,4
+ENDIF
+IF FNicon_state(prefspane%,20) THEN
+date_fit%=TRUE
+IF save_prefs% THENPRINT#out%,TRUE
+ELSE
+date_fit%=FALSE
+IF save_prefs% THENPRINT#out%,FALSE
+ENDIF
+IF FNsafe_colour($entry_c%) THEN
+colour_entries%=VAL($entry_c%)
+IF save_prefs% THENPRINT#out%,colour_entries%
+ELSE
+IF save_prefs% THENPRINT#out%,colour_entries%
+ENDIF
+IF FNsafe_colour($numb_c%) THEN
+colour_numbers%=VAL($numb_c%)
+IF save_prefs% THENPRINT#out%,colour_numbers%
+ELSE
+IF save_prefs% THENPRINT#out%,colour_numbers%
+ENDIF
+IF FNsafe_colour($sel_c%) THEN
+colour_selection%=VAL($sel_c%)
+IF save_prefs% THENPRINT#out%,colour_selection%
+ELSE
+IF save_prefs% THENPRINT#out%,colour_selection%
+ENDIF
+IF FNsafe_colour($unused_c%) THEN
+colour_unused%=VAL($unused_c%)
+IF save_prefs% THENPRINT#out%,colour_unused%
+ELSE
+IF save_prefs% THENPRINT#out%,colour_unused%
+ENDIF
+IF FNsafe_colour($overdrawn_c%) THEN
+colour_overdrawn%=VAL($overdrawn_c%)
+IF save_prefs% THENPRINT#out%,colour_overdrawn%
+ELSE
+IF save_prefs% THENPRINT#out%,colour_overdrawn%
+ENDIF
+IF FNicon_state(prefspane%,33) THEN
+F3_qsave%=TRUE
+IF save_prefs% THENPRINT#out%,TRUE
+ELSE
+F3_qsave%=FALSE
+IF save_prefs% THENPRINT#out%,FALSE
+ENDIF
+IF FNicon_state(prefspane%,43) THEN
+IF save_prefs% THENPRINT#out%,TRUE
+open_toolbar%=TRUE
+ELSE
+open_toolbar%=FALSE
+IF save_prefs% THENPRINT#out%,FALSE
+ENDIF
+IF FNicon_state(prefspane%,53) THEN
+IF save_prefs% THENPRINT#out%,TRUE
+use_font%=TRUE
+ELSE
+use_font%=FALSE
+IF save_prefs% THENPRINT#out%,FALSE
+ENDIF
+IF FNicon_state(prefspane%,47) THEN
+home_key%=1
+IF save_prefs% THENPRINT#out%,1
+ENDIF
+IF FNicon_state(prefspane%,48) THEN
+home_key%=2
+IF save_prefs% THENPRINT#out%,2
+ENDIF
+IF FNicon_state(prefspane%,49) THEN
+home_key%=3
+IF save_prefs% THENPRINT#out%,3
+ENDIF
+IF save_prefs% THENCLOSE#out%
+!b%=main%
+SYS "Wimp_GetWindowState",,b%
+IF (b%!32 AND (1<<16)) THENopen%=TRUE ELSEopen%=FALSE
+IF open% THENPROCclose_window(enter%)
+IF oj%<>join_main% THEN
+IF join_main% THEN
+enter%=enter1%
+string%=string1%
+cred%=cred1%
+pay%=pay1%
+clip_string%=clip_string1%
+clip_cred%=clip_cred1%
+clip_pay%=clip_pay1%
+:
+$string1%=$string2%
+$cred1%=$cred2%
+$pay1%=$pay2%
+$clip_string1%=$clip_string2%
+$clip_cred1%=$clip_cred2%
+$clip_pay1%=$clip_pay2%
+ELSE
+enter%=enter2%
+string%=string2%
+cred%=cred2%
+pay%=pay2%
+clip_string%=clip_string2%
+clip_cred%=clip_cred2%
+clip_pay%=clip_pay2%
+:
+$string2%=$string1%
+$cred2%=$cred1%
+$pay2%=$pay1%
+$clip_string2%=$clip_string1%
+$clip_cred2%=$clip_cred1%
+$clip_pay2%=$clip_pay1%
+ENDIF
+ENDIF
+IF open_tools% THEN
+PROCset_menu_state(mmenu%,6,1,0)
+ELSE
+PROCset_menu_state(mmenu%,6,0,0)
+ENDIF
+IF open_enter% THEN
+PROCset_menu_state(mmenu%,7,1,0)
+ELSE
+PROCset_menu_state(mmenu%,7,0,0)
+ENDIF
+IF open_toolbar% THEN
+PROCset_menu_state(mmenu%,8,1,0)
+ELSE
+PROCset_menu_state(mmenu%,8,0,0)
+ENDIF
+IF open% THENPROCopen_window(main%) :PROCopen_window(enter%)
+PROCclose_window(prefspane%)
+PROCclose_window(prefs%)
+PROCredraw_main
+ENDPROC
+:
+DEF PROCload_prefs(load%)
+LOCAL loop%,open%,oj%
+oj%=join_main%
+IF load% THENin%=OPENIN("<Account$Dir>.Choices")
+IF load% THENINPUT#in%,return_caret%
+IF return_caret% THEN
+PROCset_icon_state(prefspane%,2,1,0,0)
+ELSE
+PROCset_icon_state(prefspane%,2,0,0,0)
+ENDIF
+IF load% THENINPUT#in%,set_clip%
+IF set_clip% THEN
+PROCset_icon_state(prefspane%,3,1,0,0)
+ELSE
+PROCset_icon_state(prefspane%,3,0,0,0)
+ENDIF
+IF load% THENINPUT#in%,join_main%
+IF join_main% THEN
+PROCset_icon_state(prefspane%,4,1,0,0)
+ELSE
+PROCset_icon_state(prefspane%,4,0,0,0)
+ENDIF
+IF load% THENINPUT#in%,open_tools%
+IF open_tools% THEN
+PROCset_icon_state(prefspane%,7,1,0,0)
+ELSE
+PROCset_icon_state(prefspane%,7,0,0,0)
+ENDIF
+IF load% THENINPUT#in%,open_enter%
+IF open_enter% THEN
+PROCset_icon_state(prefspane%,8,1,0,0)
+ELSE
+PROCset_icon_state(prefspane%,8,0,0,0)
+ENDIF
+FOR loop%=12 TO 14
+PROCset_icon_state(prefspane%,loop%,0,0,0)
+NEXT loop%
+IF load% THENINPUT#in%,date_format%
+CASE date_format% OF
+WHEN 1 :PROCset_icon_state(prefspane%,12,1,0,0)
+WHEN 2 :PROCset_icon_state(prefspane%,13,1,0,0)
+WHEN 3 :PROCset_icon_state(prefspane%,14,1,0,0)
+ENDCASE
+FOR loop%=16 TO 19
+PROCset_icon_state(prefspane%,loop%,0,0,0)
+NEXT loop%
+IF load% THENINPUT#in%,date_option%
+CASE date_option% OF
+WHEN 1 :PROCset_icon_state(prefspane%,16,1,0,0)
+WHEN 2 :PROCset_icon_state(prefspane%,17,1,0,0)
+WHEN 3 :PROCset_icon_state(prefspane%,18,1,0,0)
+WHEN 4 :PROCset_icon_state(prefspane%,19,1,0,0)
+ENDCASE
+IF load% THENINPUT#in%,date_fit%
+IF date_fit% THEN
+PROCset_icon_state(prefspane%,20,1,0,0)
+ELSE
+PROCset_icon_state(prefspane%,20,0,0,0)
+ENDIF
+IF load% THENINPUT#in%,colour_entries%
+IF load% THENINPUT#in%,colour_numbers%
+IF load% THENINPUT#in%,colour_selection%
+IF load% THENINPUT#in%,colour_unused%
+IF load% THENINPUT#in%,colour_overdrawn%
+$entry_c%=STR$(colour_entries%)
+$numb_c%=STR$(colour_numbers%)
+$sel_c%=STR$(colour_selection%)
+$unused_c%=STR$(colour_unused%)
+$overdrawn_c%=STR$(colour_overdrawn%)
+IF load% THENINPUT#in%,F3_qsave%
+IF F3_qsave% THEN
+PROCset_icon_state(prefspane%,33,1,0,0)
+ELSE
+PROCset_icon_state(prefspane%,33,0,0,0)
+ENDIF
+IF load% THENINPUT#in%,open_toolbar%
+IF open_toolbar% THEN
+PROCset_icon_state(prefspane%,43,1,0,0)
+ELSE
+PROCset_icon_state(prefspane%,43,0,0,0)
+ENDIF
+IF load% THENINPUT#in%,use_font%
+IF use_font% THEN
+PROCset_icon_state(prefspane%,53,1,0,0)
+ELSE
+PROCset_icon_state(prefspane%,53,0,0,0)
+ENDIF
+FOR loop%=47 TO 49
+PROCset_icon_state(prefspane%,loop%,0,0,0)
+NEXT loop%
+IF load% THENINPUT#in%,home_key%
+CASE home_key% OF
+WHEN 1 :PROCset_icon_state(prefspane%,47,1,0,0)
+WHEN 2 :PROCset_icon_state(prefspane%,48,1,0,0)
+WHEN 3 :PROCset_icon_state(prefspane%,49,1,0,0)
+ENDCASE
+IF load% THENCLOSE#in%
+!b%=main%
+SYS "Wimp_GetWindowState",,b%
+IF (b%!32 AND (1<<16)) THENopen%=TRUE ELSEopen%=FALSE
+IF open% THENPROCclose_window(enter%)
+IF oj%<>join_main% THEN
+IF join_main% THEN
+enter%=enter1%
+string%=string1%
+cred%=cred1%
+pay%=pay1%
+clip_string%=clip_string1%
+clip_cred%=clip_cred1%
+clip_pay%=clip_pay1%
+:
+$string1%=$string2%
+$cred1%=$cred2%
+$pay1%=$pay2%
+$clip_string1%=$clip_string2%
+$clip_cred1%=$clip_cred2%
+$clip_pay1%=$clip_pay2%
+ELSE
+enter%=enter2%
+string%=string2%
+cred%=cred2%
+pay%=pay2%
+clip_string%=clip_string2%
+clip_cred%=clip_cred2%
+clip_pay%=clip_pay2%
+:
+$string2%=$string1%
+$cred2%=$cred1%
+$pay2%=$pay1%
+$clip_string2%=$clip_string1%
+$clip_cred2%=$clip_cred1%
+$clip_pay2%=$clip_pay1%
+ENDIF
+ENDIF
+IF open_tools% THEN
+PROCset_menu_state(mmenu%,6,1,0)
+ELSE
+PROCset_menu_state(mmenu%,6,0,0)
+ENDIF
+IF open_enter% THEN
+PROCset_menu_state(mmenu%,7,1,0)
+ELSE
+PROCset_menu_state(mmenu%,7,0,0)
+ENDIF
+IF open_toolbar% THEN
+PROCset_menu_state(mmenu%,8,1,0)
+ELSE
+PROCset_menu_state(mmenu%,8,0,0)
+ENDIF
+IF open% THENPROCopen_window(main%) :PROCopen_window(enter%)
+PROCredraw_main
+ENDPROC
+:
+DEF PROCload_dft_prefs(defs%)
+LOCAL loop%,data%
+IF defs% THEN
+in%=OPENIN("<Account$Dir>.Defaults")
+ELSE
+in%=OPENIN("<Account$Dir>.Choices")
+ENDIF
+INPUT#in%,data%
+IF data% THEN
+PROCset_icon_state(prefspane%,2,1,0,0)
+ELSE
+PROCset_icon_state(prefspane%,2,0,0,0)
+ENDIF
+INPUT#in%,data%
+IF data% THEN
+PROCset_icon_state(prefspane%,3,1,0,0)
+ELSE
+PROCset_icon_state(prefspane%,3,0,0,0)
+ENDIF
+INPUT#in%,data%
+IF data% THEN
+PROCset_icon_state(prefspane%,4,1,0,0)
+ELSE
+PROCset_icon_state(prefspane%,4,0,0,0)
+ENDIF
+INPUT#in%,data%
+IF data% THEN
+PROCset_icon_state(prefspane%,7,1,0,0)
+ELSE
+PROCset_icon_state(prefspane%,7,0,0,0)
+ENDIF
+INPUT#in%,data%
+IF data% THEN
+PROCset_icon_state(prefspane%,8,1,0,0)
+ELSE
+PROCset_icon_state(prefspane%,8,0,0,0)
+ENDIF
+FOR loop%=12 TO 14
+PROCset_icon_state(prefspane%,loop%,0,0,0)
+NEXT loop%
+INPUT#in%,data%
+CASE data% OF
+WHEN 1 :PROCset_icon_state(prefspane%,12,1,0,0)
+WHEN 2 :PROCset_icon_state(prefspane%,13,1,0,0)
+WHEN 3 :PROCset_icon_state(prefspane%,14,1,0,0)
+ENDCASE
+FOR loop%=16 TO 19
+PROCset_icon_state(prefspane%,loop%,0,0,0)
+NEXT loop%
+INPUT#in%,data%
+CASE data% OF
+WHEN 1 :PROCset_icon_state(prefspane%,16,1,0,0)
+WHEN 2 :PROCset_icon_state(prefspane%,17,1,0,0)
+WHEN 3 :PROCset_icon_state(prefspane%,18,1,0,0)
+WHEN 4 :PROCset_icon_state(prefspane%,19,1,0,0)
+ENDCASE
+INPUT#in%,data%
+IF data% THEN
+PROCset_icon_state(prefspane%,20,1,0,0)
+ELSE
+PROCset_icon_state(prefspane%,20,0,0,0)
+ENDIF
+INPUT#in%,data%
+$entry_c%=STR$(data%)
+INPUT#in%,data%
+$numb_c%=STR$(data%)
+INPUT#in%,data%
+$sel_c%=STR$(data%)
+INPUT#in%,data%
+$unused_c%=STR$(data%)
+INPUT#in%,data%
+$overdrawn_c%=STR$(data%)
+INPUT#in%,data%
+PROCredraw_part(prefspane%,42,-1352,50,48)
+PROCredraw_part(prefspane%,42,-1428,50,48)
+PROCredraw_part(prefspane%,42,-1508,50,48)
+PROCredraw_part(prefspane%,42,-1588,50,48)
+IF data% THEN
+PROCset_icon_state(prefspane%,33,1,0,0)
+ELSE
+PROCset_icon_state(prefspane%,33,0,0,0)
+ENDIF
+INPUT#in%,data%
+IF data% THEN
+PROCset_icon_state(prefspane%,43,1,0,0)
+ELSE
+PROCset_icon_state(prefspane%,43,0,0,0)
+ENDIF
+INPUT#in%,data%
+IF data% THEN
+PROCset_icon_state(prefspane%,53,1,0,0)
+ELSE
+PROCset_icon_state(prefspane%,53,0,0,0)
+ENDIF
+FOR loop%=47 TO 49
+PROCset_icon_state(prefspane%,loop%,0,0,0)
+NEXT loop%
+INPUT#in%,data%
+CASE data% OF
+WHEN 1 :PROCset_icon_state(prefspane%,47,1,0,0)
+WHEN 2 :PROCset_icon_state(prefspane%,48,1,0,0)
+WHEN 3 :PROCset_icon_state(prefspane%,49,1,0,0)
+ENDCASE
+CLOSE#in%
+ENDPROC
+:
+DEF FNsafe_colour(s$)
+IF VAL(s$)>=0 AND VAL(s$)<=15 THEN=TRUE ELSE=FALSE
+:
+DEF PROCswap(window%,icon%,caret%)
+LOCAL text$,length%,chr%
+!b%=window%
+b%!4=icon%
+SYS "Wimp_GetIconState",,b%
+text$=$(b%!28)
+length%=(b%!36)-1
+chr%=ASC(MID$(text$,caret%+1,1))
+CASE TRUE OF
+WHEN (chr%>=65 AND chr%<=90 ) :chr%=chr%+32
+WHEN (chr%>=97 AND chr%<=122) :chr%=chr%-32
+ENDCASE
+MID$(text$,caret%+1,1)=CHR$(chr%)
+$(b%!28)=text$
+PROCplace_caret(window%,icon%,caret%+1)
+PROCredraw_part(window%,b%!8+8,b%!12+8,b%!16-b%!8-16,b%!20-b%!12-16)
+ENDPROC
+:
+DEF PROCdate(window%,icon%,caret%)
+LOCAL text$,length%
+IF window%<>enter% THENENDPROC
+IF icon%<>6 AND icon%<>11 THENENDPROC
+!b%=window%
+b%!4=icon%
+SYS "Wimp_GetIconState",,b%
+text$=$(b%!28)
+length%=(b%!36)-1
+text$=FNadd_date(text$,length%,caret%,date_format%,date_option%,date_fit%)
+$(b%!28)=text$
+PROCredraw_part(window%,b%!8+2,b%!12+4,b%!16-b%!8-4,b%!20-b%!12-8)
+ENDPROC
+:
+DEF PROCnew_date(window%,icon%)
+LOCAL text$,length%,type%,flag%,pos%
+flag%=TRUE
+IF window%<>enter% THENENDPROC
+IF icon%<>6 AND icon%<>11 THENENDPROC
+!b%=window%
+b%!4=icon%
+SYS "Wimp_GetIconState",,b%
+text$=$(b%!28)
+length%=(b%!36)-1
+IF INSTR(text$,"/") THEN
+pos%=-1
+REPEAT
+pos%=INSTR(text$,"/",pos%+1)
+UNTIL pos%=0 OR MID$(text$,pos%+3,1)="/"
+IF pos%>0 THEN
+pos%-=3
+type%=1
+flag%=FALSE
+ENDIF
+ENDIF
+IF FNmonth_in(text$) AND flag% THEN
+flag%=FALSE
+pos%=FNmonth_in(text$)
+IF VAL(MID$(text$,pos%+4,2))>31 THEN
+pos%-=4
+type%=2
+ELSE
+pos%-=1
+type%=3
+ENDIF
+ENDIF
+IF flag% err%=FNwarning(mess$,FNdecode_message("Dat0",w$()),"OK",1,"",0,"",0)
+IF flag% THENENDPROC
+text$=FNadd_date(text$,length%,pos%,type%,2,0)
+$(b%!28)=text$
+PROCredraw_part(window%,b%!8+2,b%!12+4,b%!16-b%!8-4,b%!20-b%!12-8)
+ENDPROC
+:
+DEF FNmonth_in(t$)
+LOCAL pos%,loop%,flag%
+flag%=0
+FOR loop%=1 TO 36 STEP 3
+pos%=INSTR(text$,MID$(months$,loop%,3)+" ")
+IF pos% THENflag%=pos%
+NEXT loop%
+=flag%
+:
+DEF FNadd_date(t$,len%,offset%,format%,option%,fit%)
+LOCAL date$,dl%
+date$=FNget_date(format%)
+dl%=LEN(date$)
+CASE option% OF
+WHEN 1
+IF (offset%+dl%+1>len%) AND fit% THENoffset%-=(offset%+dl%-len%)
+t$=LEFT$(t$,offset%)+date$+MID$(t$,offset%+1)
+IF LEN(t$)>len% THENt$=LEFT$(t$,len%)
+WHEN 2
+IF (offset%+dl%+1>len%) AND fit% THENoffset%-=(offset%+dl%-len%)
+MID$(t$,offset%+1,dl%)=date$
+IF LEN(t$)>len% THENt$=LEFT$(t$,len%)
+WHEN 3
+IF LEN(t$)<(len%-dl%) THENt$+=STRING$((len%-dl%)-LEN(t$)," ")
+t$+=date$
+IF LEN(t$)>len% THENt$=RIGHT$(t$,len%)
+WHEN 4
+IF LEN(t$)<len% THENt$+=STRING$(len%-LEN(t$)," ")
+MID$(t$,len%-dl%+1,dl%)=date$
+IF LEN(t$)>len% THENt$=RIGHT$(t$,len%)
+ENDCASE
+=t$
+:
+DEF FNget_date(f%)
+LOCAL d$,s$
+s$=MID$(TIME$,5,11)
+CASE f% OF
+WHEN 1 :d$=LEFT$(s$,2)+"/"+FNstr(FNmonth(MID$(s$,4,3)))+"/"+RIGHT$(s$,2)
+WHEN 2 :d$=LEFT$(s$,2)+" "+MID$(s$,4,3)+" "+RIGHT$(s$,2)
+WHEN 3 :d$=MID$(s$,4,3)+" "+LEFT$(s$,2)+" "+RIGHT$(s$,2)
+ENDCASE
+=d$
+:
+DEF FNmonth(name$)
+LOCAL index%
+index%=INSTR(months$,name$)
+IF index%>0 THENindex%=(index% DIV 3)+1
+=index%
+:
+DEF FNstr(val%)
+LOCAL s$
+s$=STR$(val%)
+IF LEN(s$)=1 THENs$="0"+s$
+=s$
+:
+DEF PROCinit
+ON ERROR SYS"Hourglass_Smash" :PRINT TAB(0,0);ERL;REPORT$ :END
+SYS "Hourglass_On"
+DIM b% 4000,q% 255
+max%=1000
+modified%=FALSE
+select%=0
+entries%=1
+months$="JanFebMarAprMayJunJulAugSepOctNovDec"
+account_file%=&1AC
+text_file%=&FFF
+csv_file%=&DFE
+join_main%=1
+PROCget_mode_vars
+DIM text$(max%),credit%(max%),payment%(max%),balance%(max%)
+PROCload_messages("<Account$Dir>.Messages")
+sprite_area%=FNload_sprites("<Account$Dir>.Sprites")
+DIM w$(9)
+quit%=FALSE:reset%=FALSE:app$=FNdecode_message("Task",w$())
+SYS "Wimp_Initialise",200,&4B534154,app$
+:
+mess$=FNdecode_message("Wrn1",w$())
+warn$=FNdecode_message("Wrn2",w$())
+:
+PROCintro
+PROCdefine_windows
+PROCdefine_icons
+PROCbuild_menus
+PROCupdate_menu
+PROCload_printcodes
+PROCload_prefs(TRUE)
+PROCdrag_init
+SYS "Hourglass_Off"
+state%=INSTR(state$,"!RunImage")+11
+state$=MID$(state$,state%)
+IF state$<>"" PROCinit_load(state$)
+intro_up%=TIME
+PROCopen_window(intro%)
+ENDPROC
+:
+DEF PROCdrag_init
+drag_start%=FNswi("DragASprite_Start")
+drag_stop%=FNswi("DragASprite_Stop")
+SYS "OS_Byte",161,28 TO ,,cmos
+IF (cmos AND 2)=0 drag_start%=-1:drag_stop%=-1
+ENDPROC
+:
+DEF FNswi(swi$)
+SYS "XOS_SWINumberFromString",,swi$ TO swi;flag
+IF (flag AND 1) swi=-1
+=swi
+:
+DEF PROCget_mode_vars
+LOCAL x%,y%,w%,h%
+SYS "OS_ReadModeVariable",-1,4 TO ,,x%
+SYS "OS_ReadModeVariable",-1,5 TO ,,y%
+SYS "OS_ReadModeVariable",-1,11 TO ,,w%
+SYS "OS_ReadModeVariable",-1,12 TO ,,h%
+x%=x%*2
+y%=y%*2
+width%=(w%+1)*x%
+height%=(h%+1)*y%
+ENDPROC
+:
+DEF PROCsave_desktop
+LOCAL len%
+SYS "OS_ReadVarVal","Account$Dir",q%,256,0,0 TO ,,len%
+q%?len%=13
+BPUT#b%!20,"Run "+$q%
+ENDPROC
+:
+DEF PROCpre_quit
+IF NOT modified% THEN ENDPROC
+!b%=20
+b%!12=b%!8
+b%!16=0
+SYS "Wimp_SendMessage",19,b%
+err%=FNwarning(warn$,FNdecode_message("OK6",w$()),"Reset",1,"Save",0,"Cancel",0)
+IF err%=0 THEN quit%=TRUE : reset%=TRUE
+IF err%=1 THEN PROCopen_as_menu(save%)
+ENDPROC
+:
+DEF PROCload_messages(f$)
+LOCAL l%,i%,l$,no%
+no%=0
+i%=OPENIN(f$)
+WHILE NOT EOF#i%
+l$=GET$#i%
+IF LEFT$(l$,1)<>";" AND INSTR(l$,":") THENno%+=1
+ENDWHILE
+DIM t_m$(no%)
+PTR#i%=0
+l%=0
+WHILE NOT EOF#i%
+l$=GET$#i%
+IF LEFT$(l$,1)<>";" AND INSTR(l$,":") THENt_m$(l%)=l$ :l%+=1
+ENDWHILE
+t_m$(l%)="*"
+CLOSE#i%
+ENDPROC
+:
+DEF FNdecode_message(id$,w$())
+LOCAL l$,l%,o%,i$
+l%=0
+REPEAT
+l$=t_m$(l%)
+IF l$<>"*" THEN
+o%=INSTR(l$,":")
+i$=LEFT$(l$,o%-1)
+l$=MID$(l$,o%+1)
+l%+=1
+ENDIF
+UNTIL l$="*" OR i$=id$
+IF l$="*" =""
+o%=0
+REPEAT
+o%=INSTR(l$,"%",o%+1)
+IF o% THEN
+CASE MID$(l$,o%+1,1) OF
+WHEN "%" :l$=LEFT$(l$,o%)+MID$(l$,o%+2)
+WHEN "0" :l$=LEFT$(l$,o%-1)+w$(0)+MID$(l$,o%+2)
+WHEN "1" :l$=LEFT$(l$,o%-1)+w$(1)+MID$(l$,o%+2)
+WHEN "2" :l$=LEFT$(l$,o%-1)+w$(2)+MID$(l$,o%+2)
+WHEN "3" :l$=LEFT$(l$,o%-1)+w$(3)+MID$(l$,o%+2)
+WHEN "4" :l$=LEFT$(l$,o%-1)+w$(4)+MID$(l$,o%+2)
+WHEN "5" :l$=LEFT$(l$,o%-1)+w$(5)+MID$(l$,o%+2)
+WHEN "6" :l$=LEFT$(l$,o%-1)+w$(6)+MID$(l$,o%+2)
+WHEN "7" :l$=LEFT$(l$,o%-1)+w$(7)+MID$(l$,o%+2)
+WHEN "8" :l$=LEFT$(l$,o%-1)+w$(8)+MID$(l$,o%+2)
+WHEN "9" :l$=LEFT$(l$,o%-1)+w$(9)+MID$(l$,o%+2)
+ENDCASE
+ENDIF
+UNTIL o%=0
+=l$
+:
+DEF FNload_sprites(f$)
+LOCAL size%,area%
+in%=OPENIN(f$)
+size%=EXT#in%
+CLOSE#in%
+size%+=4
+DIM area% size%
+!area%=size% :area%!8=16
+SYS "OS_SpriteOp",&10A,area%,f$
+=area%
+:
+DEF PROCintro
+SYS "Font_FindFont",,"Homerton.Bold.Oblique",480,960 TO font1%
+SYS "Font_FindFont",,"Homerton.Medium",320,320 TO font2%
+SYS "Font_FindFont",,"Homerton.Medium.Oblique",320,320 TO font3%
+SYS "Font_FindFont",,"Homerton.Bold.Oblique",480,480 TO font4%
+SYS "Font_FindFont",,"Homerton.Medium",224,224 TO font5%
+SYS "Font_FindFont",,"Corpus.Medium",192,192 TO disp_font%
+intro_time%=100*8
+ENDPROC
+:
+DEF PROCloose_fonts
+SYS "Font_LoseFont",font1%
+SYS "Font_LoseFont",font2%
+SYS "Font_LoseFont",font3%
+SYS "Font_LoseFont",font4%
+SYS "Font_LoseFont",font5%
+SYS "Font_LoseFont",disp_font%
+ENDPROC
+:
+DEF PROCdefine_windows
+DIM ind_data% 7000
+:
+PROCopen_templates("<Account$Dir>.Templates")
+to%=FNload_template("Error",b%,ind_data%,7000)
+SYS "Wimp_CreateWindow",,b% TO error%
+to%=FNload_template("Main",b%,to%,7000-(to%-ind_data%))
+title%=b%!72 :$title%="<Untitled>"
+SYS "Wimp_CreateWindow",,b% TO main%
+to%=FNload_template("Tools",b%,to%,7000-(to%-ind_data%))
+b%!64=sprite_area%
+SYS "Wimp_CreateWindow",,b% TO tools%
+to%=FNload_template("Enter1",b%,to%,7000-(to%-ind_data%))
+b%!64=sprite_area%
+SYS "Wimp_CreateWindow",,b% TO enter1%
+to%=FNload_template("Enter2",b%,to%,7000-(to%-ind_data%))
+b%!64=sprite_area%
+SYS "Wimp_CreateWindow",,b% TO enter2%
+to%=FNload_template("TitlePane",b%,to%,7000-(to%-ind_data%))
+b%!64=sprite_area%
+SYS "Wimp_CreateWindow",,b% TO pane%
+to%=FNload_template("Goto",b%,to%,7000-(to%-ind_data%))
+SYS "Wimp_CreateWindow",,b% TO goto%
+to%=FNload_template("Select",b%,to%,7000-(to%-ind_data%))
+SYS "Wimp_CreateWindow",,b% TO selline%
+to%=FNload_template("Header",b%,to%,7000-(to%-ind_data%))
+SYS "Wimp_CreateWindow",,b% TO newhead%
+to%=FNload_template("Print",b%,to%,7000-(to%-ind_data%))
+b%!64=sprite_area%
+SYS "Wimp_CreateWindow",,b% TO print%
+to%=FNload_template("ExpText",b%,to%,7000-(to%-ind_data%))
+b%!64=sprite_area%
+SYS "Wimp_CreateWindow",,b% TO text%
+to%=FNload_template("ExpCSV",b%,to%,7000-(to%-ind_data%))
+b%!64=sprite_area%
+SYS "Wimp_CreateWindow",,b% TO csv%
+to%=FNload_template("Save",b%,to%,7000-(to%-ind_data%))
+SYS "Wimp_CreateWindow",,b% TO save%
+to%=FNload_template("Info",b%,to%,7000-(to%-ind_data%))
+b%!136+=(1<<6)+(font5%<<24)
+b%!168+=(1<<6)+(font5%<<24)
+b%!200+=(1<<6)+(font5%<<24)
+b%!392+=(1<<6)+(font4%<<24)
+SYS "Wimp_CreateWindow",,b% TO info%
+to%=FNload_template("Find",b%,to%,7000-(to%-ind_data%))
+b%!64=sprite_area%
+SYS "Wimp_CreateWindow",,b% TO find%
+to%=FNload_template("Found",b%,to%,7000-(to%-ind_data%))
+SYS "Wimp_CreateWindow",,b% TO foundw%
+to%=FNload_template("PrintSetUp",b%,to%,7000-(to%-ind_data%))
+b%!64=sprite_area%
+SYS "Wimp_CreateWindow",,b% TO printset%
+to%=FNload_template("Prefs",b%,to%,7000-(to%-ind_data%))
+SYS "Wimp_CreateWindow",,b% TO prefs%
+to%=FNload_template("PrefsPane",b%,to%,7000-(to%-ind_data%))
+b%!64=sprite_area%
+SYS "Wimp_CreateWindow",,b% TO prefspane%
+to%=FNload_template("FileInfo",b%,to%,7000-(to%-ind_data%))
+SYS "Wimp_CreateWindow",,b% TO fileinf%
+to%=FNload_template("LoadCSV",b%,to%,7000-(to%-ind_data%))
+b%!64=sprite_area%
+SYS "Wimp_CreateWindow",,b% TO loadcsv%
+to%=FNload_template("Merge",b%,to%,7000-(to%-ind_data%))
+SYS "Wimp_CreateWindow",,b% TO merge%
+to%=FNload_template("Announce",b%,to%,7000-(to%-ind_data%))
+b%!168+=(1<<6)+(font1%<<24)
+b%!200+=(1<<6)+(font2%<<24)
+b%!232+=(1<<6)+(font3%<<24)
+SYS "Wimp_CreateWindow",,b% TO intro%
+PROCclose_templates
+ENDPROC
+:
+DEF PROCdefine_icons
+icon%=FNicon_bar("!Accounts")
+:
+REM Info
+vers%=FNindirection(info%,3)
+$vers%=LEFT$(FNdecode_message("Info",w$()),33)
+:
+REM Intro
+int_acc%=FNindirection(intro%,2)
+int_aut%=FNindirection(intro%,3)
+int_ini%=FNindirection(intro%,4)
+$int_acc%=LEFT$(FNdecode_message("Int0",w$()),30)
+$int_aut%=LEFT$(FNdecode_message("Int1",w$()),30)
+$int_ini%=LEFT$(FNdecode_message("Int2",w$()),30)
+:
+REM Enter1
+string1%=FNindirection(enter1%,6)
+cred1%=FNindirection(enter1%,7)
+pay1%=FNindirection(enter1%,8)
+clip_string1%=FNindirection(enter1%,11)
+clip_cred1%=FNindirection(enter1%,12)
+clip_pay1%=FNindirection(enter1%,13)
+:
+REM Enter 2
+string2%=FNindirection(enter2%,6)
+cred2%=FNindirection(enter2%,7)
+pay2%=FNindirection(enter2%,8)
+clip_string2%=FNindirection(enter2%,11)
+clip_cred2%=FNindirection(enter2%,12)
+clip_pay2%=FNindirection(enter2%,13)
+:
+REM File Info
+fileinf_name%=FNindirection(fileinf%,5)
+safe%=FNindirection(fileinf%,6)
+filesize%=FNindirection(fileinf%,7)
+bfilesize%=FNindirection(fileinf%,8)
+units%=FNindirection(fileinf%,4)
+:
+REM Goto
+gotoline%=FNindirection(goto%,0)
+selctline%=FNindirection(selline%,0)
+:
+REM Find
+findtext%=FNindirection(find%,1)
+replacetext%=FNindirection(find%,9)
+:
+REM Found
+foundtext%=FNindirection(foundw%,2)
+foundline%=FNindirection(foundw%,3)
+:
+REM New Header
+header%=FNindirection(newhead%,1)
+:
+REM Save
+file%=FNindirection(save%,1)
+$file%="Account"
+:
+REM Export Text
+tfile%=FNindirection(text%,1)
+$tfile%="TextFile"
+text1%=FNindirection(text%,10)
+text2%=FNindirection(text%,11)
+$text1%="1"
+$text2%="1"
+:
+REM Export CSV
+cfile%=FNindirection(csv%,1)
+$cfile%="CSVFile"
+csv1%=FNindirection(csv%,10)
+csv2%=FNindirection(csv%,11)
+$csv1%="1"
+$csv2%="1"
+:
+REM Error
+errortext%=FNindirection(error%,4)
+errortitle%=FNindirection(error%,3)
+button1%=FNindirection(error%,5)
+button2%=FNindirection(error%,6)
+button3%=FNindirection(error%,7)
+:
+REM Print
+print1%=FNindirection(print%,7)
+print2%=FNindirection(print%,8)
+$print1%="1"
+$print2%="1"
+:
+REM Print Set Up
+page_length%=FNindirection(printset%,1)
+$page_length%="62"
+form_feed%=FNindirection(printset%,13)
+line_feed%=FNindirection(printset%,12)
+bold_on%=FNindirection(printset%,14)
+bold_off%=FNindirection(printset%,15)
+uline_on%=FNindirection(printset%,16)
+uline_off%=FNindirection(printset%,17)
+:
+REM Preferences
+entry_c%=FNindirection(prefspane%,23)
+numb_c%=FNindirection(prefspane%,25)
+sel_c%=FNindirection(prefspane%,27)
+unused_c%=FNindirection(prefspane%,29)
+overdrawn_c%=FNindirection(prefspane%,50)
+$entry_c%="7"
+$numb_c%="11"
+$sel_c%="7"
+$unused_c%="2"
+$overdrawn_c%="11"
+:
+REM Load CSV
+cl_desc%=FNindirection(loadcsv%,0)
+cl_cred%=FNindirection(loadcsv%,1)
+cl_pay%=FNindirection(loadcsv%,2)
+ENDPROC
+:
+DEF PROCbuild_menus
+LOCAL iw%,ie%,mw%,me%,fw%,fe%,sw%,se%,ow%,oe%
+DIM mb% 1624
+imenu%=mb%
+mmenu%=mb%+100
+gmenu%=mb%+344
+fmenu%=mb%+516
+emenu%=mb%+616
+smenu%=mb%+716
+cmenu%=mb%+864
+pmenu%=mb%+988
+wmenu%=mb%+1064
+iw%=0 :ie%=0
+mw%=0 :me%=0
+gw%=0 :ge%=0
+fw%=0 :fe%=0
+ew%=0 :ee%=0
+sw%=0 :se%=0
+cw%=0 :ce%=0
+pw%=0 :pe%=0
+ww%=0 :we%=0
+:
+st_menu_flags%=FNmenu_flags(1,0,0,0,0,1,0,0,0,7,0,0)
+:
+REM Icon Bar Menu
+PROCinit_menu(imenu%,iw%,ie%,app$)
+PROCst_menu_item(imenu%,iw%,ie%,"Info",0,0,0,0,info%)
+PROCst_menu_item(imenu%,iw%,ie%,"Prefs...",0,1,0,0,-1)
+PROCst_menu_item(imenu%,iw%,ie%,"Quit",0,0,0,1,-1)
+REM Main Menu
+PROCinit_menu(mmenu%,mw%,me%,app$)
+mw%=14
+DIM menu_main_enter% 14 :$menu_main_enter%="Show enter ^F1"
+DIM menu_main_tools% 14 :$menu_main_tools%="Show tools ‹F1"
+DIM menu_main_tlbar% 14 :$menu_main_tlbar%="Toolbar    ^F2"
+PROCst_menu_item(mmenu%,mw%,me%,"Misc",0,0,0,0,gmenu%)
+PROCst_menu_item(mmenu%,mw%,me%,"Save",0,0,0,0,fmenu%)
+PROCst_menu_item(mmenu%,mw%,me%,"Enter",0,0,0,0,emenu%)
+PROCst_menu_item(mmenu%,mw%,me%,"Select",0,0,0,0,smenu%)
+PROCst_menu_item(mmenu%,mw%,me%,"Clip-board",0,0,0,0,cmenu%)
+PROCst_menu_item(mmenu%,mw%,me%,"Printer",0,1,0,0,pmenu%)
+PROCmenu_item(mmenu%,mw%,me%,"Show tools",1,0,0,0,-1,0,0,st_menu_flags%,menu_main_tools%,-1,15)
+PROCmenu_item(mmenu%,mw%,me%,"Show enter",1,0,0,0,-1,0,0,st_menu_flags%,menu_main_enter%,-1,15)
+PROCmenu_item(mmenu%,mw%,me%,"Toolbar",1,0,0,1,-1,0,0,st_menu_flags%,menu_main_tlbar%,-1,15)
+REM Misc Menu
+PROCinit_menu(gmenu%,gw%,ge%,"Misc")
+gw%=14
+DIM menu_misc_find% 14 :$menu_misc_find%="Find        F4"
+DIM menu_misc_goto% 14 :$menu_misc_goto%="Goto       F10"
+DIM menu_misc_head% 14 :$menu_misc_head%="New header F11"
+DIM menu_misc_clr% 14 :$menu_misc_clr%="Clear all  ^F9"
+PROCst_menu_item(gmenu%,gw%,ge%,"Info",0,0,0,0,info%)
+PROCst_menu_item(gmenu%,gw%,ge%,"File info",0,1,0,0,fileinf%)
+PROCmenu_item(gmenu%,gw%,ge%,"Find",0,0,0,0,find%,0,0,st_menu_flags%,menu_misc_find%,-1,15)
+PROCmenu_item(gmenu%,gw%,ge%,"Goto",0,0,0,0,goto%,0,0,st_menu_flags%,menu_misc_goto%,-1,15)
+PROCmenu_item(gmenu%,gw%,ge%,"New header",0,1,0,0,newhead%,0,0,st_menu_flags%,menu_misc_head%,-1,15)
+PROCmenu_item(gmenu%,gw%,ge%,"Clear all",0,0,0,1,-1,0,0,st_menu_flags%,menu_misc_clr%,-1,15)
+REM File Menu
+PROCinit_menu(fmenu%,fw%,fe%,"Save")
+PROCst_menu_item(fmenu%,fw%,fe%,"Account F3",0,1,0,0,save%)
+PROCst_menu_item(fmenu%,fw%,fe%,"Text   ‹F3",0,0,0,0,text%)
+PROCst_menu_item(fmenu%,fw%,fe%,"CSV    ^F3",0,0,0,1,csv%)
+REM Enter Menu
+PROCinit_menu(emenu%,ew%,ee%,"Enter")
+ew%=24
+DIM menu_enter_add% 24 :$menu_enter_add%="Add to end            F1"
+DIM menu_enter_ina% 24 :$menu_enter_ina%="Insert above  INSERT/ F2"
+DIM menu_enter_inb% 24 :$menu_enter_inb%="Insert below ‹INSERT/‹F2"
+PROCmenu_item(emenu%,ew%,ee%,"Add to end",0,1,0,0,-1,0,0,st_menu_flags%,menu_enter_add%,-1,25)
+PROCmenu_item(emenu%,ew%,ee%,"Insert above",0,0,0,0,-1,0,0,st_menu_flags%,menu_enter_ina%,-1,25)
+PROCmenu_item(emenu%,ew%,ee%,"Insert below",0,0,0,1,-1,0,0,st_menu_flags%,menu_enter_inb%,-1,25)
+REM Select Menu
+PROCinit_menu(smenu%,sw%,se%,"Select")
+PROCst_menu_item(smenu%,sw%,se%,"Select   ‹F4",0,1,0,0,selline%)
+PROCst_menu_item(smenu%,sw%,se%,"Remove   ‹F5",0,0,0,0,-1)
+PROCst_menu_item(smenu%,sw%,se%,"Delete ^X/F5",0,0,0,0,-1)
+PROCst_menu_item(smenu%,sw%,se%,"Modify    F6",0,0,0,0,-1)
+PROCst_menu_item(smenu%,sw%,se%,"Clear     ^Z",0,0,0,1,-1)
+REM Clip-board Menu
+PROCinit_menu(cmenu%,cw%,ce%,"Clip-board")
+PROCst_menu_item(cmenu%,cw%,ce%,"Cut    ^V/F8",0,0,0,0,-1)
+PROCst_menu_item(cmenu%,cw%,ce%,"Copy   ^C/F7",0,1,0,0,-1)
+PROCst_menu_item(cmenu%,cw%,ce%,"Select   ‹F7",0,0,0,0,-1)
+PROCst_menu_item(cmenu%,cw%,ce%,"Clear     F9",0,0,0,1,-1)
+REM Printer Menu
+PROCinit_menu(pmenu%,pw%,pe%,"Printer")
+pw%=13
+DIM menu_prnt_prnt% 13 :$menu_prnt_prnt%="Print   PRINT"
+DIM menu_prnt_setu% 13 :$menu_prnt_setu%="Set up ‹PRINT"
+PROCmenu_item(pmenu%,pw%,pe%,"Print",0,0,0,0,print%,0,0,st_menu_flags%,menu_prnt_prnt%,-1,14)
+PROCmenu_item(pmenu%,pw%,pe%,"Set up",0,0,0,1,printset%,0,0,st_menu_flags%,menu_prnt_setu%,-1,14)
+REM Wimp Colours Menu
+PROCinit_menu(wmenu%,ww%,we%,"Colours")
+PROCmenu_item(wmenu%,ww%,we%,"0",0,0,0,0,-1,0,0,FNm_flags(7,0),0,0,0)
+PROCmenu_item(wmenu%,ww%,we%,"1",0,0,0,0,-1,0,0,FNm_flags(7,1),0,0,0)
+PROCmenu_item(wmenu%,ww%,we%,"2",0,0,0,0,-1,0,0,FNm_flags(7,2),0,0,0)
+PROCmenu_item(wmenu%,ww%,we%,"3",0,0,0,0,-1,0,0,FNm_flags(7,3),0,0,0)
+PROCmenu_item(wmenu%,ww%,we%,"4",0,0,0,0,-1,0,0,FNm_flags(0,4),0,0,0)
+PROCmenu_item(wmenu%,ww%,we%,"5",0,0,0,0,-1,0,0,FNm_flags(0,5),0,0,0)
+PROCmenu_item(wmenu%,ww%,we%,"6",0,0,0,0,-1,0,0,FNm_flags(0,6),0,0,0)
+PROCmenu_item(wmenu%,ww%,we%,"7",0,0,0,0,-1,0,0,FNm_flags(0,7),0,0,0)
+PROCmenu_item(wmenu%,ww%,we%,"8",0,0,0,0,-1,0,0,FNm_flags(0,8),0,0,0)
+PROCmenu_item(wmenu%,ww%,we%,"9",0,0,0,0,-1,0,0,FNm_flags(7,9),0,0,0)
+PROCmenu_item(wmenu%,ww%,we%,"10",0,0,0,0,-1,0,0,FNm_flags(0,10),0,0,0)
+PROCmenu_item(wmenu%,ww%,we%,"11",0,0,0,0,-1,0,0,FNm_flags(0,11),0,0,0)
+PROCmenu_item(wmenu%,ww%,we%,"12",0,0,0,0,-1,0,0,FNm_flags(7,12),0,0,0)
+PROCmenu_item(wmenu%,ww%,we%,"13",0,0,0,0,-1,0,0,FNm_flags(0,13),0,0,0)
+PROCmenu_item(wmenu%,ww%,we%,"14",0,0,0,0,-1,0,0,FNm_flags(7,14),0,0,0)
+PROCmenu_item(wmenu%,ww%,we%,"15",0,0,0,1,-1,0,0,FNm_flags(7,15),0,0,0)
+
+ENDPROC
+:
+DEF FNm_flags(fg%,bg%)
+=FNmenu_flags(1,0,0,0,0,0,0,0,0,fg%,bg%,0)
+:
+DEF FNicon_bar(task$)
+!q%=-1
+q%!4=0
+q%!8=0
+q%!12=68
+q%!16=69
+q%!20=&3002
+$(q%+24)=task$
+:
+SYS "Wimp_CreateIcon",,q% TO ihandle%
+=ihandle%
+:
+DEF PROCinit_menu(menu%,RETURN width%,RETURN end%,title$)
+width%=LEN(title$)
+$menu%=title$:menu%?12=7
+menu%?13=2:menu%?14=7:menu%?15=0
+menu%!16=(width%+1)*16:menu%!20=44
+menu%!24=0:end%=menu%+28
+ENDPROC
+:
+DEF PROCst_menu_item(menu%,RETURN width%,RETURN end%,text$,tick%,dot%,shade%,last%,link%)
+LOCAL f%
+f%=FNst_menu_flags(shade%)
+PROCmenu_item(menu%,width%,end%,text$,tick%,dot%,shade%,last%,link%,write%,mess%,f%,0,0,0)
+ENDPROC
+:
+DEF PROCmenu_item(menu%,RETURN width%,RETURN end%,text$,tick%,dot%,shade%,last%,link%,write%,mess%,flag%,icon1%,icon2%,icon3%)
+LOCAL f%,ist%
+f%=tick%+(dot%<<1)+(write%<<2)+(mess%<<3)+(last%<<7)
+!end%=f%:end%!4=link%:end%!8=flag%
+ist%=((flag%>>6)AND4)+(flag%AND3)
+CASE ist% OF
+WHEN 1,2,3:$(end%+12)=text$
+WHEN 5,6,7:end%!12=icon1%:end%!16=icon2%:end%!20=icon3%
+ENDCASE
+end%+=24
+IF LEN(text$)>width% THENwidth%=LEN(text$)
+menu%!16=(width%+1)*16
+ENDPROC
+:
+DEF FNmenu_flags(text%,sp%,bor%,chor%,anti%,ind%,rjust%,half%,shade%,fcol%,bcol%,font%)
+LOCAL flag%
+flag%=text%+(sp%<<1)+(bor%<<2)+(chor%<<3)+(1<<5)+(anti%<<6)+(ind%<<8)+(rjust%<<9)+(half%<<11)+(shade%<<22)
+IF anti%=0 THEN
+flag%+=(fcol%<<24)+(bcol%<<28)
+ELSE
+flag%+=(font%<<24)
+ENDIF
+=flag%
+:
+DEF FNst_menu_flags(shade%)
+=FNmenu_flags(1,0,0,0,0,0,0,0,shade%,7,0,0)
+:
+DEF PROChelp
+LOCAL window%,icon%
+window%=b%!32
+icon%=b%!36
+CASE window% OF
+WHEN -2
+PROCsend_help(FNdecode_message("Hlp0",w$()))
+WHEN main%
+PROCsend_help(FNdecode_message("Hlp1",w$()))
+WHEN tools%
+CASE icon% OF
+WHEN 0
+PROCsend_help(FNdecode_message("Hlp2",w$()))
+WHEN 1
+PROCsend_help(FNdecode_message("Hlp3",w$()))
+WHEN 2
+PROCsend_help(FNdecode_message("Hlp4",w$()))
+WHEN 3
+PROCsend_help(FNdecode_message("Hlp5",w$()))
+WHEN 4
+PROCsend_help(FNdecode_message("Hlp6",w$()))
+OTHERWISE
+PROCsend_help(FNdecode_message("Hlp7",w$()))
+ENDCASE
+WHEN enter%
+CASE icon% OF
+WHEN 0
+PROCsend_help(FNdecode_message("Hlp8",w$()))
+WHEN 1
+PROCsend_help(FNdecode_message("Hlp9",w$()))
+WHEN 2
+PROCsend_help(FNdecode_message("Hlp10",w$()))
+WHEN 3
+PROCsend_help(FNdecode_message("Hlp11",w$()))
+WHEN 4
+PROCsend_help(FNdecode_message("Hlp12",w$()))
+WHEN 5
+PROCsend_help(FNdecode_message("Hlp13",w$()))
+WHEN 6
+PROCsend_help(FNdecode_message("Hlp14",w$()))
+WHEN 7
+PROCsend_help(FNdecode_message("Hlp15",w$()))
+WHEN 8
+PROCsend_help(FNdecode_message("Hlp16",w$()))
+WHEN 9
+PROCsend_help(FNdecode_message("Hlp17",w$()))
+WHEN 10
+PROCsend_help(FNdecode_message("Hlp18",w$()))
+WHEN 11
+PROCsend_help(FNdecode_message("Hlp19",w$()))
+WHEN 12
+PROCsend_help(FNdecode_message("Hlp20",w$()))
+WHEN 13
+PROCsend_help(FNdecode_message("Hlp21",w$()))
+OTHERWISE
+PROCsend_help(FNdecode_message("Hlp22",w$()))
+ENDCASE
+WHEN goto%
+CASE icon% OF
+WHEN 0
+PROCsend_help(FNdecode_message("Hlp23",w$()))
+WHEN 1
+PROCsend_help(FNdecode_message("Hlp24",w$()))
+OTHERWISE
+PROCsend_help(FNdecode_message("Hlp25",w$()))
+ENDCASE
+WHEN find%
+CASE icon% OF
+WHEN 0
+PROCsend_help(FNdecode_message("Hlp183",w$()))
+WHEN 1,10
+PROCsend_help(FNdecode_message("Hlp26",w$()))
+WHEN 2
+PROCsend_help(FNdecode_message("Hlp27",w$()))
+WHEN 3
+PROCsend_help(FNdecode_message("Hlp28",w$()))
+WHEN 4
+PROCsend_help(FNdecode_message("Hlp29",w$()))
+WHEN 5
+PROCsend_help(FNdecode_message("Hlp30",w$()))
+WHEN 6
+PROCsend_help(FNdecode_message("Hlp31",w$()))
+WHEN 7
+PROCsend_help(FNdecode_message("Hlp120",w$()))
+WHEN 8,9
+PROCsend_help(FNdecode_message("Hlp121",w$()))
+OTHERWISE
+PROCsend_help(FNdecode_message("Hlp32",w$()))
+ENDCASE
+WHEN foundw%
+CASE icon% OF
+WHEN 2
+PROCsend_help(FNdecode_message("Hlp33",w$()))
+WHEN 3
+PROCsend_help(FNdecode_message("Hlp34",w$()))
+WHEN 4
+PROCsend_help(FNdecode_message("Hlp35",w$()))
+WHEN 5
+PROCsend_help(FNdecode_message("Hlp36",w$()))
+WHEN 6
+PROCsend_help(FNdecode_message("Hlp122",w$()))
+WHEN 7
+PROCsend_help(FNdecode_message("Hlp123",w$()))
+OTHERWISE
+PROCsend_help(FNdecode_message("Hlp37",w$()))
+ENDCASE
+WHEN newhead%
+CASE icon% OF
+WHEN 1
+PROCsend_help(FNdecode_message("Hlp38",w$()))
+WHEN 2
+PROCsend_help(FNdecode_message("Hlp39",w$()))
+WHEN 3
+PROCsend_help(FNdecode_message("Hlp40",w$()))
+OTHERWISE
+PROCsend_help(FNdecode_message("Hlp41",w$()))
+ENDCASE
+WHEN save%
+CASE icon% OF
+WHEN 0
+PROCsend_help(FNdecode_message("Hlp42",w$()))
+WHEN 1
+PROCsend_help(FNdecode_message("Hlp43",w$()))
+WHEN 2
+PROCsend_help(FNdecode_message("Hlp44",w$()))
+OTHERWISE
+PROCsend_help(FNdecode_message("Hlp45",w$()))
+ENDCASE
+WHEN text%
+CASE icon% OF
+WHEN 0
+PROCsend_help(FNdecode_message("Hlp46",w$()))
+WHEN 1
+PROCsend_help(FNdecode_message("Hlp47",w$()))
+WHEN 2
+PROCsend_help(FNdecode_message("Hlp48",w$()))
+WHEN 3
+PROCsend_help(FNdecode_message("Hlp49",w$()))
+WHEN 4
+PROCsend_help(FNdecode_message("Hlp50",w$()))
+WHEN 5
+PROCsend_help(FNdecode_message("Hlp51",w$()))
+WHEN 6
+PROCsend_help(FNdecode_message("Hlp52",w$()))
+WHEN 7
+PROCsend_help(FNdecode_message("Hlp53",w$()))
+WHEN 8
+PROCsend_help(FNdecode_message("Hlp54",w$()))
+WHEN 9
+PROCsend_help(FNdecode_message("Hlp55",w$()))
+WHEN 10
+PROCsend_help(FNdecode_message("Hlp56",w$()))
+WHEN 11
+PROCsend_help(FNdecode_message("Hlp57",w$()))
+WHEN 12
+PROCsend_help(FNdecode_message("Hlp58",w$()))
+WHEN 13
+PROCsend_help(FNdecode_message("Hlp59",w$()))
+OTHERWISE
+PROCsend_help(FNdecode_message("Hlp60",w$()))
+ENDCASE
+WHEN csv%
+CASE icon% OF
+WHEN 0
+PROCsend_help(FNdecode_message("Hlp61",w$()))
+WHEN 1
+PROCsend_help(FNdecode_message("Hlp62",w$()))
+WHEN 2
+PROCsend_help(FNdecode_message("Hlp63",w$()))
+WHEN 3
+PROCsend_help(FNdecode_message("Hlp64",w$()))
+WHEN 4
+PROCsend_help(FNdecode_message("Hlp65",w$()))
+WHEN 5
+PROCsend_help(FNdecode_message("Hlp66",w$()))
+WHEN 6
+PROCsend_help(FNdecode_message("Hlp67",w$()))
+WHEN 7
+PROCsend_help(FNdecode_message("Hlp68",w$()))
+WHEN 8
+PROCsend_help(FNdecode_message("Hlp69",w$()))
+WHEN 9
+PROCsend_help(FNdecode_message("Hlp70",w$()))
+WHEN 10
+PROCsend_help(FNdecode_message("Hlp71",w$()))
+WHEN 11
+PROCsend_help(FNdecode_message("Hlp72",w$()))
+WHEN 12
+PROCsend_help(FNdecode_message("Hlp73",w$()))
+OTHERWISE
+PROCsend_help(FNdecode_message("Hlp74",w$()))
+ENDCASE
+WHEN print%
+CASE icon% OF
+WHEN 0
+PROCsend_help(FNdecode_message("Hlp75",w$()))
+WHEN 1
+PROCsend_help(FNdecode_message("Hlp76",w$()))
+WHEN 2
+PROCsend_help(FNdecode_message("Hlp77",w$()))
+WHEN 3
+PROCsend_help(FNdecode_message("Hlp78",w$()))
+WHEN 4
+PROCsend_help(FNdecode_message("Hlp79",w$()))
+WHEN 5
+PROCsend_help(FNdecode_message("Hlp80",w$()))
+WHEN 6
+PROCsend_help(FNdecode_message("Hlp81",w$()))
+WHEN 7
+PROCsend_help(FNdecode_message("Hlp82",w$()))
+WHEN 8
+PROCsend_help(FNdecode_message("Hlp83",w$()))
+WHEN 9
+PROCsend_help(FNdecode_message("Hlp84",w$()))
+WHEN 10
+PROCsend_help(FNdecode_message("Hlp85",w$()))
+WHEN 11
+PROCsend_help(FNdecode_message("Hlp86",w$()))
+WHEN 12
+PROCsend_help(FNdecode_message("Hlp87",w$()))
+OTHERWISE
+PROCsend_help(FNdecode_message("Hlp88",w$()))
+ENDCASE
+WHEN info%
+PROCsend_help(FNdecode_message("Hlp89",w$()))
+WHEN fileinf%
+CASE icon% OF
+WHEN 1,6
+PROCsend_help(FNdecode_message("Hlp90",w$()))
+WHEN 2,7
+PROCsend_help(FNdecode_message("Hlp91",w$()))
+WHEN 3,4,8
+PROCsend_help(FNdecode_message("Hlp92",w$()))
+WHEN 5
+PROCsend_help(FNdecode_message("Hlp93",w$()))
+OTHERWISE
+PROCsend_help(FNdecode_message("Hlp94",w$()))
+ENDCASE
+WHEN error%
+PROCsend_help(FNdecode_message("Hlp95",w$()))
+WHEN printset%
+CASE icon% OF
+WHEN 0
+PROCsend_help(FNdecode_message("Hlp96",w$()))
+WHEN 1
+PROCsend_help(FNdecode_message("Hlp97",w$()))
+WHEN 2
+PROCsend_help(FNdecode_message("Hlp98",w$()))
+WHEN 3
+PROCsend_help(FNdecode_message("Hlp99",w$()))
+WHEN 4
+PROCsend_help(FNdecode_message("Hlp100",w$()))
+WHEN 5
+PROCsend_help(FNdecode_message("Hlp101",w$()))
+WHEN 6
+PROCsend_help(FNdecode_message("Hlp102",w$()))
+WHEN 7
+PROCsend_help(FNdecode_message("Hlp103",w$()))
+WHEN 8
+PROCsend_help(FNdecode_message("Hlp104",w$()))
+WHEN 9
+PROCsend_help(FNdecode_message("Hlp105",w$()))
+WHEN 10
+PROCsend_help(FNdecode_message("Hlp106",w$()))
+WHEN 11
+PROCsend_help(FNdecode_message("Hlp107",w$()))
+WHEN 12
+PROCsend_help(FNdecode_message("Hlp108",w$()))
+WHEN 13
+PROCsend_help(FNdecode_message("Hlp109",w$()))
+WHEN 14
+PROCsend_help(FNdecode_message("Hlp110",w$()))
+WHEN 15
+PROCsend_help(FNdecode_message("Hlp111",w$()))
+WHEN 16
+PROCsend_help(FNdecode_message("Hlp112",w$()))
+WHEN 17
+PROCsend_help(FNdecode_message("Hlp113",w$()))
+WHEN 18
+PROCsend_help(FNdecode_message("Hlp114",w$()))
+WHEN 19
+PROCsend_help(FNdecode_message("Hlp115",w$()))
+WHEN 20
+PROCsend_help(FNdecode_message("Hlp116",w$()))
+WHEN 21
+PROCsend_help(FNdecode_message("Hlp118",w$()))
+WHEN 22
+PROCsend_help(FNdecode_message("Hlp119",w$()))
+OTHERWISE
+PROCsend_help(FNdecode_message("Hlp117",w$()))
+ENDCASE
+WHEN merge%
+CASE icon% OF
+WHEN 0
+PROCsend_help(FNdecode_message("Hlp124",w$()))
+WHEN 1
+PROCsend_help(FNdecode_message("Hlp125",w$()))
+WHEN 2
+PROCsend_help(FNdecode_message("Hlp126",w$()))
+WHEN 3
+PROCsend_help(FNdecode_message("Hlp127",w$()))
+OTHERWISE
+PROCsend_help(FNdecode_message("Hlp128",w$()))
+ENDCASE
+WHEN loadcsv%
+CASE icon% OF
+WHEN 0
+PROCsend_help(FNdecode_message("Hlp129",w$()))
+WHEN 1
+PROCsend_help(FNdecode_message("Hlp130",w$()))
+WHEN 2
+PROCsend_help(FNdecode_message("Hlp131",w$()))
+WHEN 3
+PROCsend_help(FNdecode_message("Hlp132",w$()))
+WHEN 4
+PROCsend_help(FNdecode_message("Hlp133",w$()))
+WHEN 5
+PROCsend_help(FNdecode_message("Hlp134",w$()))
+WHEN 6
+PROCsend_help(FNdecode_message("Hlp135",w$()))
+WHEN 7
+PROCsend_help(FNdecode_message("Hlp136",w$()))
+WHEN 8
+PROCsend_help(FNdecode_message("Hlp137",w$()))
+WHEN 9
+PROCsend_help(FNdecode_message("Hlp138",w$()))
+WHEN 10
+PROCsend_help(FNdecode_message("Hlp139",w$()))
+WHEN 11
+PROCsend_help(FNdecode_message("Hlp140",w$()))
+WHEN 12
+PROCsend_help(FNdecode_message("Hlp141",w$()))
+WHEN 13
+PROCsend_help(FNdecode_message("Hlp142",w$()))
+OTHERWISE
+PROCsend_help(FNdecode_message("Hlp143",w$()))
+ENDCASE
+WHEN prefs%
+CASE icon% OF
+WHEN 0
+PROCsend_help(FNdecode_message("Hlp144",w$()))
+WHEN 1
+PROCsend_help(FNdecode_message("Hlp145",w$()))
+WHEN 2
+PROCsend_help(FNdecode_message("Hlp146",w$()))
+OTHERWISE
+PROCsend_help(FNdecode_message("Hlp147",w$()))
+ENDCASE
+WHEN prefspane%
+CASE icon% OF
+WHEN 0,1
+PROCsend_help(FNdecode_message("Hlp148",w$()))
+WHEN 2
+PROCsend_help(FNdecode_message("Hlp149",w$()))
+WHEN 3
+PROCsend_help(FNdecode_message("Hlp150",w$()))
+WHEN 4
+PROCsend_help(FNdecode_message("Hlp151",w$()))
+WHEN 5,6
+PROCsend_help(FNdecode_message("Hlp152",w$()))
+WHEN 7
+PROCsend_help(FNdecode_message("Hlp153",w$()))
+WHEN 8
+PROCsend_help(FNdecode_message("Hlp154",w$()))
+WHEN 9,10
+PROCsend_help(FNdecode_message("Hlp155",w$()))
+WHEN 11
+PROCsend_help(FNdecode_message("Hlp156",w$()))
+WHEN 12
+PROCsend_help(FNdecode_message("Hlp157",w$()))
+WHEN 13
+PROCsend_help(FNdecode_message("Hlp158",w$()))
+WHEN 14
+PROCsend_help(FNdecode_message("Hlp159",w$()))
+WHEN 15
+PROCsend_help(FNdecode_message("Hlp160",w$()))
+WHEN 16
+PROCsend_help(FNdecode_message("Hlp161",w$()))
+WHEN 17
+PROCsend_help(FNdecode_message("Hlp162",w$()))
+WHEN 18
+PROCsend_help(FNdecode_message("Hlp163",w$()))
+WHEN 19
+PROCsend_help(FNdecode_message("Hlp164",w$()))
+WHEN 20
+PROCsend_help(FNdecode_message("Hlp165",w$()))
+WHEN 21,22
+PROCsend_help(FNdecode_message("Hlp166",w$()))
+WHEN 23,24
+PROCsend_help(FNdecode_message("Hlp167",w$()))
+WHEN 25,26
+PROCsend_help(FNdecode_message("Hlp168",w$()))
+WHEN 27,28
+PROCsend_help(FNdecode_message("Hlp169",w$()))
+WHEN 29,30
+PROCsend_help(FNdecode_message("Hlp170",w$()))
+WHEN 31,32
+PROCsend_help(FNdecode_message("Hlp171",w$()))
+WHEN 33
+PROCsend_help(FNdecode_message("Hlp172",w$()))
+WHEN 34
+PROCsend_help(FNdecode_message("Hlp184",w$()))
+WHEN 35
+PROCsend_help(FNdecode_message("Hlp185",w$()))
+WHEN 36
+PROCsend_help(FNdecode_message("Hlp186",w$()))
+WHEN 37
+PROCsend_help(FNdecode_message("Hlp187",w$()))
+WHEN 43
+PROCsend_help(FNdecode_message("Hlp189",w$()))
+OTHERWISE
+PROCsend_help(FNdecode_message("Hlp173",w$()))
+ENDCASE
+WHEN selline%
+CASE icon% OF
+WHEN 0
+PROCsend_help(FNdecode_message("Hlp174",w$()))
+WHEN 1
+PROCsend_help(FNdecode_message("Hlp175",w$()))
+OTHERWISE
+PROCsend_help(FNdecode_message("Hlp176",w$()))
+ENDCASE
+WHEN pane%
+CASE icon% OF
+WHEN 0
+PROCsend_help(FNdecode_message("Hlp182",w$()))
+WHEN 1
+PROCsend_help(FNdecode_message("Hlp190",w$()))
+WHEN 2
+PROCsend_help(FNdecode_message("Hlp191",w$()))
+WHEN 3
+PROCsend_help(FNdecode_message("Hlp192",w$()))
+WHEN 4
+PROCsend_help(FNdecode_message("Hlp193",w$()))
+WHEN 5
+PROCsend_help(FNdecode_message("Hlp194",w$()))
+WHEN 6
+PROCsend_help(FNdecode_message("Hlp195",w$()))
+WHEN 7
+PROCsend_help(FNdecode_message("Hlp196",w$()))
+WHEN 8
+PROCsend_help(FNdecode_message("Hlp197",w$()))
+WHEN 9
+PROCsend_help(FNdecode_message("Hlp198",w$()))
+WHEN 10
+PROCsend_help(FNdecode_message("Hlp199",w$()))
+WHEN 11
+PROCsend_help(FNdecode_message("Hlp200",w$()))
+WHEN 12
+PROCsend_help(FNdecode_message("Hlp201",w$()))
+WHEN 13
+PROCsend_help(FNdecode_message("Hlp202",w$()))
+WHEN 14
+PROCsend_help(FNdecode_message("Hlp203",w$()))
+ENDCASE
+OTHERWISE
+PROCsend_help(FNdecode_message("Hlp188",w$()))
+ENDCASE
+ENDPROC
+:
+DEF PROCsend_help(help$)
+b%!12=b%!8
+b%!16=&503
+$(b%+20)=help$+STRING$(4,CHR$(0))
+!b%=24+(LEN(help$) AND &FFFFFC)
+SYS "Wimp_SendMessage",17,b%,b%!4
+ENDPROC
+:
+DEF PROCdisplay_bar_menu(menu%,items%,dots%,x%)
+menuup%=menu%
+SYS "Wimp_CreateMenu",,menu%,x%-64,96+(items%*44)+(dots%*24)
+ENDPROC
+:
+DEF PROCdisplay_menu(menu%,x%,y%)
+menuup%=menu%
+SYS "Wimp_CreateMenu",,menu%,x%-64,y%
+ENDPROC
+:
+DEF PROCset_menu_state(handle%,item%,tick%,shade%)
+LOCAL a%
+a%=handle%+28+(item%*24)+10
+IF shade% THEN?a%=(?a% OR 64) ELSE?a%=(?a% AND 191)
+a%=handle%+28+(item%*24)
+IF tick% THEN?a%=(?a% OR 1) ELSE?a%=(?a% AND 254)
+ENDPROC
+:
+DEF FNmenu_state(handle%,item%)
+LOCAL a%
+a%=handle%+28+(item%*24)
+=(?a% AND 1)
+:
+DEF PROCset_icon_state(whan%,ihan%,sel%,shad%,del%)
+LOCAL eor%,clear%
+eor%=0 :clear%=0
+IF sel% THEN
+clear%+=(1<<21)
+eor%  +=(1<<21)
+ELSE
+clear%+=(1<<21)
+eor%  +=(0<<21)
+ENDIF
+IF shad% THEN
+clear%+=(1<<22)
+eor%  +=(1<<22)
+ELSE
+clear%+=(1<<22)
+eor%  +=(0<<22)
+ENDIF
+IF del% THEN
+clear%+=(1<<23)
+eor%  +=(1<<23)
+ELSE
+clear%+=(1<<23)
+eor%  +=(0<<23)
+ENDIF
+:
+!q%=whan%
+q%!4=ihan%
+q%!8=eor%
+q%!12=clear%
+SYS "Wimp_SetIconState",,q%
+ENDPROC
+:
+DEF FNicon_state(whan%,icon%)
+!q%=whan%
+q%!4=icon%
+SYS "Wimp_GetIconState",,q%
+=(q%!24 AND (1<<21))
+:
+DEF PROCset_icon_colour(whand%,ihand%,fcol%,bcol%)
+LOCAL eor%,clear%
+eor%=0
+clear%=(255<<24)
+!q%=whand%
+q%!4=ihand%
+q%!8=eor%
+q%!12=clear%
+SYS "Wimp_SetIconState",,q%
+eor%=0
+clear%=0
+eor%+=(bcol%<<28)
+eor%+=(fcol%<<24)
+clear%=eor%
+q%!8=eor%
+q%!12=clear%
+SYS "Wimp_SetIconState",,q%
+ENDPROC
+:
+DEF PROCshade_button(whand%,ihand%)
+LOCAL eor%,clear%
+eor%=0
+clear%=(255<<24)+(15<<12)
+!q%=whand%
+q%!4=ihand%
+q%!8=eor%
+q%!12=clear%
+SYS "Wimp_SetIconState",,q%
+eor%=0
+clear%=0
+eor%+=(0<<12)
+eor%+=(3<<24)+(1<<28)
+clear%=eor%
+q%!8=eor%
+q%!12=clear%
+SYS "Wimp_SetIconState",,q%
+ENDPROC
+:
+DEF PROCclear_button(whand%,ihand%)
+LOCAL eor%,clear%
+eor%=0
+clear%=(255<<24)+(15<<12)
+!q%=whand%
+q%!4=ihand%
+q%!8=eor%
+q%!12=clear%
+SYS "Wimp_SetIconState",,q%
+eor%=0
+clear%=0
+eor%+=(3<<12)
+eor%+=(7<<24)+(1<<28)
+clear%=eor%
+q%!8=eor%
+q%!12=clear%
+SYS "Wimp_SetIconState",,q%
+ENDPROC
+:
+DEF PROCredraw_window(whand%)
+!q%=whand%
+SYS "Wimp_GetWindowState",,q%
+SYS "Wimp_ForceRedraw",whand%,q%!20,(q%!24)-(q%!16-q%!8),(q%!20)+(q%!12-q%!4),q%!24
+SYS "Wimp_ForceRedraw",-1,q%!4,q%!16,q%!12+40,q%!16+40
+ENDPROC
+:
+DEF PROCredraw_part(h%,x%,y%,a%,b%)
+SYS "Wimp_ForceRedraw",h%,x%,y%,x%+a%,y%+b%
+ENDPROC
+:
+DEF PROCend_caret(w%,i%)
+LOCAL len%
+!b%=w% :b%!4=i%
+SYS "Wimp_GetIconState",,b%
+len%=LEN($(b%!28))
+SYS "Wimp_SetCaretPosition",w%,i%,,,-1,len%
+ENDPROC
+:
+DEF PROCplace_caret(w%,i%,p%)
+LOCAL len%
+!b%=w% :b%!4=i%
+SYS "Wimp_GetIconState",,b%
+len%=LEN($(b%!28))
+IF p%>len% THENp%=len%
+SYS "Wimp_SetCaretPosition",w%,i%,,,-1,p%
+ENDPROC
+:
+DEF PROCcheck_select(w%,i%)
+IF NOT (FNicon_state(w%,i%)<>0) THENPROCset_icon_state(w%,i%,1,0,0)
+ENDPROC
+:
+DEF PROCopen_window(whan%)
+!b%=whan%
+SYS "Wimp_GetWindowState",,b%
+IF !b%=main% OR !b%=prefs% THEN
+IF !b%=main% THEN
+!q%=pane%
+SYS "Wimp_GetWindowState",,q%
+q%!4=b%!4
+q%!16=b%!16
+IF FNmenu_state(mmenu%,8) THENq%!8=b%!16-136 ELSEq%!8=b%!16-36
+q%!12=b%!12
+q%!20=b%!20
+IF FNmenu_state(mmenu%,8) THENq%!24=0 ELSEq%!24=-96
+q%!28=b%!28
+SYS "Wimp_OpenWindow",,q%
+IF FNmenu_state(mmenu%,7) AND join_main% THEN
+!q%=enter%
+SYS "Wimp_GetWindowState",,q%
+q%!4=b%!4+40
+IF b%!8>236 THENover%=0
+IF b%!8<=236 AND b%!8>0 THENover%=236-b%!8
+IF b%!8<=0 THENover%=236
+q%!16=b%!8-44+over%
+q%!8=b%!8-236+over%
+q%!12=b%!4+1236
+q%!20=0
+q%!24=0
+q%!28=pane%
+SYS "Wimp_OpenWindow",,q%
+b%!28=enter%
+ELSE
+b%!28=pane%
+ENDIF
+SYS "Wimp_OpenWindow",,b%
+ELSE
+!q%=prefspane%
+SYS "Wimp_GetWindowState",,q%
+q%!4=b%!4+22
+q%!16=b%!8+402
+q%!8=b%!8+24
+q%!12=b%!4+502
+q%!20=0
+q%!24=0
+q%!28=b%!28
+SYS "Wimp_OpenWindow",,q%
+b%!28=prefspane%
+SYS "Wimp_OpenWindow",,b%
+ENDIF
+ELSE
+SYS "Wimp_OpenWindow",,b%
+ENDIF
+ENDPROC
+:
+DEF PROCopen_at(whan%,x%,y%)
+LOCAL w%,h%
+!q%=whan%
+SYS "Wimp_GetWindowState",,q%
+w%=q%!12-q%!4
+h%=q%!16-q%!8
+q%!4=x%
+q%!8=y%
+q%!12=x%+w%
+q%!16=y%+h%
+SYS "Wimp_OpenWindow",,q%
+ENDPROC
+:
+DEF PROCopen_as_menu(wind%)
+!q%=wind%
+SYS"Wimp_GetWindowState",,q%
+SYS"Wimp_CreateMenu",,wind%,(width%-(q%!12-q%!4))/2,(1024+(q%!16-q%!8))/2
+ENDPROC
+:
+DEF PROCclose_window(whan%)
+!q%=whan%
+SYS "Wimp_GetWindowState",,q%
+SYS "Wimp_CloseWindow",,q%
+ENDPROC
+:
+DEF FNindirection(wind%,icon%)
+!q%=wind%
+q%!4=icon%
+SYS "Wimp_GetIconState",,q%
+=q%!28
+:
+DEF PROCopen_templates(file$)
+SYS "Wimp_OpenTemplate",,file$
+DIM template_name% 12
+ENDPROC
+:
+DEF FNload_template(name$,buff%,ind%,len%)
+$template_name%="            "
+$template_name%=name$
+SYS "Wimp_LoadTemplate",,buff%,ind%,ind%+len%,-1,template_name%,0 TO ,,new%
+=new%
+:
+DEF PROCclose_templates
+SYS "Wimp_CloseTemplate"
+ENDPROC
+:
+DEF FNwarning(title$,text$,b1$,c1%,b2$,c2%,b3$,c3%)
+LOCAL buttons%,code%
+title$=LEFT$(title$,9)
+IF b1$<>"" THENbuttons%=1
+IF b2$<>"" THENbuttons%=2
+IF b3$<>"" THENbuttons%=3
+IF buttons%=0 THENENDPROC
+CASE buttons% OF
+WHEN 1
+PROCset_icon_state(error%,5,0,0,0)
+PROCset_icon_state(error%,6,0,0,1)
+PROCset_icon_state(error%,7,0,0,1)
+WHEN 2
+PROCset_icon_state(error%,5,0,0,0)
+PROCset_icon_state(error%,6,0,0,0)
+PROCset_icon_state(error%,7,0,0,1)
+WHEN 3
+PROCset_icon_state(error%,5,0,0,0)
+PROCset_icon_state(error%,6,0,0,0)
+PROCset_icon_state(error%,7,0,0,0)
+ENDCASE
+$errortext%=text$
+$errortitle%=title$+" "+FNdecode_message("Wrn0",w$())
+$button1%=b1$
+$button2%=b2$
+$button3%=b3$
+IF c1%=1 c1%=12
+IF c2%=1 c2%=12
+IF c3%=1 c3%=12
+PROCopen_at(error%,(width%/2)-400,312)
+MOUSE RECTANGLE (width%/2)-402,308,802,436
+REPEAT
+SYS "Wimp_Poll",0,b% TO reason%
+CASE reason% OF
+WHEN 1 :PROCredraw
+WHEN 2 :SYS "Wimp_OpenWindow",,b%
+WHEN 3 :SYS "Wimp_CloseWindow",,b%
+WHEN 17,18 :IF b%!16=&502 PROChelp
+ENDCASE
+UNTIL (reason%=6AND(b%!16>-1ANDb%!8<>2))OR(reason%=8AND(b%!24=13ORb%!24=&1B))
+MOUSE RECTANGLE 0,0,width%,height%
+PROCclose_window(error%)
+CASE reason% OF
+WHEN 6 :code%=(b%!16)-5
+WHEN 8 :IF b%!24=13 THENcode%=0 ELSEcode%=buttons%-1
+ENDCASE
+=code%
+:
+DEF PROCerror
+LOCAL err$,box%,cs%
+err$="" :err%=0 :box%=0 :cs%=0
+SYS "Hourglass_Smash"
+CASE ERR OF
+WHEN 20   :box%=1:err$=FNdecode_message("Err1",w$()) :cs%=0
+WHEN 204  :box%=2:err$=FNdecode_message("Err2",w$()) :cs%=1
+WHEN 214  :box%=2:err$=FNdecode_message("Err11",w$()):cs%=1
+WHEN 223  :box%=2:err$=FNdecode_message("Err3",w$()) :cs%=0:CLOSE#i%
+WHEN 275  :box%=2:err$=FNdecode_message("Err10",w$()):cs%=1
+WHEN 1491 :box%=2:err$=FNdecode_message("Err4",w$()) :cs%=0
+WHEN 67796:box%=2:err$=FNdecode_message("Err13",w$()):cs%=1
+WHEN 67797:box%=2:err$=FNdecode_message("Err5",w$()) :cs%=1
+WHEN 71603:box%=2:err$=FNdecode_message("Err12",w$()):cs%=1
+WHEN 71613:box%=2:err$=FNdecode_message("Err6",w$()) :cs%=0
+WHEN 71618:box%=2:err$=FNdecode_message("Err7",w$()) :cs%=1
+WHEN 71622:box%=2:err$=FNdecode_message("Err8",w$()) :cs%=1
+WHEN 71636:box%=2:err$=FNdecode_message("Err9",w$()) :cs%=1
+OTHERWISE
+w$(0)=STR$(ERR)
+w$(1)=REPORT$
+w$(2)=STR$(ERL)
+err%=FNreport(255,FNdecode_message("Err0",w$()),0,app$,1,1)
+ENDCASE
+IF err%=2 THENPROCloose_fonts :SYS "Wimp_CloseDown" :END
+IF err$<>"" THEN
+CASE box% OF
+WHEN 1 :err%=FNwarning(mess$,err$,"OK",1,"",0,"",0)
+WHEN 2 :err%=FNreport(255,err$,1,app$,1,0)
+ENDCASE
+IF cs% THENerr%=FNreport(255,FNdecode_message("Fil3",w$()),1,app$,1,0)
+ENDIF
+ENDPROC
+:
+DEF FNreport(errno%,err$,error%,task$,ok%,cancel%)
+LOCAL flag%,response%
+!q%=errno%
+$(q%+4)=err$+CHR$(0)
+flag%=ok%+(cancel%<<1)+(error%<<4)
+IF error%=1 task$="Message from "+task$
+SYS "Wimp_ReportError",q%,flag%,task$ TO ,response%
+=response%
+

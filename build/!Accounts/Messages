@@ -110,13 +110,7 @@ Val2:There is no free space in this account. You will have to remove some entrie
 ;
 ; Startup Messages
 ;
-Int0:Accounts V5.19
-Int1:©Stephen Fryatt 1992, 1993
-Int2:”Accounts Editor•
-;
-; Information
-;
-Info:5.19 (26-August-1994)
+Int0:Accounts %0
 ;
 ; Help Messages
 ;

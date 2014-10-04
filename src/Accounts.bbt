@@ -12,6 +12,9 @@ REM **************                                           **************
 REM ************** This program is not in the Public Domain! **************
 REM ***********************************************************************
 :
+build_version$="5.19"
+build_date$="26th August 1994"
+:
 SYS "XOS_GetEnv" TO state$
 :
 PROCinit
@@ -3015,16 +3018,13 @@ DEF PROCdefine_icons
 icon%=FNicon_bar("!Accounts")
 :
 REM Info
-vers%=FNindirection(info%,3)
-$vers%=LEFT$(FNdecode_message("Info",w$()),33)
+$FNindirection(info%,2)=CHR$(169) + " Stephen Fryatt, 1992-" + MID$(build_date$, 8)
+$FNindirection(info%,3)=build_version$+" ("+build_date$+")"
 :
 REM Intro
-int_acc%=FNindirection(intro%,2)
-int_aut%=FNindirection(intro%,3)
-int_ini%=FNindirection(intro%,4)
-$int_acc%=LEFT$(FNdecode_message("Int0",w$()),30)
-$int_aut%=LEFT$(FNdecode_message("Int1",w$()),30)
-$int_ini%=LEFT$(FNdecode_message("Int2",w$()),30)
+w$(0) = build_version$
+$FNindirection(intro%,2)=FNdecode_message("Int0",w$())
+$FNindirection(intro%,3)=CHR$(169) + " Stephen Fryatt, 1992-" + MID$(build_date$, 8)
 :
 REM Enter1
 string1%=FNindirection(enter1%,6)

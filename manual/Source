@@ -1,3 +1,44 @@
+<document title="Accounts">
+<define name="version" value="5.00">
+<define name="date" value="a January 2014" length=30 align="right">
+
+
+
+
+
+<literal mode="Text">
+=============================================================================
+Accounts - Simple Bank Account Manager                           Version $$version$$
+
+(c) Stephen Fryatt, 1992-2014                  $$date$$
+=============================================================================
+
+</literal>
+
+
+
+
+
+<chapter title="License" file="License">
+
+<cite>Accounts</cite> is licensed under the EUPL, Version&nbsp;1.1 only (the &ldquo;Licence&rdquo;); you may not use this work except in compliance with the Licence.
+
+You may obtain a copy of the Licence at <link ref="#url http://joinup.ec.europa.eu/software/page/eupl">http://joinup.ec.europa.eu/software/page/eupl</link>
+
+Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an &ldquo;<strong>as is</strong>&rdquo; basis, <strong>without warranties or conditions of any kind</strong>, either express or implied.
+
+See the Licence for the specific language governing permissions and limitations under the Licence.
+
+The source for <cite>Accounts</cite> can be found alongside this binary download, at <link ref="#url http://www.stevefryatt.org.uk/software">http://www.stevefryatt.org.uk/software</link>
+
+The necessary libraries and build tools can be found at <link ref="#url http://www.stevefryatt.org.uk/software/build">http://www.stevefryatt.org.uk/software/build</link>
+
+</chapter>
+
+
+
+
+<chapter title="Installing Accounts" file="Install">
 #############################################################################
 #                                                                           #
 #              Release Notes For Accounts V5.19 and Greater                 #
@@ -156,3 +197,25 @@ Desktop Shutdown
 
     If your data is unsaved, Accounts will warn you prior to a desktop
 shutdown, so that you can save your work.
+
+
+</chapter>
+
+
+
+
+<literal mode="Text">
+
+Updates and Contacting Me
+-------------------------
+
+  If you have any comments about Accounts, or would like to report any bugs
+  that you find, you can email me at the address below.
+
+  Updates to Accounts and more programs for RISC OS computers can be found
+  on my website at http://www.stevefryatt.org.uk/software/
+
+  Stephen Fryatt
+  email: steve@stevefryatt.org.uk
+</literal>
+

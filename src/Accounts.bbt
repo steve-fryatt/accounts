@@ -415,7 +415,7 @@ sel2%=b%!4
 sel3%=b%!8
 SYS "Wimp_GetPointerInfo",,b%
 button%=b%!8
-CASE menuup% OF
+CASE FNmenu_current_handle OF
 WHEN imenu%
 CASE sel1% OF
 WHEN 0 :PROCopen_as_menu(info%) :button%=4
@@ -550,7 +550,7 @@ PROCredraw_main
 PROCset_extent(0)
 ENDCASE
 ENDCASE
-IF button%=1 PROCupdate_menu :PROCmenu_create(menuup%,0,0)
+IF button%=1 PROCupdate_menu :PROCmenu_create(FNmenu_current_handle,0,0)
 ENDPROC
 :
 DEF PROCkey_press(key%,whan%,icon%)

@@ -118,7 +118,7 @@ LOCAL size%,loop%
 CASE wind% OF
 WHEN -2
 CASE button% OF
-WHEN 2 :PROCdisplay_bar_menu(imenu%,3,1,!b%)
+WHEN 2 :PROCmenu_create_iconbar(imenu%,!b%)
 WHEN 4
 PROCopen_window(main%)
 PROCset_extent(TRUE)
@@ -136,7 +136,7 @@ WHEN 0,1,2,3 :PROCaddval(icon%)
 WHEN 4       :PROCdelete
 ENDCASE
 WHEN 2 :PROCupdate_menu
-PROCdisplay_menu(mmenu%,!b%,b%!4)
+PROCmenu_create(mmenu%,!b%,b%!4)
 ENDCASE
 WHEN pane%
 CASE button% OF
@@ -160,7 +160,7 @@ WHEN 9       :PROCopen_as_menu(save%)
 WHEN 14      :PROCopen_as_menu(print%)
 ENDCASE
 WHEN 2 :PROCupdate_menu
-PROCdisplay_menu(mmenu%,!b%,b%!4)
+PROCmenu_create(mmenu%,!b%,b%!4)
 ENDCASE
 WHEN main%
 CASE button% OF
@@ -169,7 +169,7 @@ WHEN 4 :IF icon%=-1 PROCselect(b%!4)
 SYS "Wimp_GetWindowState",,q%
 IF (q%!32 AND (1<<16)) THENPROCend_caret(enter%,6)
 WHEN 2 :PROCupdate_menu
-PROCdisplay_menu(mmenu%,!b%,b%!4)
+PROCmenu_create(mmenu%,!b%,b%!4)
 ENDCASE
 WHEN enter%
 CASE button% OF
@@ -178,7 +178,7 @@ CASE icon% OF
 WHEN 0,1 :PROCcheck_select(wind%,icon%)
 ENDCASE
 WHEN 2 :PROCupdate_menu
-PROCdisplay_menu(mmenu%,!b%,b%!4)
+PROCmenu_create(mmenu%,!b%,b%!4)
 ENDCASE
 WHEN save%
 savetype%=account_file%
@@ -306,9 +306,9 @@ PROCredraw_part(print%,150,-180,88,48)
 ENDIF
 WHEN 11
 PROCprint
-PROCdisplay_menu(-1,0,0)
+PROCmenu_create(-1,0,0)
 WHEN 12
-PROCdisplay_menu(-1,0,0)
+PROCmenu_create(-1,0,0)
 ENDCASE
 WHEN goto%
 IF icon%=1 PROCgoto
@@ -318,7 +318,7 @@ WHEN find%
 CASE icon% OF
 WHEN 3,4 :PROCcheck_select(wind%,icon%)
 WHEN 5 :PROCfind(TRUE,FALSE,FALSE)
-WHEN 6 :PROCdisplay_menu(-1,0,0)
+WHEN 6 :PROCmenu_create(-1,0,0)
 WHEN 7 :PROCfind(TRUE,TRUE,FALSE)
 ENDCASE
 WHEN foundw%
@@ -336,7 +336,7 @@ ENDCASE
 WHEN newhead%
 CASE icon% OF
 WHEN 2 :PROCnew_header
-WHEN 3 :PROCdisplay_menu(-1,0,0)
+WHEN 3 :PROCmenu_create(-1,0,0)
 ENDCASE
 WHEN printset%
 CASE icon% OF
@@ -375,22 +375,22 @@ WHEN 16,17,18,19 :PROCcheck_select(wind%,icon%)
 WHEN 47,48,49 :PROCcheck_select(wind%,icon%)
 WHEN 34,35,36,37,52
 FOR loop%=0 TO 15
-PROCset_menu_state(wmenu%,loop%,0,0)
+PROCmenu_set_state(wmenu%,loop%,0,0)
 NEXT loop%
 CASE icon% OF
-WHEN 34 :PROCset_menu_state(wmenu%,VAL($entry_c%),1,0)
-WHEN 35 :PROCset_menu_state(wmenu%,VAL($numb_c%),1,0)
-WHEN 36 :PROCset_menu_state(wmenu%,VAL($sel_c%),1,0)
-WHEN 37 :PROCset_menu_state(wmenu%,VAL($unused_c%),1,0)
-WHEN 52 :PROCset_menu_state(wmenu%,VAL($overdrawn_c%),1,0)
+WHEN 34 :PROCmenu_set_state(wmenu%,VAL($entry_c%),1,0)
+WHEN 35 :PROCmenu_set_state(wmenu%,VAL($numb_c%),1,0)
+WHEN 36 :PROCmenu_set_state(wmenu%,VAL($sel_c%),1,0)
+WHEN 37 :PROCmenu_set_state(wmenu%,VAL($unused_c%),1,0)
+WHEN 52 :PROCmenu_set_state(wmenu%,VAL($overdrawn_c%),1,0)
 ENDCASE
-PROCdisplay_menu(wmenu%,!b%,b%!4)
+PROCmenu_create(wmenu%,!b%,b%!4)
 prefs_menu%=icon%
 ENDCASE
 WHEN merge%
 CASE icon% OF
 WHEN 0 :PROCmerge_files(0)
-WHEN 1 :PROCdisplay_menu(-1,0,0)
+WHEN 1 :PROCmenu_create(-1,0,0)
 WHEN 2 :IF button%<>2 PROCmerge_files(1)
 WHEN 3 :IF button%<>2 PROCmerge_files(2)
 ENDCASE
@@ -402,7 +402,7 @@ WHEN 5  :IF button%=4 PROCcsv_columns(1,-1) ELSEPROCcsv_columns(1,1)
 WHEN 6  :IF button%=4 PROCcsv_columns(1,1) ELSEPROCcsv_columns(1,-1)
 WHEN 7  :IF button%=4 PROCcsv_columns(2,-1) ELSEPROCcsv_columns(2,1)
 WHEN 8  :IF button%=4 PROCcsv_columns(2,1) ELSEPROCcsv_columns(2,-1)
-WHEN 12 :PROCdisplay_menu(-1,0,0)
+WHEN 12 :PROCmenu_create(-1,0,0)
 WHEN 13 :PROCcsv_load
 ENDCASE
 ENDCASE
@@ -424,29 +424,29 @@ WHEN 2 :quit%=FNsaved
 ENDCASE
 WHEN wmenu%
 FOR loop%=0 TO 15
-PROCset_menu_state(wmenu%,loop%,0,0)
+PROCmenu_set_state(wmenu%,loop%,0,0)
 NEXT loop%
 CASE prefs_menu% OF
 WHEN 34
 $entry_c%=STR$(sel1%)
 PROCredraw_part(prefspane%,42,-1352,50,48)
-PROCset_menu_state(wmenu%,VAL($entry_c%),1,0)
+PROCmenu_set_state(wmenu%,VAL($entry_c%),1,0)
 WHEN 35
 $numb_c%=STR$(sel1%)
 PROCredraw_part(prefspane%,42,-1428,50,48)
-PROCset_menu_state(wmenu%,VAL($numb_c%),1,0)
+PROCmenu_set_state(wmenu%,VAL($numb_c%),1,0)
 WHEN 36
 $sel_c%=STR$(sel1%)
 PROCredraw_part(prefspane%,42,-1508,50,48)
-PROCset_menu_state(wmenu%,VAL($sel_c%),1,0)
+PROCmenu_set_state(wmenu%,VAL($sel_c%),1,0)
 WHEN 37
 $unused_c%=STR$(sel1%)
 PROCredraw_part(prefspane%,42,-1588,50,48)
-PROCset_menu_state(wmenu%,VAL($unused_c%),1,0)
+PROCmenu_set_state(wmenu%,VAL($unused_c%),1,0)
 WHEN 52
 $overdrawn_c%=STR$(sel1%)
 PROCredraw_part(prefspane%,42,-1668,50,48)
-PROCset_menu_state(wmenu%,VAL($overdrawn_c%),1,0)
+PROCmenu_set_state(wmenu%,VAL($overdrawn_c%),1,0)
 ENDCASE
 WHEN mmenu%
 CASE sel1% OF
@@ -491,17 +491,17 @@ WHEN 6
 SYS "Wimp_GetWindowState",,b%
 IF b%!32 AND 1<<16 THEN
 PROCclose_window(tools%)
-PROCset_menu_state(mmenu%,6,0,0)
+PROCmenu_set_state(mmenu%,6,0,0)
 ELSE
 PROCopen_window(tools%)
-PROCset_menu_state(mmenu%,6,1,0)
+PROCmenu_set_state(mmenu%,6,1,0)
 ENDIF
 WHEN 7
 !b%=enter%
 SYS "Wimp_GetWindowState",,b%
 IF b%!32 AND 1<<16 THEN
 PROCclose_window(enter%)
-PROCset_menu_state(mmenu%,7,0,0)
+PROCmenu_set_state(mmenu%,7,0,0)
 ELSE
 !b%=enter%
 SYS "Wimp_GetWindowState",,b%
@@ -516,7 +516,7 @@ b%!24=0
 b%!28=pane%
 SYS "Wimp_OpenWindow",,b%
 PROCend_caret(enter%,6)
-PROCset_menu_state(mmenu%,7,1,0)
+PROCmenu_set_state(mmenu%,7,1,0)
 ENDIF
 WHEN 8
 IF FNmenu_state(mmenu%,8) THEN
@@ -532,7 +532,7 @@ b%!20=0
 b%!24=0
 b%!28=q%!28
 SYS "Wimp_OpenWindow",,b%
-PROCset_menu_state(mmenu%,8,0,0)
+PROCmenu_set_state(mmenu%,8,0,0)
 ELSE
 !b%=pane%
 SYS "Wimp_GetWindowState",,b%
@@ -544,13 +544,13 @@ b%!20=0
 b%!24=0
 b%!28=q%!28
 SYS "Wimp_OpenWindow",,b%
-PROCset_menu_state(mmenu%,8,1,0)
+PROCmenu_set_state(mmenu%,8,1,0)
 ENDIF
 PROCredraw_main
 PROCset_extent(0)
 ENDCASE
 ENDCASE
-IF button%=1 PROCupdate_menu :PROCdisplay_menu(menuup%,0,0)
+IF button%=1 PROCupdate_menu :PROCmenu_create(menuup%,0,0)
 ENDPROC
 :
 DEF PROCkey_press(key%,whan%,icon%)
@@ -603,17 +603,17 @@ WHEN &191
 SYS "Wimp_GetWindowState",,b%
 IF b%!32 AND 1<<16 THEN
 PROCclose_window(tools%)
-PROCset_menu_state(mmenu%,6,0,0)
+PROCmenu_set_state(mmenu%,6,0,0)
 ELSE
 PROCopen_window(tools%)
-PROCset_menu_state(mmenu%,6,1,0)
+PROCmenu_set_state(mmenu%,6,1,0)
 ENDIF
 WHEN &1A1
 !b%=enter%
 SYS "Wimp_GetWindowState",,b%
 IF b%!32 AND 1<<16 THEN
 PROCclose_window(enter%)
-PROCset_menu_state(mmenu%,7,0,0)
+PROCmenu_set_state(mmenu%,7,0,0)
 ELSE
 !b%=enter%
 SYS "Wimp_GetWindowState",,b%
@@ -631,7 +631,7 @@ b%!24=0
 b%!28=pane%
 SYS "Wimp_OpenWindow",,b%
 PROCend_caret(enter%,6)
-PROCset_menu_state(mmenu%,7,1,0)
+PROCmenu_set_state(mmenu%,7,1,0)
 ENDIF
 WHEN &1A2
 IF FNmenu_state(mmenu%,8) THEN
@@ -647,7 +647,7 @@ b%!20=0
 b%!24=0
 b%!28=q%!28
 SYS "Wimp_OpenWindow",,b%
-PROCset_menu_state(mmenu%,8,0,0)
+PROCmenu_set_state(mmenu%,8,0,0)
 ELSE
 !b%=pane%
 SYS "Wimp_GetWindowState",,b%
@@ -659,7 +659,7 @@ b%!20=0
 b%!24=0
 b%!28=q%!28
 SYS "Wimp_OpenWindow",,b%
-PROCset_menu_state(mmenu%,8,1,0)
+PROCmenu_set_state(mmenu%,8,1,0)
 ENDIF
 PROCredraw_main
 PROCset_extent(0)
@@ -1013,7 +1013,7 @@ PROCrecalc
 PROCredraw_from(1)
 PROCupdate_tools(select%)
 PROCredraw_enter
-PROCdisplay_menu(-1,0,0)
+PROCmenu_create(-1,0,0)
 ENDPROC
 :
 DEF PROCselect(my%)
@@ -1045,7 +1045,7 @@ PROCredraw_line(select%)
 PROCupdate_tools(select%)
 PROCupdate_menu
 PROCredraw_enter
-PROCdisplay_menu(-1,0,0)
+PROCmenu_create(-1,0,0)
 $selctline%=""
 ENDPROC
 :
@@ -1362,14 +1362,14 @@ ENDPROC
 :
 DEF PROCupdate_menu
 IF select%=0 THEN
-PROCset_menu_state(cmenu%,0,0,1)
-PROCset_menu_state(cmenu%,1,0,1)
-PROCset_menu_state(emenu%,1,0,1)
-PROCset_menu_state(emenu%,2,0,1)
-PROCset_menu_state(smenu%,1,0,1)
-PROCset_menu_state(smenu%,2,0,1)
-PROCset_menu_state(smenu%,3,0,1)
-PROCset_menu_state(smenu%,4,0,1)
+PROCmenu_set_state(cmenu%,0,0,1)
+PROCmenu_set_state(cmenu%,1,0,1)
+PROCmenu_set_state(emenu%,1,0,1)
+PROCmenu_set_state(emenu%,2,0,1)
+PROCmenu_set_state(smenu%,1,0,1)
+PROCmenu_set_state(smenu%,2,0,1)
+PROCmenu_set_state(smenu%,3,0,1)
+PROCmenu_set_state(smenu%,4,0,1)
 PROCset_icon_state(tools%,1,0,1,0)
 PROCset_icon_state(tools%,2,0,1,0)
 PROCset_icon_state(tools%,3,0,1,0)
@@ -1383,14 +1383,14 @@ PROCset_icon_state(pane%,7,0,1,0)
 PROCset_icon_state(pane%,8,0,1,0)
 PROCset_icon_state(pane%,12,0,1,0)
 ELSE
-PROCset_menu_state(cmenu%,0,0,0)
-PROCset_menu_state(cmenu%,1,0,0)
-PROCset_menu_state(emenu%,1,0,0)
-PROCset_menu_state(emenu%,2,0,0)
-PROCset_menu_state(smenu%,1,0,0)
-PROCset_menu_state(smenu%,2,0,0)
-PROCset_menu_state(smenu%,3,0,0)
-PROCset_menu_state(smenu%,4,0,0)
+PROCmenu_set_state(cmenu%,0,0,0)
+PROCmenu_set_state(cmenu%,1,0,0)
+PROCmenu_set_state(emenu%,1,0,0)
+PROCmenu_set_state(emenu%,2,0,0)
+PROCmenu_set_state(smenu%,1,0,0)
+PROCmenu_set_state(smenu%,2,0,0)
+PROCmenu_set_state(smenu%,3,0,0)
+PROCmenu_set_state(smenu%,4,0,0)
 PROCset_icon_state(tools%,1,0,0,0)
 PROCset_icon_state(tools%,2,0,0,0)
 PROCset_icon_state(tools%,3,0,0,0)
@@ -1442,7 +1442,7 @@ ENDIF
 :
 DEF PROCfind(opt%,all%,rep%)
 LOCAL search$,text$,done%,found%,flag%,o%
-PROCdisplay_menu(-1,0,0)
+PROCmenu_create(-1,0,0)
 PROCclose_window(foundw%)
 done%=FALSE :flag%=FALSE
 IF entries%=1 err%=FNwarning(mess$,FNdecode_message("Fin1",w$()),"OK",1,"",0,"",0) :ENDPROC
@@ -1572,7 +1572,7 @@ SYS "Wimp_GetWindowState",,b%
 b%!24=offset%
 SYS "Wimp_OpenWindow",,b%
 $gotoline%=""
-PROCdisplay_menu(-1,0,0)
+PROCmenu_create(-1,0,0)
 ENDPROC
 :
 DEF PROCgoto_selection
@@ -1586,7 +1586,7 @@ SYS "Wimp_GetWindowState",,b%
 b%!24=offset%
 SYS "Wimp_OpenWindow",,b%
 $gotoline%=""
-PROCdisplay_menu(-1,0,0)
+PROCmenu_create(-1,0,0)
 ENDPROC
 :
 DEF PROCpage_up
@@ -1786,7 +1786,7 @@ CLOSE#i%
 SYS "Hourglass_Off"
 IF NOT finished% THENerr%=FNwarning(mess$,FNdecode_message("Mer0",w$()),"OK",1,"",0,"",0)
 PROCrecalc
-PROCdisplay_menu(-1,0,0)
+PROCmenu_create(-1,0,0)
 modified%=TRUE
 PROCupdate_title
 PROCupdate_tools(select%)
@@ -1854,7 +1854,7 @@ PROCopen_window(enter%)
 PROCend_caret(enter%,6)
 ENDIF
 IF FNmenu_state(mmenu%,6) PROCopen_window(tools%)
-PROCdisplay_menu(-1,0,0)
+PROCmenu_create(-1,0,0)
 ENDPROC
 :
 DEF FNcsv_field(s$,off%,RETURN e%)
@@ -1974,15 +1974,15 @@ SYS "OS_File",&12,$file%,account_file%
 SYS "Hourglass_Off"
 modified%=FALSE
 PROCupdate_title
-PROCdisplay_menu(-1,0,0)
+PROCmenu_create(-1,0,0)
 ENDPROC
 :
 DEF PROCtextsave
 LOCAL c%,percent%
-IF VAL($text1%)=VAL($text2%) PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp0",w$()),"OK",1,"",1,"",0):ENDPROC
-IF VAL($text1%)>VAL($text2%) PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp1",w$()),"OK",1,"",1,"",0):ENDPROC
-IF VAL($text1%)>=entries% OR VAL($text2%)>=entries% PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp2",w$()),"OK",1,"",1,"",0):ENDPROC
-IF VAL($text1%)<=0 OR VAL($text2%)<=0 PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp3",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($text1%)=VAL($text2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp0",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($text1%)>VAL($text2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp1",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($text1%)>=entries% OR VAL($text2%)>=entries% PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp2",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($text1%)<=0 OR VAL($text2%)<=0 PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp3",w$()),"OK",1,"",1,"",0):ENDPROC
 SYS "Hourglass_On"
 o%=OPENOUT($tfile%)
 IF FNicon_state(text%,12) THEN
@@ -2010,15 +2010,15 @@ CLOSE#o%
 SYS "OS_File",&12,$tfile%,text_file%
 SYS "Hourglass_Off"
 $tfile%="TextFile"
-PROCdisplay_menu(-1,0,0)
+PROCmenu_create(-1,0,0)
 ENDPROC
 :
 DEF PROCcsvsave
 LOCAL c%,percent%
-IF VAL($csv1%)=VAL($csv2%) PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp0",w$()),"OK",1,"",1,"",0):ENDPROC
-IF VAL($csv1%)>VAL($csv2%) PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp1",w$()),"OK",1,"",1,"",0):ENDPROC
-IF VAL($csv1%)>=entries% OR VAL($csv2%)>=entries% PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp2",w$()),"OK",1,"",1,"",0):ENDPROC
-IF VAL($csv1%)<=0 OR VAL($csv2%)<=0 PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp3",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($csv1%)=VAL($csv2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp0",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($csv1%)>VAL($csv2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp1",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($csv1%)>=entries% OR VAL($csv2%)>=entries% PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp2",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($csv1%)<=0 OR VAL($csv2%)<=0 PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp3",w$()),"OK",1,"",1,"",0):ENDPROC
 SYS "Hourglass_On"
 o%=OPENOUT($cfile%)
 IF FNicon_state(csv%,12) THEN
@@ -2041,7 +2041,7 @@ CLOSE#o%
 SYS "OS_File",&12,$cfile%,csv_file%
 SYS "Hourglass_Off"
 $cfile%="CSVFile"
-PROCdisplay_menu(-1,0,0)
+PROCmenu_create(-1,0,0)
 ENDPROC
 :
 DEF FNsaved
@@ -2052,10 +2052,10 @@ IF oktoquit%=1  PROCopen_as_menu(save%)
 :
 DEF PROCprint
 LOCAL c%,percent%,s%,top_of_form%,current_line%
-IF VAL($print1%)=VAL($print2%) PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Prn0",w$()),"OK",1,"",1,"",0):ENDPROC
-IF VAL($print1%)>VAL($print2%) PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Prn1",w$()),"OK",1,"",1,"",0):ENDPROC
-IF VAL($print1%)>=entries% OR VAL($print2%)>=entries% PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Prn2",w$()),"OK",1,"",1,"",0):ENDPROC
-IF VAL($print1%)<=0 OR VAL($print2%)<=0 PROCdisplay_menu(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Prn3",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($print1%)=VAL($print2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Prn0",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($print1%)>VAL($print2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Prn1",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($print1%)>=entries% OR VAL($print2%)>=entries% PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Prn2",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($print1%)<=0 OR VAL($print2%)<=0 PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Prn3",w$()),"OK",1,"",1,"",0):ENDPROC
 SYS &80140 TO,s%
 SYS "Hourglass_On"
 o%=OPENOUT("<Account$PrintFile>")
@@ -2104,7 +2104,7 @@ IF form_feeds% AND top_of_form%=FALSE THENBPUT#o%,form_feed$
 CLOSE#o%
 SYS "Hourglass_Off"
 PROCclose_window(print%)
-PROCdisplay_menu(-1,0,0)
+PROCmenu_create(-1,0,0)
 ENDPROC
 :
 DEF PROCload_printcodes
@@ -2137,7 +2137,7 @@ bold_on$=FNtrans_string($bold_on%)
 bold_off$=FNtrans_string($bold_off%)
 uline_on$=FNtrans_string($uline_on%)
 uline_off$=FNtrans_string($uline_off%)
-PROCdisplay_menu(-1,0,0)
+PROCmenu_create(-1,0,0)
 ENDPROC
 :
 DEF PROCsave_printcodes
@@ -2159,7 +2159,7 @@ BPUT#out%,$bold_off%
 BPUT#out%,$uline_on%
 BPUT#out%,$uline_off%
 CLOSE#in%
-PROCdisplay_menu(-1,0,0)
+PROCmenu_create(-1,0,0)
 ENDPROC
 :
 DEF PROCcancel_printcodes
@@ -2171,7 +2171,7 @@ $bold_on%=FNtrans_codes(bold_on$)
 $bold_off%=FNtrans_codes(bold_off$)
 $uline_on%=FNtrans_codes(uline_on$)
 $uline_off%=FNtrans_codes(uline_off$)
-PROCdisplay_menu(-1,0,0)
+PROCmenu_create(-1,0,0)
 ENDPROC
 :
 DEF FNtrans_string(s$)
@@ -2372,19 +2372,19 @@ $clip_pay2%=$clip_pay1%
 ENDIF
 ENDIF
 IF open_tools% THEN
-PROCset_menu_state(mmenu%,6,1,0)
+PROCmenu_set_state(mmenu%,6,1,0)
 ELSE
-PROCset_menu_state(mmenu%,6,0,0)
+PROCmenu_set_state(mmenu%,6,0,0)
 ENDIF
 IF open_enter% THEN
-PROCset_menu_state(mmenu%,7,1,0)
+PROCmenu_set_state(mmenu%,7,1,0)
 ELSE
-PROCset_menu_state(mmenu%,7,0,0)
+PROCmenu_set_state(mmenu%,7,0,0)
 ENDIF
 IF open_toolbar% THEN
-PROCset_menu_state(mmenu%,8,1,0)
+PROCmenu_set_state(mmenu%,8,1,0)
 ELSE
-PROCset_menu_state(mmenu%,8,0,0)
+PROCmenu_set_state(mmenu%,8,0,0)
 ENDIF
 IF open% THENPROCopen_window(main%) :PROCopen_window(enter%)
 PROCclose_window(prefspane%)
@@ -2527,19 +2527,19 @@ $clip_pay2%=$clip_pay1%
 ENDIF
 ENDIF
 IF open_tools% THEN
-PROCset_menu_state(mmenu%,6,1,0)
+PROCmenu_set_state(mmenu%,6,1,0)
 ELSE
-PROCset_menu_state(mmenu%,6,0,0)
+PROCmenu_set_state(mmenu%,6,0,0)
 ENDIF
 IF open_enter% THEN
-PROCset_menu_state(mmenu%,7,1,0)
+PROCmenu_set_state(mmenu%,7,1,0)
 ELSE
-PROCset_menu_state(mmenu%,7,0,0)
+PROCmenu_set_state(mmenu%,7,0,0)
 ENDIF
 IF open_toolbar% THEN
-PROCset_menu_state(mmenu%,8,1,0)
+PROCmenu_set_state(mmenu%,8,1,0)
 ELSE
-PROCset_menu_state(mmenu%,8,0,0)
+PROCmenu_set_state(mmenu%,8,0,0)
 ENDIF
 IF open% THENPROCopen_window(main%) :PROCopen_window(enter%)
 PROCredraw_main
@@ -3166,9 +3166,6 @@ pmenu% = b%!28
 wmenu% = b%!32
 ENDPROC
 :
-DEF FNm_flags(fg%,bg%)
-=FNmenu_flags(1,0,0,0,0,0,0,0,0,fg%,bg%,0)
-:
 DEF FNicon_bar(task$)
 !q%=-1
 q%!4=0
@@ -3180,47 +3177,6 @@ $(q%+24)=task$
 :
 SYS "Wimp_CreateIcon",,q% TO ihandle%
 =ihandle%
-:
-DEF PROCinit_menu(menu%,RETURN width%,RETURN end%,title$)
-width%=LEN(title$)
-$menu%=title$:menu%?12=7
-menu%?13=2:menu%?14=7:menu%?15=0
-menu%!16=(width%+1)*16:menu%!20=44
-menu%!24=0:end%=menu%+28
-ENDPROC
-:
-DEF PROCst_menu_item(menu%,RETURN width%,RETURN end%,text$,tick%,dot%,shade%,last%,link%)
-LOCAL f%
-f%=FNst_menu_flags(shade%)
-PROCmenu_item(menu%,width%,end%,text$,tick%,dot%,shade%,last%,link%,write%,mess%,f%,0,0,0)
-ENDPROC
-:
-DEF PROCmenu_item(menu%,RETURN width%,RETURN end%,text$,tick%,dot%,shade%,last%,link%,write%,mess%,flag%,icon1%,icon2%,icon3%)
-LOCAL f%,ist%
-f%=tick%+(dot%<<1)+(write%<<2)+(mess%<<3)+(last%<<7)
-!end%=f%:end%!4=link%:end%!8=flag%
-ist%=((flag%>>6)AND4)+(flag%AND3)
-CASE ist% OF
-WHEN 1,2,3:$(end%+12)=text$
-WHEN 5,6,7:end%!12=icon1%:end%!16=icon2%:end%!20=icon3%
-ENDCASE
-end%+=24
-IF LEN(text$)>width% THENwidth%=LEN(text$)
-menu%!16=(width%+1)*16
-ENDPROC
-:
-DEF FNmenu_flags(text%,sp%,bor%,chor%,anti%,ind%,rjust%,half%,shade%,fcol%,bcol%,font%)
-LOCAL flag%
-flag%=text%+(sp%<<1)+(bor%<<2)+(chor%<<3)+(1<<5)+(anti%<<6)+(ind%<<8)+(rjust%<<9)+(half%<<11)+(shade%<<22)
-IF anti%=0 THEN
-flag%+=(fcol%<<24)+(bcol%<<28)
-ELSE
-flag%+=(font%<<24)
-ENDIF
-=flag%
-:
-DEF FNst_menu_flags(shade%)
-=FNmenu_flags(1,0,0,0,0,0,0,0,shade%,7,0,0)
 :
 DEF PROChelp
 LOCAL window%,icon%
@@ -3688,24 +3644,6 @@ b%!16=&503
 $(b%+20)=help$+STRING$(4,CHR$(0))
 !b%=24+(LEN(help$) AND &FFFFFC)
 SYS "Wimp_SendMessage",17,b%,b%!4
-ENDPROC
-:
-DEF PROCdisplay_bar_menu(menu%,items%,dots%,x%)
-menuup%=menu%
-SYS "Wimp_CreateMenu",,menu%,x%-64,96+(items%*44)+(dots%*24)
-ENDPROC
-:
-DEF PROCdisplay_menu(menu%,x%,y%)
-menuup%=menu%
-SYS "Wimp_CreateMenu",,menu%,x%-64,y%
-ENDPROC
-:
-DEF PROCset_menu_state(handle%,item%,tick%,shade%)
-LOCAL a%
-a%=handle%+28+(item%*24)+10
-IF shade% THEN?a%=(?a% OR 64) ELSE?a%=(?a% AND 191)
-a%=handle%+28+(item%*24)
-IF tick% THEN?a%=(?a% OR 1) ELSE?a%=(?a% AND 254)
 ENDPROC
 :
 DEF FNmenu_state(handle%,item%)

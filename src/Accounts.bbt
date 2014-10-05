@@ -12,6 +12,9 @@ REM **************                                           **************
 REM ************** This program is not in the Public Domain! **************
 REM ***********************************************************************
 :
+LIBRARY "BASIC:Menu"
+LIBRARY "BASIC:Resources"
+:
 build_version$="5.19"
 build_date$="26th August 1994"
 :
@@ -2778,9 +2781,17 @@ IF LEN(s$)=1 THENs$="0"+s$
 =s$
 :
 DEF PROCinit
+LOCAL resources$
+
 ON ERROR SYS"Hourglass_Smash" :PRINT TAB(0,0);ERL;REPORT$ :END
 SYS "Hourglass_On"
-DIM b% 4000,q% 255
+DIM b% 4000, q% 255, a% 255
+
+REM Locate the application resources.
+
+resources$ = FNresources_find_territory_folder("<Account$Dir>.Resources")
+
+
 max%=1000
 modified%=FALSE
 select%=0
@@ -2792,7 +2803,7 @@ csv_file%=&DFE
 join_main%=1
 PROCget_mode_vars
 DIM text$(max%),credit%(max%),payment%(max%),balance%(max%)
-PROCload_messages("<Account$Dir>.Messages")
+PROCload_messages(resources$ + "Messages")
 sprite_area%=FNload_sprites("<Account$Dir>.Sprites")
 DIM w$(9)
 quit%=FALSE:reset%=FALSE:app$=FNdecode_message("Task",w$())
@@ -2802,9 +2813,9 @@ mess$=FNdecode_message("Wrn1",w$())
 warn$=FNdecode_message("Wrn2",w$())
 :
 PROCintro
-PROCdefine_windows
+PROCdefine_windows(resources$)
 PROCdefine_icons
-PROCbuild_menus
+PROCbuild_menus(resources$)
 PROCupdate_menu
 PROCload_printcodes
 PROCload_prefs(TRUE)
@@ -2942,10 +2953,10 @@ SYS "Font_LoseFont",font5%
 SYS "Font_LoseFont",disp_font%
 ENDPROC
 :
-DEF PROCdefine_windows
+DEF PROCdefine_windows(resources$)
 DIM ind_data% 7000
 :
-PROCopen_templates("<Account$Dir>.Templates")
+PROCopen_templates(resources$ + "Templates")
 to%=FNload_template("Error",b%,ind_data%,7000)
 SYS "Wimp_CreateWindow",,b% TO error%
 to%=FNload_template("Main",b%,to%,7000-(to%-ind_data%))
@@ -3125,116 +3136,34 @@ cl_cred%=FNindirection(loadcsv%,1)
 cl_pay%=FNindirection(loadcsv%,2)
 ENDPROC
 :
-DEF PROCbuild_menus
-LOCAL iw%,ie%,mw%,me%,fw%,fe%,sw%,se%,ow%,oe%
+DEF PROCbuild_menus(resources$)
 DIM mb% 1624
-imenu%=mb%
-mmenu%=mb%+100
-gmenu%=mb%+344
-fmenu%=mb%+516
-emenu%=mb%+616
-smenu%=mb%+716
-cmenu%=mb%+864
-pmenu%=mb%+988
 wmenu%=mb%+1064
-iw%=0 :ie%=0
-mw%=0 :me%=0
-gw%=0 :ge%=0
-fw%=0 :fe%=0
-ew%=0 :ee%=0
-sw%=0 :se%=0
-cw%=0 :ce%=0
-pw%=0 :pe%=0
-ww%=0 :we%=0
-:
-st_menu_flags%=FNmenu_flags(1,0,0,0,0,1,0,0,0,7,0,0)
-:
-REM Icon Bar Menu
-PROCinit_menu(imenu%,iw%,ie%,app$)
-PROCst_menu_item(imenu%,iw%,ie%,"Info",0,0,0,0,info%)
-PROCst_menu_item(imenu%,iw%,ie%,"Prefs...",0,1,0,0,-1)
-PROCst_menu_item(imenu%,iw%,ie%,"Quit",0,0,0,1,-1)
-REM Main Menu
-PROCinit_menu(mmenu%,mw%,me%,app$)
-mw%=14
-DIM menu_main_enter% 14 :$menu_main_enter%="Show enter ^F1"
-DIM menu_main_tools% 14 :$menu_main_tools%="Show tools ‹F1"
-DIM menu_main_tlbar% 14 :$menu_main_tlbar%="Toolbar    ^F2"
-PROCst_menu_item(mmenu%,mw%,me%,"Misc",0,0,0,0,gmenu%)
-PROCst_menu_item(mmenu%,mw%,me%,"Save",0,0,0,0,fmenu%)
-PROCst_menu_item(mmenu%,mw%,me%,"Enter",0,0,0,0,emenu%)
-PROCst_menu_item(mmenu%,mw%,me%,"Select",0,0,0,0,smenu%)
-PROCst_menu_item(mmenu%,mw%,me%,"Clip-board",0,0,0,0,cmenu%)
-PROCst_menu_item(mmenu%,mw%,me%,"Printer",0,1,0,0,pmenu%)
-PROCmenu_item(mmenu%,mw%,me%,"Show tools",1,0,0,0,-1,0,0,st_menu_flags%,menu_main_tools%,-1,15)
-PROCmenu_item(mmenu%,mw%,me%,"Show enter",1,0,0,0,-1,0,0,st_menu_flags%,menu_main_enter%,-1,15)
-PROCmenu_item(mmenu%,mw%,me%,"Toolbar",1,0,0,1,-1,0,0,st_menu_flags%,menu_main_tlbar%,-1,15)
-REM Misc Menu
-PROCinit_menu(gmenu%,gw%,ge%,"Misc")
-gw%=14
-DIM menu_misc_find% 14 :$menu_misc_find%="Find        F4"
-DIM menu_misc_goto% 14 :$menu_misc_goto%="Goto       F10"
-DIM menu_misc_head% 14 :$menu_misc_head%="New header F11"
-DIM menu_misc_clr% 14 :$menu_misc_clr%="Clear all  ^F9"
-PROCst_menu_item(gmenu%,gw%,ge%,"Info",0,0,0,0,info%)
-PROCst_menu_item(gmenu%,gw%,ge%,"File info",0,1,0,0,fileinf%)
-PROCmenu_item(gmenu%,gw%,ge%,"Find",0,0,0,0,find%,0,0,st_menu_flags%,menu_misc_find%,-1,15)
-PROCmenu_item(gmenu%,gw%,ge%,"Goto",0,0,0,0,goto%,0,0,st_menu_flags%,menu_misc_goto%,-1,15)
-PROCmenu_item(gmenu%,gw%,ge%,"New header",0,1,0,0,newhead%,0,0,st_menu_flags%,menu_misc_head%,-1,15)
-PROCmenu_item(gmenu%,gw%,ge%,"Clear all",0,0,0,1,-1,0,0,st_menu_flags%,menu_misc_clr%,-1,15)
-REM File Menu
-PROCinit_menu(fmenu%,fw%,fe%,"Save")
-PROCst_menu_item(fmenu%,fw%,fe%,"Account F3",0,1,0,0,save%)
-PROCst_menu_item(fmenu%,fw%,fe%,"Text   ‹F3",0,0,0,0,text%)
-PROCst_menu_item(fmenu%,fw%,fe%,"CSV    ^F3",0,0,0,1,csv%)
-REM Enter Menu
-PROCinit_menu(emenu%,ew%,ee%,"Enter")
-ew%=24
-DIM menu_enter_add% 24 :$menu_enter_add%="Add to end            F1"
-DIM menu_enter_ina% 24 :$menu_enter_ina%="Insert above  INSERT/ F2"
-DIM menu_enter_inb% 24 :$menu_enter_inb%="Insert below ‹INSERT/‹F2"
-PROCmenu_item(emenu%,ew%,ee%,"Add to end",0,1,0,0,-1,0,0,st_menu_flags%,menu_enter_add%,-1,25)
-PROCmenu_item(emenu%,ew%,ee%,"Insert above",0,0,0,0,-1,0,0,st_menu_flags%,menu_enter_ina%,-1,25)
-PROCmenu_item(emenu%,ew%,ee%,"Insert below",0,0,0,1,-1,0,0,st_menu_flags%,menu_enter_inb%,-1,25)
-REM Select Menu
-PROCinit_menu(smenu%,sw%,se%,"Select")
-PROCst_menu_item(smenu%,sw%,se%,"Select   ‹F4",0,1,0,0,selline%)
-PROCst_menu_item(smenu%,sw%,se%,"Remove   ‹F5",0,0,0,0,-1)
-PROCst_menu_item(smenu%,sw%,se%,"Delete ^X/F5",0,0,0,0,-1)
-PROCst_menu_item(smenu%,sw%,se%,"Modify    F6",0,0,0,0,-1)
-PROCst_menu_item(smenu%,sw%,se%,"Clear     ^Z",0,0,0,1,-1)
-REM Clip-board Menu
-PROCinit_menu(cmenu%,cw%,ce%,"Clip-board")
-PROCst_menu_item(cmenu%,cw%,ce%,"Cut    ^V/F8",0,0,0,0,-1)
-PROCst_menu_item(cmenu%,cw%,ce%,"Copy   ^C/F7",0,1,0,0,-1)
-PROCst_menu_item(cmenu%,cw%,ce%,"Select   ‹F7",0,0,0,0,-1)
-PROCst_menu_item(cmenu%,cw%,ce%,"Clear     F9",0,0,0,1,-1)
-REM Printer Menu
-PROCinit_menu(pmenu%,pw%,pe%,"Printer")
-pw%=13
-DIM menu_prnt_prnt% 13 :$menu_prnt_prnt%="Print   PRINT"
-DIM menu_prnt_setu% 13 :$menu_prnt_setu%="Set up ‹PRINT"
-PROCmenu_item(pmenu%,pw%,pe%,"Print",0,0,0,0,print%,0,0,st_menu_flags%,menu_prnt_prnt%,-1,14)
-PROCmenu_item(pmenu%,pw%,pe%,"Set up",0,0,0,1,printset%,0,0,st_menu_flags%,menu_prnt_setu%,-1,14)
-REM Wimp Colours Menu
-PROCinit_menu(wmenu%,ww%,we%,"Colours")
-PROCmenu_item(wmenu%,ww%,we%,"0",0,0,0,0,-1,0,0,FNm_flags(7,0),0,0,0)
-PROCmenu_item(wmenu%,ww%,we%,"1",0,0,0,0,-1,0,0,FNm_flags(7,1),0,0,0)
-PROCmenu_item(wmenu%,ww%,we%,"2",0,0,0,0,-1,0,0,FNm_flags(7,2),0,0,0)
-PROCmenu_item(wmenu%,ww%,we%,"3",0,0,0,0,-1,0,0,FNm_flags(7,3),0,0,0)
-PROCmenu_item(wmenu%,ww%,we%,"4",0,0,0,0,-1,0,0,FNm_flags(0,4),0,0,0)
-PROCmenu_item(wmenu%,ww%,we%,"5",0,0,0,0,-1,0,0,FNm_flags(0,5),0,0,0)
-PROCmenu_item(wmenu%,ww%,we%,"6",0,0,0,0,-1,0,0,FNm_flags(0,6),0,0,0)
-PROCmenu_item(wmenu%,ww%,we%,"7",0,0,0,0,-1,0,0,FNm_flags(0,7),0,0,0)
-PROCmenu_item(wmenu%,ww%,we%,"8",0,0,0,0,-1,0,0,FNm_flags(0,8),0,0,0)
-PROCmenu_item(wmenu%,ww%,we%,"9",0,0,0,0,-1,0,0,FNm_flags(7,9),0,0,0)
-PROCmenu_item(wmenu%,ww%,we%,"10",0,0,0,0,-1,0,0,FNm_flags(0,10),0,0,0)
-PROCmenu_item(wmenu%,ww%,we%,"11",0,0,0,0,-1,0,0,FNm_flags(0,11),0,0,0)
-PROCmenu_item(wmenu%,ww%,we%,"12",0,0,0,0,-1,0,0,FNm_flags(7,12),0,0,0)
-PROCmenu_item(wmenu%,ww%,we%,"13",0,0,0,0,-1,0,0,FNm_flags(0,13),0,0,0)
-PROCmenu_item(wmenu%,ww%,we%,"14",0,0,0,0,-1,0,0,FNm_flags(7,14),0,0,0)
-PROCmenu_item(wmenu%,ww%,we%,"15",0,0,0,1,-1,0,0,FNm_flags(7,15),0,0,0)
 
+PROCmenu_initialise
+
+b%!0 = info%
+b%!4 = info%
+b%!8 = fileinf%
+b%!12 = find%
+b%!16 = goto%
+b%!20 = newhead%
+b%!24 = save%
+b%!28 = text%
+b%!32 = csv%
+b%!36 = selline%
+b%!40 = print%
+b%!44 = printset%
+PROCmenu_load_templates(resources$ + "Menus", b%)
+imenu% = b%!0
+mmenu% = b%!4
+gmenu% = b%!8
+fmenu% = b%!12
+emenu% = b%!16
+smenu% = b%!20
+cmenu% = b%!24
+pmenu% = b%!28
+wmenu% = b%!32
 ENDPROC
 :
 DEF FNm_flags(fg%,bg%)

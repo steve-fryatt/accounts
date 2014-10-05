@@ -1,0 +1,223 @@
+/* Copyright 2014, Stephen Fryatt (info@stevefryatt.org.uk)
+ *
+ * This file is part of Accounts:
+ *
+ *   http://www.stevefryatt.org.uk/software/
+ *
+ * Licensed under the EUPL, Version 1.1 only (the "Licence");
+ * You may not use this work except in compliance with the
+ * Licence.
+ *
+ * You may obtain a copy of the Licence at:
+ *
+ *   http://joinup.ec.europa.eu/software/page/eupl
+ *
+ * Unless required by applicable law or agreed to in
+ * writing, software distributed under the Licence is
+ * distributed on an "AS IS" basis, WITHOUT WARRANTIES
+ * OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the Licence for the specific language governing
+ * permissions and limitations under the Licence.
+ */
+
+/**
+ * Icon Bar Menu
+ */
+
+menu(icon_bar_menu, "Accounts")
+{
+	item("Info") {
+		d_box(program_info);
+	}
+	item("Choices...") {
+		dotted;
+	}
+	item("Quit");
+}
+
+/**
+ * Main Menu
+ */
+
+menu(main_menu, "Accounts")
+{
+	item("Misc") {
+		submenu(main_misc_menu);
+	}
+	item("Save") {
+		submenu(main_save_menu);
+	}
+	item("Enter") {
+		submenu(main_enter_menu);
+	}
+	item("Select") {
+		submenu(main_select_menu);
+	}
+	item("Clipboard") {
+		submenu(main_clip_menu);
+	}
+	item("Printer") {
+		submenu(main_print_menu);
+		dotted;
+	}
+	item("Show enter ^F1");
+	item("Show tools ‹F1");
+	item("Toolbar    ^F2");
+}
+
+/**
+ * Main -> Misc Menu
+ */
+
+menu(main_misc_menu, "Misc")
+{
+	item("Info") {
+		d_box(program_info);
+	}
+	item("File info") {
+		d_box(file_info);
+		dotted;
+	}
+	item("Find        F4") {
+		d_box(find);
+	}
+	item("Goto       F10") {
+		d_box(goto);
+	}
+	item("New header F11") {
+		d_box(new_header);
+		dotted;
+	}
+	item("Clear all  ^F9");
+}
+
+/**
+ * Main -> File Menu
+ */
+
+menu(main_save_menu, "Save")
+{
+	item("Account F3") {
+		d_box(save_file);
+		dotted;
+	}
+	item("Text   ‹F3") {
+		d_box(save_text);
+	}
+	item("CSV    ^F3") {
+		d_box(save_csv);
+	}
+}
+
+/**
+ * Enter Menu
+ */
+
+menu(main_enter_menu, "Enter")
+{
+	item("Add to end            F1") {
+		dotted;
+	}
+	item("Insert above  INSERT/ F2");
+	item("Insert below ‹INSERT/‹F2");
+}
+
+/**
+ * Main -> Select Menu
+ */
+
+menu(main_select_menu, "Select")
+{
+	item("Select   ‹F4") {
+		d_box(select_line);
+		dotted;
+	}
+	item("Remove   ‹F5");
+	item("Delete ^X/F5");
+	item("Modify    F6");
+	item("Clear     ^Z");
+}
+
+/**
+ * Main -> Clipboard Menu
+ */
+
+menu(main_clip_menu, "Clipboard")
+{
+	item("Cut    ^V/F8");
+	item("Copy   ^C/F7");
+	item("Select   ‹F7");
+	item("Clear     F9");
+}
+
+/**
+ * Main -> Printer Menu
+ */
+ 
+menu(main_print_menu, "Printer")
+{
+	item("Print   PRINT") {
+		d_box(print);
+	}
+	item("Set up ‹PRINT") {
+		d_box(print_setup);
+	}
+}
+
+/**
+ * Colour Menu
+ */
+
+menu(colour_menu, "Colours")
+{
+	item("0") {
+		colours(7, 0);
+	}
+	item("1") {
+		colours(7, 1);
+	}
+	item("2") {
+		colours(7, 2);
+	}
+	item("3") {
+		colours(7, 3);
+	}
+	item("4") {
+		colours(0, 4);
+	}
+	item("5") {
+		colours(0, 5);
+	}
+	item("6") {
+		colours(0, 6);
+	}
+	item("7") {
+		colours(0, 7);
+	}
+	item("8") {
+		colours(0, 8);
+	}
+	item("9") {
+		colours(7, 9);
+	}
+	item("10") {
+		colours(0, 10);
+	}
+	item("11") {
+		colours(0, 11);
+	}
+	item("12") {
+		colours(7, 12);
+	}
+	item("13") {
+		colours(0, 13);
+	}
+	item("14") {
+		colours(7, 14);
+	}
+	item("15") {
+		colours(7, 15);
+	}
+}
+

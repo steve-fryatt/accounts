@@ -25,7 +25,7 @@ PROCinit
 ON ERROR PROCerror
 :
 WHILE NOT quit%
-PROCpoll
+	PROCpoll
 ENDWHILE
 :
 PROCloose_fonts
@@ -34,13 +34,22 @@ IF reset% THEN SYS "Wimp_ProcessKey",&1FC
 :
 SYS "Wimp_CloseDown"
 END
+
+REM Perform a Wimp_Poll
 :
 DEF PROCpoll
 LOCAL ERROR
 ON ERROR LOCAL PROCerror
-SYS "Wimp_Poll",0,b% TO reason%
+
+IF IntroUpAt% <> 0 THEN
+	SYS "Wimp_PollIdle", 0, b%, IntroDisplayTime% + IntroUpAt% TO reason%
+ELSE
+	SYS "Wimp_Poll", 1, b% TO reason%
+ENDIF
+
 CASE reason% OF
-WHEN 0 :IF intro_up% PROCclose_intro
+WHEN 0
+	PROCclose_intro
 WHEN 1 :PROCredraw
 WHEN 2 :SYS "Wimp_OpenWindow",,b%
 IF !b%=main% OR !b%=prefs% THEN
@@ -106,11 +115,14 @@ ENDCASE
 RESTORE ERROR
 ENDPROC
 :
+
+REM Close the splash screen if it has been on screen long enough.
+:
 DEF PROCclose_intro
-IF TIME>=intro_up%+intro_time% THEN
+IF (IntroUpAt% = 0) OR (TIME < IntroUpAt% + IntroDisplayTime%) THEN ENDPROC
+
 PROCclose_window(intro%)
-intro_up%=0
-ENDIF
+IntroUpAt%=0
 ENDPROC
 :
 DEF PROCclick(button%,wind%,icon%)
@@ -2807,7 +2819,19 @@ PROCload_messages(resources$ + "Messages")
 sprite_area%=FNload_sprites("<Account$Dir>.Sprites")
 DIM w$(9)
 quit%=FALSE:reset%=FALSE:app$=FNdecode_message("Task",w$())
-SYS "Wimp_Initialise",200,&4B534154,app$
+
+REM Initialise with the Wimp.
+
+q%!0 = 2
+q%!4 = 3
+q%!8 = 5
+q%!12 = 8
+q%!16 = 10
+q%!20 = &502
+q%!24 = &400C1
+q%!28 = 0
+
+SYS "Wimp_Initialise", 300, &4B534154, app$, q%
 :
 mess$=FNdecode_message("Wrn1",w$())
 warn$=FNdecode_message("Wrn2",w$())
@@ -2824,7 +2848,7 @@ SYS "Hourglass_Off"
 state%=INSTR(state$,"!RunImage")+11
 state$=MID$(state$,state%)
 IF state$<>"" PROCinit_load(state$)
-intro_up%=TIME
+IntroUpAt%=TIME
 PROCopen_window(intro%)
 ENDPROC
 :
@@ -2941,7 +2965,7 @@ SYS "Font_FindFont",,"Homerton.Medium.Oblique",320,320 TO font3%
 SYS "Font_FindFont",,"Homerton.Bold.Oblique",480,480 TO font4%
 SYS "Font_FindFont",,"Homerton.Medium",224,224 TO font5%
 SYS "Font_FindFont",,"Corpus.Medium",192,192 TO disp_font%
-intro_time%=100*8
+IntroDisplayTime%=100*8
 ENDPROC
 :
 DEF PROCloose_fonts

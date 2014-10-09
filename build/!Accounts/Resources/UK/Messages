@@ -1,33 +1,55 @@
-;
-;  These are the text resources used by Accounts V5.00.
-;
-;  They were generated on 21st June 1993.
-;
-;  And subsequently modified on:
-;
-;    17th August    1993        (V5.01)
-;    19th August    1993        (V5.04)
-;    20th August    1993        (V5.05)
-;    27th August    1993        (V5.10)
-;     1st Setpember 1993        (V5.11)
-;     4th September 1993        (V5.15)
-;    17th October   1993        (V5.16) ((Most) Bugs removed!)
-;     6th November  1993        (V5.17) 
-;    22nd November  1993        (V5.18) (More bugs removed!)
-;    26th August    1994        (V5.19)
-;
-; Task Name
-;
+# Copyright 1993-2014, Stephen Fryatt (info@stevefryatt.org.uk)
+#
+# This file is part of Accounts:
+#
+#   http://www.stevefryatt.org.uk/software/
+#
+# Licensed under the EUPL, Version 1.1 only (the "Licence");
+# You may not use this work except in compliance with the
+# Licence.
+#
+# You may obtain a copy of the Licence at:
+#
+#   http://joinup.ec.europa.eu/software/page/eupl
+#
+# Unless required by applicable law or agreed to in
+# writing, software distributed under the Licence is
+# distributed on an "AS IS" basis, WITHOUT WARRANTIES
+# OR CONDITIONS OF ANY KIND, either express or implied.
+#
+# See the Licence for the specific language governing
+# permissions and limitations under the Licence.
+
+#
+#  These are the text resources used by Accounts V5.00.
+#
+#  They were generated on 21st June 1993.
+#
+#  And subsequently modified on:
+#
+#    17th August    1993        (V5.01)
+#    19th August    1993        (V5.04)
+#    20th August    1993        (V5.05)
+#    27th August    1993        (V5.10)
+#     1st Setpember 1993        (V5.11)
+#     4th September 1993        (V5.15)
+#    17th October   1993        (V5.16) ((Most) Bugs removed!)
+#     6th November  1993        (V5.17) 
+#    22nd November  1993        (V5.18) (More bugs removed!)
+#    26th August    1994        (V5.19)
+#
+# Task Name
+#
 Task:Accounts
-;             
-; Warning Box Title
-;
+#             
+# Warning Box Title
+#
 Wrn0:from Accounts!
 Wrn1:Message
 Wrn2:Warning
-;
-; Error Messages
-;
+#
+# Error Messages
+#
 Err0:Accounts has suffered an internal error (Error %0; %1 at line %2). Click 'OK' to continue, or 'Cancel' to exit program.
 Err1:The value that you have just tried to enter is too big.
 Err2:Unable to open output file. Leafname may be too long, or Directory does not exist.
@@ -42,78 +64,78 @@ Err10:The Resources: Filing system is read-only.
 Err11:Directory not found.
 Err12:Directory full.
 Err13:Disc Not Found.
-;
-; Filer Messages
-;
+#
+# Filer Messages
+#
 Fil0:To save, drag the icon to a directory viewer.
 Fil1:To save, drag the icon to a directory viewer. Accounts does not support inter-application file transfers.
 Fil2:This is not an Account file or a CSV file. To load an account, drag an account file from a directory viewer to the Accounts icon.
 Fil3:Accounts is unable to save this file.
 Fil4:To load a CSV file, drag its icon to the Accounts icon on the icon bar.
-;
-; Exporting Errors
-;
+#
+# Exporting Errors
+#
 Exp0:You cannot export a single line. Set a new range and try again.
 Exp1:The range you have set does not make sense. Set a new range and try again.
 Exp2:There are not this many lines in the account. Set a new range and try again.
 Exp3:You cannot export a negative number of lines. Set a new range and try again.
-;
-; Printer Errors
-;
+#
+# Printer Errors
+#
 Prn0:You cannot print a single line. Set a new range and try again.
 Prn1:The range you have set is impossible to print. Set a new range and try again.
 Prn2:There are not this many lines in the account. Set a new range and try again.
 Prn3:You cannot print a negative number of lines. Set a new range and try again.
-;
-; File Merge Errors
-;
+#
+# File Merge Errors
+#
 Mer0:There is not enough room in the account to merge the two files.
-;
-; CSV Load errors
-;
+#
+# CSV Load errors
+#
 Csv0:There is not enough room in the account to load the whole CSV file.
 Csv1:This line does not have enough fields in it to use the fields specified.
-;
-; Date errors
-;
+#
+# Date errors
+#
 Dat0:Accounts can not find one of its date formats within this text string.
-;
-; Find & Replace Messages
-;
+#
+# Find & Replace Messages
+#
 Fin0:The text '%0' could not be found within the descriptions of this account.
 Fin1:The account has no entries to search.
 Fin2:- Not Found -
-;
-; Selection Errors
-;
+#
+# Selection Errors
+#
 Sel0:There is no selected entry to delete. Select a line and try again.
 Sel1:There is no limit set for this function. Select a line and try again.
 Sel2:There is no selected entry to cut. Select a line and try again.
 Sel3:There is no selected entry to copy. Select a line and try again.
 Sel4:There is no selected entry for this instruction. Select a line and try again.
 Sel5:This is not a valid line.
-;
-; Confirmation Messages
-;
+#
+# Confirmation Messages
+#
 OK1:Are you sure you wish to delete entry %0? This action can not be undone.
 OK2:Are you sure you wish to remove the entries up to and including entry %0? This action can not be undone.
 OK3:This account has not been saved. Are you sure you wish to clear this account?
 OK4:The current account has not been saved and loading this new file will delete it. Are you sure you wish to load the new file?
 OK5:This account has not been saved. Are you sure you wish to quit Accounts?
 OK6:This account has not been saved. Are you sure you wish to reset the computer?
-;
-; Range Errors
-;
+#
+# Range Errors
+#
 Val0:The resulting balance from this transaction is too low.
 Val1:The resulting balance from this transaction is too large.
 Val2:There is no free space in this account. You will have to remove some entries before you can add any more.
-;
-; Startup Messages
-;
+#
+# Startup Messages
+#
 Int0:Accounts %0
-;
-; Help Messages
-;
+#
+# Help Messages
+#
 Hlp0:This is the Accounts application, a bank accounts manager.|MClick SELECT to open the current account.|MClick MENU to display the icon-bar menu.
 Hlp1:This is the Main Accounts window.|MEditing is done via the Enter window.|MClick SELECT to select an entry.|MClick MENU to display the main Accounts menu.
 Hlp2:This is the Accounts toolbox.|MThis icon is the Add Entry Icon.|MIt adds an entry to the end of the account.

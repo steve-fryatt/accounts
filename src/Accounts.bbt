@@ -1,43 +1,56 @@
-REM >!RunImage
-:
-REM ***********************************************************************
-REM **************              !Accounts V5.19              **************
-REM **************                                           **************
-REM **************          Simple accounts manager,         **************
-REM **************                                           **************
-REM **************       and "bank statement" program.       **************
-REM **************                                           **************
-REM **************       © Stephen Fryatt. 1992, 1993.       **************
-REM **************                                           **************
-REM ************** This program is not in the Public Domain! **************
-REM ***********************************************************************
-:
+REM >!Accounts
+REM
+REM Copyright 1992-2014, Stephen Fryatt (info@stevefryatt.org.uk)
+REM
+REM This file is part of Accounts:
+REM
+REM   http://www.stevefryatt.org.uk/software/
+REM
+REM Licensed under the EUPL, Version 1.1 only (the "Licence");
+REM You may not use this work except in compliance with the
+REM Licence.
+REM
+REM You may obtain a copy of the Licence at:
+REM
+REM   http://joinup.ec.europa.eu/software/page/eupl
+REM
+REM Unless required by applicable law or agreed to in
+REM writing, software distributed under the Licence is
+REM distributed on an "AS IS" basis, WITHOUT WARRANTIES
+REM OR CONDITIONS OF ANY KIND, either express or implied.
+REM
+REM See the Licence for the specific language governing
+REM permissions and limitations under the Licence.
+
 LIBRARY "BASIC:Menu"
+LIBRARY "BASIC:Message"
 LIBRARY "BASIC:Resources"
-:
+
 build_version$="5.19"
 build_date$="26th August 1994"
-:
-SYS "XOS_GetEnv" TO state$
-:
+
+SYS "XOS_GetEnv" TO CommandLine$
+
 PROCinit
-:
+
 ON ERROR PROCerror
-:
-WHILE NOT quit%
+
+WHILE NOT Quit%
 	PROCpoll
 ENDWHILE
-:
+
 PROCloose_fonts
-:
-IF reset% THEN SYS "Wimp_ProcessKey",&1FC
-:
+
+IF RestartShutdown% THEN SYS "Wimp_ProcessKey", &1FC
+
 SYS "Wimp_CloseDown"
 END
+
 
 REM Perform a Wimp_Poll
 :
 DEF PROCpoll
+LOCAL err%
 LOCAL ERROR
 ON ERROR LOCAL PROCerror
 
@@ -50,71 +63,81 @@ ENDIF
 CASE reason% OF
 WHEN 0
 	PROCclose_intro
-WHEN 1 :PROCredraw
-WHEN 2 :SYS "Wimp_OpenWindow",,b%
-IF !b%=main% OR !b%=prefs% THEN
-IF !b%=main% THEN
-!q%=pane%
-SYS "Wimp_GetWindowState",,q%
-q%!4=b%!4
-q%!16=b%!16
-IF FNmenu_state(mmenu%,8) THENq%!8=b%!16-136 ELSEq%!8=b%!16-36
-q%!12=b%!12
-q%!20=b%!20
-IF FNmenu_state(mmenu%,8) q%!24=0 ELSEq%!24=-96
-q%!28=b%!28
-SYS "Wimp_OpenWindow",,q%
-IF FNmenu_state(mmenu%,7) AND join_main% THEN
-!q%=enter%
-SYS "Wimp_GetWindowState",,q%
-q%!4=b%!4+40
-IF b%!8>236 THENover%=0
-IF b%!8<=236 AND b%!8>0 THENover%=236-b%!8
-IF b%!8<=0 THENover%=236
-q%!16=b%!8-44+over%
-q%!8=b%!8-236+over%
-q%!12=b%!4+1236
-q%!20=0
-q%!24=0
-q%!28=pane%
-SYS "Wimp_OpenWindow",,q%
-b%!28=enter%
-ELSE
-b%!28=pane%
-ENDIF
-SYS "Wimp_OpenWindow",,b%
-ELSE
-!q%=prefspane%
-SYS "Wimp_GetWindowState",,q%
-q%!4=b%!4+22
-q%!16=b%!8+402
-q%!8=b%!8+24
-q%!12=b%!4+502
-q%!28=b%!28
-SYS "Wimp_OpenWindow",,q%
-b%!28=prefspane%
-SYS "Wimp_OpenWindow",,b%
-ENDIF
-ELSE
-SYS "Wimp_OpenWindow",,b%
-ENDIF
-WHEN 3 :SYS "Wimp_CloseWindow",,b%
-IF !b%=main% THEN
-PROCclose_window(enter%)
-PROCclose_window(tools%)
-PROCclose_window(pane%)
-ENDIF
-IF !b%=prefs% THENPROCclose_window(prefspane%)
-WHEN 6 :PROCclick(b%!8,b%!12,b%!16)
-WHEN 7 :PROCstart_save(savesize%,savetype%,savepoint%)
-WHEN 8 :PROCkey_press(b%!24,!b%,b%!4)
-WHEN 9 :PROCmenu
-WHEN 17,18 :PROCrecieve
-WHEN 19:err%=FNwarning(mess$,FNdecode_message("Fil1",w$()),"OK",1,"",0,"",0)
+WHEN 1
+	PROCredraw
+WHEN 2
+	SYS "Wimp_OpenWindow",,b%
+	IF !b% = MainWindow% OR !b% = prefs% THEN
+		IF !b% = MainWindow% THEN
+			!q% = pane%
+			SYS "Wimp_GetWindowState",,q%
+			q%!4 = b%!4
+			q%!16 = b%!16
+			IF FNmenu_state(mmenu%, 8) THEN q%!8 = b%!16 - 136 ELSE q%!8 = b%!16 - 36
+			q%!12 = b%!12
+			q%!20 = b%!20
+			IF FNmenu_state(mmenu%, 8) q%!24 = 0 ELSE q%!24 = -96
+			q%!28 = b%!28
+			SYS "Wimp_OpenWindow",,q%
+			IF FNmenu_state(mmenu%, 7) AND join_main% THEN
+				!q% = enter%
+				SYS "Wimp_GetWindowState",,q%
+				q%!4 = b%!4 + 40
+				IF b%!8 > 236 THEN over% = 0
+				IF b%!8 <= 236 AND b%!8 > 0 THEN over% = 236 - b%!8
+				IF b%!8 <= 0 THEN over% = 236
+				q%!16 = b%!8 -44 + over%
+				q%!8 = b%!8 - 236 + over%
+				q%!12 = b%!4 + 1236
+				q%!20 = 0
+				q%!24 = 0
+				q%!28 = pane%
+				SYS "Wimp_OpenWindow",,q%
+				b%!28 = enter%
+			ELSE
+				b%!28 = pane%
+			ENDIF
+			SYS "Wimp_OpenWindow",,b%
+		ELSE
+			!q% = prefspane%
+			SYS "Wimp_GetWindowState",,q%
+			q%!4 = b%!4 + 22
+			q%!16 = b%!8 + 402
+			q%!8 = b%!8 + 24
+			q%!12 = b%!4 + 502
+			q%!28 = b%!28
+			SYS "Wimp_OpenWindow",,q%
+			b%!28 = prefspane%
+			SYS "Wimp_OpenWindow",,b%
+		ENDIF
+	ELSE
+		SYS "Wimp_OpenWindow",,b%
+	ENDIF
+WHEN 3
+	SYS "Wimp_CloseWindow",,b%
+	IF !b% = MainWindow% THEN
+		PROCclose_window(enter%)
+		PROCclose_window(tools%)
+		PROCclose_window(pane%)
+	ENDIF
+	IF !b% = prefs% THEN PROCclose_window(prefspane%)
+WHEN 6
+	PROCclick(b%!8, b%!12, b%!16)
+WHEN 7
+	PROCstart_save(savesize%, savetype%, savepoint%)
+WHEN 8
+	PROCkey_press(b%!24, !b%, b%!4)
+WHEN 9
+	PROCmenu
+WHEN 17, 18
+	PROCrecieve
+WHEN 19
+	err% = FNwarning(mess$, FNmessage_lookup("Fil1"), "OK", 1, "", 0, "", 0)
 ENDCASE
+
 RESTORE ERROR
 ENDPROC
-:
+
 
 REM Close the splash screen if it has been on screen long enough.
 :
@@ -124,15 +147,23 @@ IF (IntroUpAt% = 0) OR (TIME < IntroUpAt% + IntroDisplayTime%) THEN ENDPROC
 PROCclose_window(intro%)
 IntroUpAt%=0
 ENDPROC
+
+
+REM Process mouse click events
+REM
+REM \param button%		The clicked mouse button.
+REM \param wind%		The window under the mouse.
+REM \param icon%		The icon under the mouse.
 :
-DEF PROCclick(button%,wind%,icon%)
+DEF PROCclick(button%, wind%, icon%)
 LOCAL size%,loop%
+
 CASE wind% OF
 WHEN -2
 CASE button% OF
 WHEN 2 :PROCmenu_create_iconbar(imenu%,!b%)
 WHEN 4
-PROCopen_window(main%)
+PROCopen_window(MainWindow%)
 PROCset_extent(TRUE)
 IF FNmenu_state(mmenu%,7) THEN
 PROCopen_window(enter%)
@@ -174,7 +205,7 @@ ENDCASE
 WHEN 2 :PROCupdate_menu
 PROCmenu_create(mmenu%,!b%,b%!4)
 ENDCASE
-WHEN main%
+WHEN MainWindow%
 CASE button% OF
 WHEN 4 :IF icon%=-1 PROCselect(b%!4)
 !q%=enter%
@@ -432,7 +463,7 @@ WHEN imenu%
 CASE sel1% OF
 WHEN 0 :PROCopen_as_menu(info%) :button%=4
 WHEN 1 :PROCopen_window(prefs%) :PROCend_caret(prefspane%,23)
-WHEN 2 :quit%=FNsaved
+WHEN 2 :Quit%=FNsaved
 ENDCASE
 WHEN wmenu%
 FOR loop%=0 TO 15
@@ -517,7 +548,7 @@ PROCmenu_set_state(mmenu%,7,0,0)
 ELSE
 !b%=enter%
 SYS "Wimp_GetWindowState",,b%
-!q%=main%
+!q%=MainWindow%
 SYS "Wimp_GetWindowState",,q%
 b%!4=q%!4+40
 b%!16=q%!8-44
@@ -534,7 +565,7 @@ WHEN 8
 IF FNmenu_state(mmenu%,8) THEN
 !b%=pane%
 SYS "Wimp_GetWindowState",,b%
-!q%=main%
+!q%=MainWindow%
 SYS "Wimp_GetWindowState",,q%
 b%!4=q%!4
 b%!16=q%!16
@@ -629,7 +660,7 @@ PROCmenu_set_state(mmenu%,7,0,0)
 ELSE
 !b%=enter%
 SYS "Wimp_GetWindowState",,b%
-!q%=main%
+!q%=MainWindow%
 SYS "Wimp_GetWindowState",,q%
 b%!4=q%!4+42
 IF q%!8>236 THENover%=0
@@ -649,7 +680,7 @@ WHEN &1A2
 IF FNmenu_state(mmenu%,8) THEN
 !b%=pane%
 SYS "Wimp_GetWindowState",,b%
-!q%=main%
+!q%=MainWindow%
 SYS "Wimp_GetWindowState",,q%
 b%!4=q%!4
 b%!16=q%!16
@@ -816,7 +847,7 @@ ENDPROC
 :
 DEF PROCrecieve
 CASE b%!16 OF
-WHEN 0 :quit%=TRUE
+WHEN 0 :Quit%=TRUE
 WHEN 2 :PROCsave
 WHEN 3 :PROCdataload
 WHEN 5 :PROCquick_load
@@ -828,9 +859,9 @@ ENDCASE
 ENDPROC
 :
 DEF PROCaddval(opp%)
-IF opp%<>0 AND select%=0 err%=FNwarning(mess$,FNdecode_message("Sel4",w$()),"OK",1,"",0,"",0):ENDPROC
+IF opp%<>0 AND select%=0 err%=FNwarning(mess$,FNmessage_lookup("Sel4"),"OK",1,"",0,"",0):ENDPROC
 LOCAL push%,text$,credit%,payment%
-IF opp%<>3 AND entries%>1000 err%=FNwarning(mess$,FNdecode_message("Val2",w$()),"OK",1,"",0,"",0):ENDPROC
+IF opp%<>3 AND entries%>1000 err%=FNwarning(mess$,FNmessage_lookup("Val2"),"OK",1,"",0,"",0):ENDPROC
 IF FNicon_state(enter%,0) THEN
 text$=$string%
 credit%=FNval($cred%)
@@ -901,10 +932,9 @@ IF opp%=0 THENPROCpage_end
 ENDPROC
 :
 DEF PROCdelete
-IF select%=0 err%=FNwarning(mess$,FNdecode_message("Sel0",w$()),"OK",1,"",0,"",0):ENDPROC
+IF select%=0 err%=FNwarning(mess$,FNmessage_lookup("Sel0"),"OK",1,"",0,"",0):ENDPROC
 LOCAL push%
-w$(0)=STR$(select%)
-err%=FNwarning(warn$,FNdecode_message("OK1",w$()),"Delete",1,"Cancel",0,"",0)
+err%=FNwarning(warn$,FNmessage_param_lookup("OK1", STR$(select%), "", "", ""),"Delete",1,"Cancel",0,"",0)
 IF err%=1 ENDPROC
 SYS "Hourglass_On"
 FOR push%=select% TO entries%-2
@@ -932,9 +962,8 @@ PROCset_extent(0)
 ENDPROC
 :
 DEF PROCremove
-IF select%=0 err%=FNwarning(mess$,FNdecode_message("Sel1",w$()),"OK",1,"",0,"",0):ENDPROC
-w$(0)=STR$(select%)
-err%=FNwarning(warn$,FNdecode_message("OK2",w$()),"Remove",1,"Cancel",0,"",0)
+IF select%=0 err%=FNwarning(mess$,FNmessage_lookup("Sel1"),"OK",1,"",0,"",0):ENDPROC
+err%=FNwarning(warn$,FNmessage_param_lookup("OK2", STR$(select%), "", "", ""),"Remove",1,"Cancel",0,"",0)
 IF err%=1 ENDPROC
 LOCAL push%
 SYS "Hourglass_On"
@@ -965,7 +994,7 @@ PROCset_extent(0)
 ENDPROC
 :
 DEF PROCcut
-IF select%=0 err%=FNwarning(mess$,FNdecode_message("Sel2",w$()),"OK",1,"",0,"",0):ENDPROC
+IF select%=0 err%=FNwarning(mess$,FNmessage_lookup("Sel2"),"OK",1,"",0,"",0):ENDPROC
 LOCAL push%
 $clip_string%=text$(select%)
 $clip_cred%=FNpoint(credit%(select%))
@@ -1001,7 +1030,7 @@ PROCset_extent(0)
 ENDPROC
 :
 DEF PROCcopy
-IF select%=0 err%=FNwarning(mess$,FNdecode_message("Sel3",w$()),"OK",1,"",0,"",0):ENDPROC
+IF select%=0 err%=FNwarning(mess$,FNmessage_lookup("Sel3"),"OK",1,"",0,"",0):ENDPROC
 $clip_string%=text$(select%)
 $clip_cred%=FNpoint(credit%(select%))
 $clip_pay%=FNpoint(payment%(select%))
@@ -1030,7 +1059,7 @@ ENDPROC
 :
 DEF PROCselect(my%)
 LOCAL into%,yoff%,row%,o%
-!b%=main%
+!b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 yoff%=-b%!24
 into%=b%!16-my%
@@ -1049,7 +1078,7 @@ ENDPROC
 DEF PROCkey_select
 LOCAL val%,o%
 val%=VAL($selctline%)
-IF val%<1 OR val%>=entries% THENerr%=FNwarning(mess$,FNdecode_message("Sel5",w$()),"OK",1,"",0,"",0) :ENDPROC
+IF val%<1 OR val%>=entries% THENerr%=FNwarning(mess$,FNmessage_lookup("Sel5"),"OK",1,"",0,"",0) :ENDPROC
 o%=select%
 select%=val%
 PROCredraw_line(o%)
@@ -1083,7 +1112,7 @@ ENDPROC
 :
 DEF PROCclear
 err%=0
-IF modified% err%=FNwarning(warn$,FNdecode_message("OK3",w$()),"Clear",1,"Cancel",0,"",0)
+IF modified% err%=FNwarning(warn$,FNmessage_lookup("OK3"),"Clear",1,"Cancel",0,"",0)
 IF err%=1 ENDPROC
 text$()=""
 credit%()=0
@@ -1119,7 +1148,7 @@ ENDPROC
 :
 DEF PROCcheck_size
 IF balance%(entries%-1)>2000000000 THEN
-err%=FNwarning(mess$,FNdecode_message("Val0",w$()),"OK",1,"",0,"",0)
+err%=FNwarning(mess$,FNmessage_lookup("Val0"),"OK",1,"",0,"",0)
 entries%-=1
 text$(entries%)=""
 credit%(entries%)=0
@@ -1127,7 +1156,7 @@ payment%(entries%)=0
 balance%(entries%)=0
 ENDIF
 IF balance%(entries%-1)<-2000000000 THEN
-err%=FNwarning(mess$,FNdecode_message("Val1",w$()),"OK",1,"",0,"",0)
+err%=FNwarning(mess$,FNmessage_lookup("Val1"),"OK",1,"",0,"",0)
 entries%-=1
 text$(entries%)=""
 credit%(entries%)=0
@@ -1266,15 +1295,15 @@ IF FNmenu_state(mmenu%,8) size%-=100
 b%!4=size%
 b%!8=1234
 b%!12=0
-SYS "Wimp_SetExtent",main%,b%
-!b%=main%
+SYS "Wimp_SetExtent",MainWindow%,b%
+!b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 IF reset% THEN
 b%!8=b%!16-520
 IF FNmenu_state(mmenu%,8) THENb%!8=b%!8-100
 ENDIF
 SYS "Wimp_OpenWindow",,b%
-PROCopen_window(main%)
+PROCopen_window(MainWindow%)
 ENDPROC
 :
 DEF FNinverse_colour(c%)
@@ -1291,16 +1320,16 @@ DEF PROCredraw_line(line%)
 y1%=-((line%+1)<<5)-8
 y2%=-((line%)<<5)-8
 IF FNmenu_state(mmenu%,8) THENy1%-=100 :y2%-=100
-SYS "Wimp_ForceRedraw",main%,0,y1%,1236,y2%
+SYS "Wimp_ForceRedraw",MainWindow%,0,y1%,1236,y2%
 ENDPROC
 :
 DEF PROCredraw_main
 LOCAL wth%,hht%
-!b%=main%
+!b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 wth%=b%!12-b%!4
 hht%=b%!16-b%!8
-SYS "Wimp_ForceRedraw",main%,b%!20,b%!24-hht%,b%!20+wth%,b%!24
+SYS "Wimp_ForceRedraw",MainWindow%,b%!20,b%!24-hht%,b%!20+wth%,b%!24
 ENDPROC
 :
 DEF PROCredraw_enter
@@ -1318,11 +1347,11 @@ DEF PROCredraw_from(line%)
 LOCAL wth%,top%,base%
 top%=-((line%)<<5)-8
 base%=-((entries%)<<5)-8
-!b%=main%
+!b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 IF FNmenu_state(mmenu%,8) THENtop%-=100 :base%-=100
 wth%=b%!12-b%!4
-SYS "Wimp_ForceRedraw",main%,b%!20,base%,b%!20+wth%,top%
+SYS "Wimp_ForceRedraw",MainWindow%,b%!20,base%,b%!20+wth%,top%
 ENDPROC
 :
 DEF PROCupdate_title
@@ -1338,7 +1367,7 @@ $safe%="Yes"
 ELSE
 $safe%="No"
 ENDIF
-!b%=main%
+!b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 SYS "Wimp_ForceRedraw",-1,b%!4,b%!16,b%!12,b%!16+54
 ENDPROC
@@ -1457,7 +1486,7 @@ LOCAL search$,text$,done%,found%,flag%,o%
 PROCmenu_create(-1,0,0)
 PROCclose_window(foundw%)
 done%=FALSE :flag%=FALSE
-IF entries%=1 err%=FNwarning(mess$,FNdecode_message("Fin1",w$()),"OK",1,"",0,"",0) :ENDPROC
+IF entries%=1 err%=FNwarning(mess$,FNmessage_lookup("Fin1"),"OK",1,"",0,"",0) :ENDPROC
 IF rep% THEN
 IF insert_replace% THEN
 text$(findno%)=LEFT$(LEFT$(text$(findno%),replace_pos%-1)+$replacetext%+MID$(text$(findno%),replace_pos%+replace_len%),20)
@@ -1473,7 +1502,7 @@ IF FNicon_state(find%,2)=0 search$=FNupper(search$)
 found%=FALSE
 IF opt% THENfindno%=0
 IF findno%>=entries%-1 THEN
-$foundtext%=FNdecode_message("Fin2",w$())
+$foundtext%=FNmessage_lookup("Fin2")
 $foundline%="-"
 PROCshade_button(foundw%,4)
 PROCshade_button(foundw%,6)
@@ -1542,11 +1571,10 @@ PROCredraw_line(select%)
 ELSE
 IF NOT all% THEN
 IF opt% THEN
-w$(0)=$findtext%
-err%=FNwarning(mess$,FNdecode_message("Fin0",w$()),"OK",1,"",0,"",0)
+err% = FNwarning(mess$, FNmessage_param_lookup("Fin0", $findtext%, "", "", ""), "OK", 1, "", 0, "", 0)
 PROCpage_home
 ELSE
-$foundtext%=FNdecode_message("Fin2",w$())
+$foundtext%=FNmessage_lookup("Fin2")
 $foundline%="-"
 PROCshade_button(foundw%,4)
 PROCshade_button(foundw%,6)
@@ -1558,7 +1586,7 @@ PROCredraw_line(o%)
 ENDIF
 ELSE
 PROCpage_home
-IF NOT flag% THENw$(0)=$findtext% :err%=FNwarning(mess$,FNdecode_message("Fin0",w$()),"OK",1,"",0,"",0)
+IF NOT flag% THEN err% = FNwarning(mess$, FNmessage_param_lookup("Fin0", $findtext%, "", "", ""), "OK", 1, "", 0, "", 0)
 ENDIF
 ENDIF
 IF all% THENPROCredraw_main
@@ -1579,7 +1607,7 @@ line%=VAL($gotoline%)
 IF line%>1000 line%=1000
 offset%=-32*(line%-1)
 IF FNmenu_state(mmenu%,8) THENoffset%-=0
-!b%=main%
+!b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 b%!24=offset%
 SYS "Wimp_OpenWindow",,b%
@@ -1593,7 +1621,7 @@ line%=select%
 IF line%>1000 line%=1000
 offset%=-32*(line%-1)
 IF FNmenu_state(mmenu%,8) THENoffset%-=0
-!b%=main%
+!b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 b%!24=offset%
 SYS "Wimp_OpenWindow",,b%
@@ -1603,7 +1631,7 @@ ENDPROC
 :
 DEF PROCpage_up
 LOCAL offset%,yh%
-!b%=main%
+!b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 yh%=(b%!16-b%!8)-40
 IF FNmenu_state(mmenu%,8) THENyh%-=68
@@ -1617,7 +1645,7 @@ ENDPROC
 :
 DEF PROCpage_down
 LOCAL offset%,yh%
-!b%=main%
+!b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 yh%=(b%!16-b%!8)-40
 IF FNmenu_state(mmenu%,8) THENyh%-=68
@@ -1630,14 +1658,14 @@ SYS "Wimp_OpenWindow",,b%
 ENDPROC
 :
 DEF PROCpage_home
-!q%=main%
+!q%=MainWindow%
 SYS "Wimp_GetWindowState",,q%
 q%!24=0
 SYS "Wimp_OpenWindow",,q%
 ENDPROC
 :
 DEF PROCpage_end
-!b%=main%
+!b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 b%!24=(entries%-2)*-32
 SYS "Wimp_OpenWindow",,b%
@@ -1645,7 +1673,7 @@ ENDPROC
 :
 DEF PROCline_up
 LOCAL offset%
-!b%=main%
+!b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 offset%=b%!24
 offset%+=32
@@ -1656,7 +1684,7 @@ ENDPROC
 :
 DEF PROCline_down
 LOCAL offset%
-!b%=main%
+!b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 offset%=b%!24
 offset%-=32
@@ -1684,14 +1712,14 @@ ENDPROC
 DEF PROCdataload
 LOCAL tf$,csv%
 csv%=FALSE
-IF b%!20<>-2 AND b%!20<>main% THENENDPROC
-IF b%!40<>account_file% AND b%!40<>csv_file% err%=FNreport(255,FNdecode_message("Fil2",w$()),1,app$,1,0):ENDPROC
-IF b%!20=main% AND b%!40=csv_file% THENerr%=FNwarning(mess$,FNdecode_message("Fil4",w$()),"OK",1,"",0,"",0):ENDPROC
+IF b%!20<>-2 AND b%!20<>MainWindow% THENENDPROC
+IF b%!40<>account_file% AND b%!40<>csv_file% err%=FNreport(255,FNmessage_lookup("Fil2"),1,app$,1,0):ENDPROC
+IF b%!20=MainWindow% AND b%!40=csv_file% THENerr%=FNwarning(mess$,FNmessage_lookup("Fil4"),"OK",1,"",0,"",0):ENDPROC
 tf$=FNstring(b%+44)
-IF b%!20=main% THENPROCopen_merge_window :mergef$=tf$ :ENDPROC
+IF b%!20=MainWindow% THENPROCopen_merge_window :mergef$=tf$ :ENDPROC
 err%=0
 IF b%!40=csv_file% THENcsv%=TRUE
-IF modified% THENerr%=FNwarning(warn$,FNdecode_message("OK4",w$()),"Load",1,"Cancel",0,"",0)
+IF modified% THENerr%=FNwarning(warn$,FNmessage_lookup("OK4"),"Load",1,"Cancel",0,"",0)
 IF err%=1 THENENDPROC
 text$()=""
 credit%()=0
@@ -1706,7 +1734,7 @@ $pay%="0.00"
 modified%=FALSE
 PROCupdate_tools(select%)
 PROCupdate_title
-!q%=main%
+!q%=MainWindow%
 SYS "Wimp_GetWindowState",,q%
 IF (q%!32 AND (1<<16)) THENPROCpage_home
 PROCredraw_main
@@ -1731,9 +1759,9 @@ entries%=c%+1
 modified%=FALSE
 PROCupdate_title
 PROCupdate_tools(select%)
-!b%=main%
+!b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
-PROCopen_window(main%)
+PROCopen_window(MainWindow%)
 PROCset_extent(TRUE)
 PROCredraw_main
 !b%=enter%
@@ -1796,7 +1824,7 @@ ENDCASE
 IF NOT EOF#i% THENfinished%=FALSE
 CLOSE#i%
 SYS "Hourglass_Off"
-IF NOT finished% THENerr%=FNwarning(mess$,FNdecode_message("Mer0",w$()),"OK",1,"",0,"",0)
+IF NOT finished% THENerr%=FNwarning(mess$,FNmessage_lookup("Mer0"),"OK",1,"",0,"",0)
 PROCrecalc
 PROCmenu_create(-1,0,0)
 modified%=TRUE
@@ -1847,16 +1875,16 @@ UNTIL EOF#i% OR entries%>max% OR failed%
 IF NOT EOF#i% AND NOT failed% THENfinished%=FALSE
 CLOSE#i%
 SYS "Hourglass_Off"
-IF NOT finished% THENerr%=FNwarning(mess$,FNdecode_message("Csv0",w$()),"OK",1,"",0,"",0)
-IF failed% THENerr%=FNwarning(mess$,FNdecode_message("Csv1",w$()),"OK",1,"",0,"",0)
+IF NOT finished% THENerr%=FNwarning(mess$,FNmessage_lookup("Csv0"),"OK",1,"",0,"",0)
+IF failed% THENerr%=FNwarning(mess$,FNmessage_lookup("Csv1"),"OK",1,"",0,"",0)
 $file%=csvf$
 PROCrecalc
 modified%=FALSE
 PROCupdate_title
 PROCupdate_tools(select%)
-!b%=main%
+!b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
-PROCopen_window(main%)
+PROCopen_window(MainWindow%)
 PROCredraw_main
 PROCset_extent(TRUE)
 !b%=enter%
@@ -1967,7 +1995,7 @@ WHEN tfile% :PROCtextsave
 WHEN cfile% :PROCcsvsave
 ENDCASE
 ELSE
-err%=FNreport(255,FNdecode_message("Fil0",w$()),1,app$,1,0)
+err%=FNreport(255,FNmessage_lookup("Fil0"),1,app$,1,0)
 ENDIF
 ENDPROC
 :
@@ -1991,10 +2019,10 @@ ENDPROC
 :
 DEF PROCtextsave
 LOCAL c%,percent%
-IF VAL($text1%)=VAL($text2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp0",w$()),"OK",1,"",1,"",0):ENDPROC
-IF VAL($text1%)>VAL($text2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp1",w$()),"OK",1,"",1,"",0):ENDPROC
-IF VAL($text1%)>=entries% OR VAL($text2%)>=entries% PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp2",w$()),"OK",1,"",1,"",0):ENDPROC
-IF VAL($text1%)<=0 OR VAL($text2%)<=0 PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp3",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($text1%)=VAL($text2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Exp0"),"OK",1,"",1,"",0):ENDPROC
+IF VAL($text1%)>VAL($text2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Exp1"),"OK",1,"",1,"",0):ENDPROC
+IF VAL($text1%)>=entries% OR VAL($text2%)>=entries% PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Exp2"),"OK",1,"",1,"",0):ENDPROC
+IF VAL($text1%)<=0 OR VAL($text2%)<=0 PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Exp3"),"OK",1,"",1,"",0):ENDPROC
 SYS "Hourglass_On"
 o%=OPENOUT($tfile%)
 IF FNicon_state(text%,12) THEN
@@ -2027,10 +2055,10 @@ ENDPROC
 :
 DEF PROCcsvsave
 LOCAL c%,percent%
-IF VAL($csv1%)=VAL($csv2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp0",w$()),"OK",1,"",1,"",0):ENDPROC
-IF VAL($csv1%)>VAL($csv2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp1",w$()),"OK",1,"",1,"",0):ENDPROC
-IF VAL($csv1%)>=entries% OR VAL($csv2%)>=entries% PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp2",w$()),"OK",1,"",1,"",0):ENDPROC
-IF VAL($csv1%)<=0 OR VAL($csv2%)<=0 PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Exp3",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($csv1%)=VAL($csv2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Exp0"),"OK",1,"",1,"",0):ENDPROC
+IF VAL($csv1%)>VAL($csv2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Exp1"),"OK",1,"",1,"",0):ENDPROC
+IF VAL($csv1%)>=entries% OR VAL($csv2%)>=entries% PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Exp2"),"OK",1,"",1,"",0):ENDPROC
+IF VAL($csv1%)<=0 OR VAL($csv2%)<=0 PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Exp3"),"OK",1,"",1,"",0):ENDPROC
 SYS "Hourglass_On"
 o%=OPENOUT($cfile%)
 IF FNicon_state(csv%,12) THEN
@@ -2058,16 +2086,16 @@ ENDPROC
 :
 DEF FNsaved
 IF modified%=FALSE = TRUE
-oktoquit%=FNwarning(warn$,FNdecode_message("OK5",w$()),"Quit",1,"Save",1,"Cancel",0)
+oktoquit%=FNwarning(warn$,FNmessage_lookup("OK5"),"Quit",1,"Save",1,"Cancel",0)
 IF oktoquit%=1  PROCopen_as_menu(save%)
 =(oktoquit%=0)
 :
 DEF PROCprint
 LOCAL c%,percent%,s%,top_of_form%,current_line%
-IF VAL($print1%)=VAL($print2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Prn0",w$()),"OK",1,"",1,"",0):ENDPROC
-IF VAL($print1%)>VAL($print2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Prn1",w$()),"OK",1,"",1,"",0):ENDPROC
-IF VAL($print1%)>=entries% OR VAL($print2%)>=entries% PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Prn2",w$()),"OK",1,"",1,"",0):ENDPROC
-IF VAL($print1%)<=0 OR VAL($print2%)<=0 PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNdecode_message("Prn3",w$()),"OK",1,"",1,"",0):ENDPROC
+IF VAL($print1%)=VAL($print2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Prn0"),"OK",1,"",1,"",0):ENDPROC
+IF VAL($print1%)>VAL($print2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Prn1"),"OK",1,"",1,"",0):ENDPROC
+IF VAL($print1%)>=entries% OR VAL($print2%)>=entries% PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Prn2"),"OK",1,"",1,"",0):ENDPROC
+IF VAL($print1%)<=0 OR VAL($print2%)<=0 PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Prn3"),"OK",1,"",1,"",0):ENDPROC
 SYS &80140 TO,s%
 SYS "Hourglass_On"
 o%=OPENOUT("<Account$PrintFile>")
@@ -2346,7 +2374,7 @@ home_key%=3
 IF save_prefs% THENPRINT#out%,3
 ENDIF
 IF save_prefs% THENCLOSE#out%
-!b%=main%
+!b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 IF (b%!32 AND (1<<16)) THENopen%=TRUE ELSEopen%=FALSE
 IF open% THENPROCclose_window(enter%)
@@ -2398,7 +2426,7 @@ PROCmenu_set_state(mmenu%,8,1,0)
 ELSE
 PROCmenu_set_state(mmenu%,8,0,0)
 ENDIF
-IF open% THENPROCopen_window(main%) :PROCopen_window(enter%)
+IF open% THENPROCopen_window(MainWindow%) :PROCopen_window(enter%)
 PROCclose_window(prefspane%)
 PROCclose_window(prefs%)
 PROCredraw_main
@@ -2501,7 +2529,7 @@ WHEN 2 :PROCset_icon_state(prefspane%,48,1,0,0)
 WHEN 3 :PROCset_icon_state(prefspane%,49,1,0,0)
 ENDCASE
 IF load% THENCLOSE#in%
-!b%=main%
+!b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 IF (b%!32 AND (1<<16)) THENopen%=TRUE ELSEopen%=FALSE
 IF open% THENPROCclose_window(enter%)
@@ -2553,7 +2581,7 @@ PROCmenu_set_state(mmenu%,8,1,0)
 ELSE
 PROCmenu_set_state(mmenu%,8,0,0)
 ENDIF
-IF open% THENPROCopen_window(main%) :PROCopen_window(enter%)
+IF open% THENPROCopen_window(MainWindow%) :PROCopen_window(enter%)
 PROCredraw_main
 ENDPROC
 :
@@ -2730,7 +2758,7 @@ pos%-=1
 type%=3
 ENDIF
 ENDIF
-IF flag% err%=FNwarning(mess$,FNdecode_message("Dat0",w$()),"OK",1,"",0,"",0)
+IF flag% err%=FNwarning(mess$,FNmessage_lookup("Dat0"),"OK",1,"",0,"",0)
 IF flag% THENENDPROC
 text$=FNadd_date(text$,length%,pos%,type%,2,0)
 $(b%!28)=text$
@@ -2815,10 +2843,9 @@ csv_file%=&DFE
 join_main%=1
 PROCget_mode_vars
 DIM text$(max%),credit%(max%),payment%(max%),balance%(max%)
-PROCload_messages(resources$ + "Messages")
+PROCmessage_initialise(resources$ + "Messages")
 sprite_area%=FNload_sprites("<Account$Dir>.Sprites")
-DIM w$(9)
-quit%=FALSE:reset%=FALSE:app$=FNdecode_message("Task",w$())
+Quit%=FALSE:RestartShutdown%=FALSE:app$=FNmessage_lookup("Task")
 
 REM Initialise with the Wimp.
 
@@ -2833,8 +2860,8 @@ q%!28 = 0
 
 SYS "Wimp_Initialise", 300, &4B534154, app$, q%
 :
-mess$=FNdecode_message("Wrn1",w$())
-warn$=FNdecode_message("Wrn2",w$())
+mess$=FNmessage_lookup("Wrn1")
+warn$=FNmessage_lookup("Wrn2")
 :
 PROCintro
 PROCdefine_windows(resources$)
@@ -2845,9 +2872,9 @@ PROCload_printcodes
 PROCload_prefs(TRUE)
 PROCdrag_init
 SYS "Hourglass_Off"
-state%=INSTR(state$,"!RunImage")+11
-state$=MID$(state$,state%)
-IF state$<>"" PROCinit_load(state$)
+state%=INSTR(CommandLine$,"!RunImage")+11
+CommandLine$=MID$(CommandLine$,state%)
+IF CommandLine$<>"" PROCinit_load(CommandLine$)
 IntroUpAt%=TIME
 PROCopen_window(intro%)
 ENDPROC
@@ -2889,63 +2916,10 @@ IF NOT modified% THEN ENDPROC
 b%!12=b%!8
 b%!16=0
 SYS "Wimp_SendMessage",19,b%
-err%=FNwarning(warn$,FNdecode_message("OK6",w$()),"Reset",1,"Save",0,"Cancel",0)
-IF err%=0 THEN quit%=TRUE : reset%=TRUE
+err%=FNwarning(warn$,FNmessage_lookup("OK6"),"Reset",1,"Save",0,"Cancel",0)
+IF err%=0 THEN Quit%=TRUE : RestartShutdown%=TRUE
 IF err%=1 THEN PROCopen_as_menu(save%)
 ENDPROC
-:
-DEF PROCload_messages(f$)
-LOCAL l%,i%,l$,no%
-no%=0
-i%=OPENIN(f$)
-WHILE NOT EOF#i%
-l$=GET$#i%
-IF LEFT$(l$,1)<>";" AND INSTR(l$,":") THENno%+=1
-ENDWHILE
-DIM t_m$(no%)
-PTR#i%=0
-l%=0
-WHILE NOT EOF#i%
-l$=GET$#i%
-IF LEFT$(l$,1)<>";" AND INSTR(l$,":") THENt_m$(l%)=l$ :l%+=1
-ENDWHILE
-t_m$(l%)="*"
-CLOSE#i%
-ENDPROC
-:
-DEF FNdecode_message(id$,w$())
-LOCAL l$,l%,o%,i$
-l%=0
-REPEAT
-l$=t_m$(l%)
-IF l$<>"*" THEN
-o%=INSTR(l$,":")
-i$=LEFT$(l$,o%-1)
-l$=MID$(l$,o%+1)
-l%+=1
-ENDIF
-UNTIL l$="*" OR i$=id$
-IF l$="*" =""
-o%=0
-REPEAT
-o%=INSTR(l$,"%",o%+1)
-IF o% THEN
-CASE MID$(l$,o%+1,1) OF
-WHEN "%" :l$=LEFT$(l$,o%)+MID$(l$,o%+2)
-WHEN "0" :l$=LEFT$(l$,o%-1)+w$(0)+MID$(l$,o%+2)
-WHEN "1" :l$=LEFT$(l$,o%-1)+w$(1)+MID$(l$,o%+2)
-WHEN "2" :l$=LEFT$(l$,o%-1)+w$(2)+MID$(l$,o%+2)
-WHEN "3" :l$=LEFT$(l$,o%-1)+w$(3)+MID$(l$,o%+2)
-WHEN "4" :l$=LEFT$(l$,o%-1)+w$(4)+MID$(l$,o%+2)
-WHEN "5" :l$=LEFT$(l$,o%-1)+w$(5)+MID$(l$,o%+2)
-WHEN "6" :l$=LEFT$(l$,o%-1)+w$(6)+MID$(l$,o%+2)
-WHEN "7" :l$=LEFT$(l$,o%-1)+w$(7)+MID$(l$,o%+2)
-WHEN "8" :l$=LEFT$(l$,o%-1)+w$(8)+MID$(l$,o%+2)
-WHEN "9" :l$=LEFT$(l$,o%-1)+w$(9)+MID$(l$,o%+2)
-ENDCASE
-ENDIF
-UNTIL o%=0
-=l$
 :
 DEF FNload_sprites(f$)
 LOCAL size%,area%
@@ -2982,10 +2956,10 @@ DIM ind_data% 7000
 :
 PROCopen_templates(resources$ + "Templates")
 to%=FNload_template("Error",b%,ind_data%,7000)
-SYS "Wimp_CreateWindow",,b% TO error%
+SYS "Wimp_CreateWindow",,b% TO ErrorWindow%
 to%=FNload_template("Main",b%,to%,7000-(to%-ind_data%))
 title%=b%!72 :$title%="<Untitled>"
-SYS "Wimp_CreateWindow",,b% TO main%
+SYS "Wimp_CreateWindow",,b% TO MainWindow%
 to%=FNload_template("Tools",b%,to%,7000-(to%-ind_data%))
 b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO tools%
@@ -3057,8 +3031,7 @@ $FNindirection(info%,2)=CHR$(169) + " Stephen Fryatt, 1992-" + MID$(build_date$,
 $FNindirection(info%,3)=build_version$+" ("+build_date$+")"
 :
 REM Intro
-w$(0) = build_version$
-$FNindirection(intro%,2)=FNdecode_message("Int0",w$())
+$FNindirection(intro%,2)=FNmessage_param_lookup("Int0", build_version$, "", "", "")
 $FNindirection(intro%,3)=CHR$(169) + " Stephen Fryatt, 1992-" + MID$(build_date$, 8)
 :
 REM Enter1
@@ -3120,11 +3093,11 @@ $csv1%="1"
 $csv2%="1"
 :
 REM Error
-errortext%=FNindirection(error%,4)
-errortitle%=FNindirection(error%,3)
-button1%=FNindirection(error%,5)
-button2%=FNindirection(error%,6)
-button3%=FNindirection(error%,7)
+errortext%=FNindirection(ErrorWindow%,4)
+errortitle%=FNindirection(ErrorWindow%,3)
+button1%=FNindirection(ErrorWindow%,5)
+button2%=FNindirection(ErrorWindow%,6)
+button3%=FNindirection(ErrorWindow%,7)
 :
 REM Print
 print1%=FNindirection(print%,7)
@@ -3208,457 +3181,457 @@ window%=b%!32
 icon%=b%!36
 CASE window% OF
 WHEN -2
-PROCsend_help(FNdecode_message("Hlp0",w$()))
-WHEN main%
-PROCsend_help(FNdecode_message("Hlp1",w$()))
+PROCsend_help(FNmessage_lookup("Hlp0"))
+WHEN MainWindow%
+PROCsend_help(FNmessage_lookup("Hlp1"))
 WHEN tools%
 CASE icon% OF
 WHEN 0
-PROCsend_help(FNdecode_message("Hlp2",w$()))
+PROCsend_help(FNmessage_lookup("Hlp2"))
 WHEN 1
-PROCsend_help(FNdecode_message("Hlp3",w$()))
+PROCsend_help(FNmessage_lookup("Hlp3"))
 WHEN 2
-PROCsend_help(FNdecode_message("Hlp4",w$()))
+PROCsend_help(FNmessage_lookup("Hlp4"))
 WHEN 3
-PROCsend_help(FNdecode_message("Hlp5",w$()))
+PROCsend_help(FNmessage_lookup("Hlp5"))
 WHEN 4
-PROCsend_help(FNdecode_message("Hlp6",w$()))
+PROCsend_help(FNmessage_lookup("Hlp6"))
 OTHERWISE
-PROCsend_help(FNdecode_message("Hlp7",w$()))
+PROCsend_help(FNmessage_lookup("Hlp7"))
 ENDCASE
 WHEN enter%
 CASE icon% OF
 WHEN 0
-PROCsend_help(FNdecode_message("Hlp8",w$()))
+PROCsend_help(FNmessage_lookup("Hlp8"))
 WHEN 1
-PROCsend_help(FNdecode_message("Hlp9",w$()))
+PROCsend_help(FNmessage_lookup("Hlp9"))
 WHEN 2
-PROCsend_help(FNdecode_message("Hlp10",w$()))
+PROCsend_help(FNmessage_lookup("Hlp10"))
 WHEN 3
-PROCsend_help(FNdecode_message("Hlp11",w$()))
+PROCsend_help(FNmessage_lookup("Hlp11"))
 WHEN 4
-PROCsend_help(FNdecode_message("Hlp12",w$()))
+PROCsend_help(FNmessage_lookup("Hlp12"))
 WHEN 5
-PROCsend_help(FNdecode_message("Hlp13",w$()))
+PROCsend_help(FNmessage_lookup("Hlp13"))
 WHEN 6
-PROCsend_help(FNdecode_message("Hlp14",w$()))
+PROCsend_help(FNmessage_lookup("Hlp14"))
 WHEN 7
-PROCsend_help(FNdecode_message("Hlp15",w$()))
+PROCsend_help(FNmessage_lookup("Hlp15"))
 WHEN 8
-PROCsend_help(FNdecode_message("Hlp16",w$()))
+PROCsend_help(FNmessage_lookup("Hlp16"))
 WHEN 9
-PROCsend_help(FNdecode_message("Hlp17",w$()))
+PROCsend_help(FNmessage_lookup("Hlp17"))
 WHEN 10
-PROCsend_help(FNdecode_message("Hlp18",w$()))
+PROCsend_help(FNmessage_lookup("Hlp18"))
 WHEN 11
-PROCsend_help(FNdecode_message("Hlp19",w$()))
+PROCsend_help(FNmessage_lookup("Hlp19"))
 WHEN 12
-PROCsend_help(FNdecode_message("Hlp20",w$()))
+PROCsend_help(FNmessage_lookup("Hlp20"))
 WHEN 13
-PROCsend_help(FNdecode_message("Hlp21",w$()))
+PROCsend_help(FNmessage_lookup("Hlp21"))
 OTHERWISE
-PROCsend_help(FNdecode_message("Hlp22",w$()))
+PROCsend_help(FNmessage_lookup("Hlp22"))
 ENDCASE
 WHEN goto%
 CASE icon% OF
 WHEN 0
-PROCsend_help(FNdecode_message("Hlp23",w$()))
+PROCsend_help(FNmessage_lookup("Hlp23"))
 WHEN 1
-PROCsend_help(FNdecode_message("Hlp24",w$()))
+PROCsend_help(FNmessage_lookup("Hlp24"))
 OTHERWISE
-PROCsend_help(FNdecode_message("Hlp25",w$()))
+PROCsend_help(FNmessage_lookup("Hlp25"))
 ENDCASE
 WHEN find%
 CASE icon% OF
 WHEN 0
-PROCsend_help(FNdecode_message("Hlp183",w$()))
+PROCsend_help(FNmessage_lookup("Hlp183"))
 WHEN 1,10
-PROCsend_help(FNdecode_message("Hlp26",w$()))
+PROCsend_help(FNmessage_lookup("Hlp26"))
 WHEN 2
-PROCsend_help(FNdecode_message("Hlp27",w$()))
+PROCsend_help(FNmessage_lookup("Hlp27"))
 WHEN 3
-PROCsend_help(FNdecode_message("Hlp28",w$()))
+PROCsend_help(FNmessage_lookup("Hlp28"))
 WHEN 4
-PROCsend_help(FNdecode_message("Hlp29",w$()))
+PROCsend_help(FNmessage_lookup("Hlp29"))
 WHEN 5
-PROCsend_help(FNdecode_message("Hlp30",w$()))
+PROCsend_help(FNmessage_lookup("Hlp30"))
 WHEN 6
-PROCsend_help(FNdecode_message("Hlp31",w$()))
+PROCsend_help(FNmessage_lookup("Hlp31"))
 WHEN 7
-PROCsend_help(FNdecode_message("Hlp120",w$()))
+PROCsend_help(FNmessage_lookup("Hlp120"))
 WHEN 8,9
-PROCsend_help(FNdecode_message("Hlp121",w$()))
+PROCsend_help(FNmessage_lookup("Hlp121"))
 OTHERWISE
-PROCsend_help(FNdecode_message("Hlp32",w$()))
+PROCsend_help(FNmessage_lookup("Hlp32"))
 ENDCASE
 WHEN foundw%
 CASE icon% OF
 WHEN 2
-PROCsend_help(FNdecode_message("Hlp33",w$()))
+PROCsend_help(FNmessage_lookup("Hlp33"))
 WHEN 3
-PROCsend_help(FNdecode_message("Hlp34",w$()))
+PROCsend_help(FNmessage_lookup("Hlp34"))
 WHEN 4
-PROCsend_help(FNdecode_message("Hlp35",w$()))
+PROCsend_help(FNmessage_lookup("Hlp35"))
 WHEN 5
-PROCsend_help(FNdecode_message("Hlp36",w$()))
+PROCsend_help(FNmessage_lookup("Hlp36"))
 WHEN 6
-PROCsend_help(FNdecode_message("Hlp122",w$()))
+PROCsend_help(FNmessage_lookup("Hlp122"))
 WHEN 7
-PROCsend_help(FNdecode_message("Hlp123",w$()))
+PROCsend_help(FNmessage_lookup("Hlp123"))
 OTHERWISE
-PROCsend_help(FNdecode_message("Hlp37",w$()))
+PROCsend_help(FNmessage_lookup("Hlp37"))
 ENDCASE
 WHEN newhead%
 CASE icon% OF
 WHEN 1
-PROCsend_help(FNdecode_message("Hlp38",w$()))
+PROCsend_help(FNmessage_lookup("Hlp38"))
 WHEN 2
-PROCsend_help(FNdecode_message("Hlp39",w$()))
+PROCsend_help(FNmessage_lookup("Hlp39"))
 WHEN 3
-PROCsend_help(FNdecode_message("Hlp40",w$()))
+PROCsend_help(FNmessage_lookup("Hlp40"))
 OTHERWISE
-PROCsend_help(FNdecode_message("Hlp41",w$()))
+PROCsend_help(FNmessage_lookup("Hlp41"))
 ENDCASE
 WHEN save%
 CASE icon% OF
 WHEN 0
-PROCsend_help(FNdecode_message("Hlp42",w$()))
+PROCsend_help(FNmessage_lookup("Hlp42"))
 WHEN 1
-PROCsend_help(FNdecode_message("Hlp43",w$()))
+PROCsend_help(FNmessage_lookup("Hlp43"))
 WHEN 2
-PROCsend_help(FNdecode_message("Hlp44",w$()))
+PROCsend_help(FNmessage_lookup("Hlp44"))
 OTHERWISE
-PROCsend_help(FNdecode_message("Hlp45",w$()))
+PROCsend_help(FNmessage_lookup("Hlp45"))
 ENDCASE
 WHEN text%
 CASE icon% OF
 WHEN 0
-PROCsend_help(FNdecode_message("Hlp46",w$()))
+PROCsend_help(FNmessage_lookup("Hlp46"))
 WHEN 1
-PROCsend_help(FNdecode_message("Hlp47",w$()))
+PROCsend_help(FNmessage_lookup("Hlp47"))
 WHEN 2
-PROCsend_help(FNdecode_message("Hlp48",w$()))
+PROCsend_help(FNmessage_lookup("Hlp48"))
 WHEN 3
-PROCsend_help(FNdecode_message("Hlp49",w$()))
+PROCsend_help(FNmessage_lookup("Hlp49"))
 WHEN 4
-PROCsend_help(FNdecode_message("Hlp50",w$()))
+PROCsend_help(FNmessage_lookup("Hlp50"))
 WHEN 5
-PROCsend_help(FNdecode_message("Hlp51",w$()))
+PROCsend_help(FNmessage_lookup("Hlp51"))
 WHEN 6
-PROCsend_help(FNdecode_message("Hlp52",w$()))
+PROCsend_help(FNmessage_lookup("Hlp52"))
 WHEN 7
-PROCsend_help(FNdecode_message("Hlp53",w$()))
+PROCsend_help(FNmessage_lookup("Hlp53"))
 WHEN 8
-PROCsend_help(FNdecode_message("Hlp54",w$()))
+PROCsend_help(FNmessage_lookup("Hlp54"))
 WHEN 9
-PROCsend_help(FNdecode_message("Hlp55",w$()))
+PROCsend_help(FNmessage_lookup("Hlp55"))
 WHEN 10
-PROCsend_help(FNdecode_message("Hlp56",w$()))
+PROCsend_help(FNmessage_lookup("Hlp56"))
 WHEN 11
-PROCsend_help(FNdecode_message("Hlp57",w$()))
+PROCsend_help(FNmessage_lookup("Hlp57"))
 WHEN 12
-PROCsend_help(FNdecode_message("Hlp58",w$()))
+PROCsend_help(FNmessage_lookup("Hlp58"))
 WHEN 13
-PROCsend_help(FNdecode_message("Hlp59",w$()))
+PROCsend_help(FNmessage_lookup("Hlp59"))
 OTHERWISE
-PROCsend_help(FNdecode_message("Hlp60",w$()))
+PROCsend_help(FNmessage_lookup("Hlp60"))
 ENDCASE
 WHEN csv%
 CASE icon% OF
 WHEN 0
-PROCsend_help(FNdecode_message("Hlp61",w$()))
+PROCsend_help(FNmessage_lookup("Hlp61"))
 WHEN 1
-PROCsend_help(FNdecode_message("Hlp62",w$()))
+PROCsend_help(FNmessage_lookup("Hlp62"))
 WHEN 2
-PROCsend_help(FNdecode_message("Hlp63",w$()))
+PROCsend_help(FNmessage_lookup("Hlp63"))
 WHEN 3
-PROCsend_help(FNdecode_message("Hlp64",w$()))
+PROCsend_help(FNmessage_lookup("Hlp64"))
 WHEN 4
-PROCsend_help(FNdecode_message("Hlp65",w$()))
+PROCsend_help(FNmessage_lookup("Hlp65"))
 WHEN 5
-PROCsend_help(FNdecode_message("Hlp66",w$()))
+PROCsend_help(FNmessage_lookup("Hlp66"))
 WHEN 6
-PROCsend_help(FNdecode_message("Hlp67",w$()))
+PROCsend_help(FNmessage_lookup("Hlp67"))
 WHEN 7
-PROCsend_help(FNdecode_message("Hlp68",w$()))
+PROCsend_help(FNmessage_lookup("Hlp68"))
 WHEN 8
-PROCsend_help(FNdecode_message("Hlp69",w$()))
+PROCsend_help(FNmessage_lookup("Hlp69"))
 WHEN 9
-PROCsend_help(FNdecode_message("Hlp70",w$()))
+PROCsend_help(FNmessage_lookup("Hlp70"))
 WHEN 10
-PROCsend_help(FNdecode_message("Hlp71",w$()))
+PROCsend_help(FNmessage_lookup("Hlp71"))
 WHEN 11
-PROCsend_help(FNdecode_message("Hlp72",w$()))
+PROCsend_help(FNmessage_lookup("Hlp72"))
 WHEN 12
-PROCsend_help(FNdecode_message("Hlp73",w$()))
+PROCsend_help(FNmessage_lookup("Hlp73"))
 OTHERWISE
-PROCsend_help(FNdecode_message("Hlp74",w$()))
+PROCsend_help(FNmessage_lookup("Hlp74"))
 ENDCASE
 WHEN print%
 CASE icon% OF
 WHEN 0
-PROCsend_help(FNdecode_message("Hlp75",w$()))
+PROCsend_help(FNmessage_lookup("Hlp75"))
 WHEN 1
-PROCsend_help(FNdecode_message("Hlp76",w$()))
+PROCsend_help(FNmessage_lookup("Hlp76"))
 WHEN 2
-PROCsend_help(FNdecode_message("Hlp77",w$()))
+PROCsend_help(FNmessage_lookup("Hlp77"))
 WHEN 3
-PROCsend_help(FNdecode_message("Hlp78",w$()))
+PROCsend_help(FNmessage_lookup("Hlp78"))
 WHEN 4
-PROCsend_help(FNdecode_message("Hlp79",w$()))
+PROCsend_help(FNmessage_lookup("Hlp79"))
 WHEN 5
-PROCsend_help(FNdecode_message("Hlp80",w$()))
+PROCsend_help(FNmessage_lookup("Hlp80"))
 WHEN 6
-PROCsend_help(FNdecode_message("Hlp81",w$()))
+PROCsend_help(FNmessage_lookup("Hlp81"))
 WHEN 7
-PROCsend_help(FNdecode_message("Hlp82",w$()))
+PROCsend_help(FNmessage_lookup("Hlp82"))
 WHEN 8
-PROCsend_help(FNdecode_message("Hlp83",w$()))
+PROCsend_help(FNmessage_lookup("Hlp83"))
 WHEN 9
-PROCsend_help(FNdecode_message("Hlp84",w$()))
+PROCsend_help(FNmessage_lookup("Hlp84"))
 WHEN 10
-PROCsend_help(FNdecode_message("Hlp85",w$()))
+PROCsend_help(FNmessage_lookup("Hlp85"))
 WHEN 11
-PROCsend_help(FNdecode_message("Hlp86",w$()))
+PROCsend_help(FNmessage_lookup("Hlp86"))
 WHEN 12
-PROCsend_help(FNdecode_message("Hlp87",w$()))
+PROCsend_help(FNmessage_lookup("Hlp87"))
 OTHERWISE
-PROCsend_help(FNdecode_message("Hlp88",w$()))
+PROCsend_help(FNmessage_lookup("Hlp88"))
 ENDCASE
 WHEN info%
-PROCsend_help(FNdecode_message("Hlp89",w$()))
+PROCsend_help(FNmessage_lookup("Hlp89"))
 WHEN fileinf%
 CASE icon% OF
 WHEN 1,6
-PROCsend_help(FNdecode_message("Hlp90",w$()))
+PROCsend_help(FNmessage_lookup("Hlp90"))
 WHEN 2,7
-PROCsend_help(FNdecode_message("Hlp91",w$()))
+PROCsend_help(FNmessage_lookup("Hlp91"))
 WHEN 3,4,8
-PROCsend_help(FNdecode_message("Hlp92",w$()))
+PROCsend_help(FNmessage_lookup("Hlp92"))
 WHEN 5
-PROCsend_help(FNdecode_message("Hlp93",w$()))
+PROCsend_help(FNmessage_lookup("Hlp93"))
 OTHERWISE
-PROCsend_help(FNdecode_message("Hlp94",w$()))
+PROCsend_help(FNmessage_lookup("Hlp94"))
 ENDCASE
-WHEN error%
-PROCsend_help(FNdecode_message("Hlp95",w$()))
+WHEN ErrorWindow%
+PROCsend_help(FNmessage_lookup("Hlp95"))
 WHEN printset%
 CASE icon% OF
 WHEN 0
-PROCsend_help(FNdecode_message("Hlp96",w$()))
+PROCsend_help(FNmessage_lookup("Hlp96"))
 WHEN 1
-PROCsend_help(FNdecode_message("Hlp97",w$()))
+PROCsend_help(FNmessage_lookup("Hlp97"))
 WHEN 2
-PROCsend_help(FNdecode_message("Hlp98",w$()))
+PROCsend_help(FNmessage_lookup("Hlp98"))
 WHEN 3
-PROCsend_help(FNdecode_message("Hlp99",w$()))
+PROCsend_help(FNmessage_lookup("Hlp99"))
 WHEN 4
-PROCsend_help(FNdecode_message("Hlp100",w$()))
+PROCsend_help(FNmessage_lookup("Hlp100"))
 WHEN 5
-PROCsend_help(FNdecode_message("Hlp101",w$()))
+PROCsend_help(FNmessage_lookup("Hlp101"))
 WHEN 6
-PROCsend_help(FNdecode_message("Hlp102",w$()))
+PROCsend_help(FNmessage_lookup("Hlp102"))
 WHEN 7
-PROCsend_help(FNdecode_message("Hlp103",w$()))
+PROCsend_help(FNmessage_lookup("Hlp103"))
 WHEN 8
-PROCsend_help(FNdecode_message("Hlp104",w$()))
+PROCsend_help(FNmessage_lookup("Hlp104"))
 WHEN 9
-PROCsend_help(FNdecode_message("Hlp105",w$()))
+PROCsend_help(FNmessage_lookup("Hlp105"))
 WHEN 10
-PROCsend_help(FNdecode_message("Hlp106",w$()))
+PROCsend_help(FNmessage_lookup("Hlp106"))
 WHEN 11
-PROCsend_help(FNdecode_message("Hlp107",w$()))
+PROCsend_help(FNmessage_lookup("Hlp107"))
 WHEN 12
-PROCsend_help(FNdecode_message("Hlp108",w$()))
+PROCsend_help(FNmessage_lookup("Hlp108"))
 WHEN 13
-PROCsend_help(FNdecode_message("Hlp109",w$()))
+PROCsend_help(FNmessage_lookup("Hlp109"))
 WHEN 14
-PROCsend_help(FNdecode_message("Hlp110",w$()))
+PROCsend_help(FNmessage_lookup("Hlp110"))
 WHEN 15
-PROCsend_help(FNdecode_message("Hlp111",w$()))
+PROCsend_help(FNmessage_lookup("Hlp111"))
 WHEN 16
-PROCsend_help(FNdecode_message("Hlp112",w$()))
+PROCsend_help(FNmessage_lookup("Hlp112"))
 WHEN 17
-PROCsend_help(FNdecode_message("Hlp113",w$()))
+PROCsend_help(FNmessage_lookup("Hlp113"))
 WHEN 18
-PROCsend_help(FNdecode_message("Hlp114",w$()))
+PROCsend_help(FNmessage_lookup("Hlp114"))
 WHEN 19
-PROCsend_help(FNdecode_message("Hlp115",w$()))
+PROCsend_help(FNmessage_lookup("Hlp115"))
 WHEN 20
-PROCsend_help(FNdecode_message("Hlp116",w$()))
+PROCsend_help(FNmessage_lookup("Hlp116"))
 WHEN 21
-PROCsend_help(FNdecode_message("Hlp118",w$()))
+PROCsend_help(FNmessage_lookup("Hlp118"))
 WHEN 22
-PROCsend_help(FNdecode_message("Hlp119",w$()))
+PROCsend_help(FNmessage_lookup("Hlp119"))
 OTHERWISE
-PROCsend_help(FNdecode_message("Hlp117",w$()))
+PROCsend_help(FNmessage_lookup("Hlp117"))
 ENDCASE
 WHEN merge%
 CASE icon% OF
 WHEN 0
-PROCsend_help(FNdecode_message("Hlp124",w$()))
+PROCsend_help(FNmessage_lookup("Hlp124"))
 WHEN 1
-PROCsend_help(FNdecode_message("Hlp125",w$()))
+PROCsend_help(FNmessage_lookup("Hlp125"))
 WHEN 2
-PROCsend_help(FNdecode_message("Hlp126",w$()))
+PROCsend_help(FNmessage_lookup("Hlp126"))
 WHEN 3
-PROCsend_help(FNdecode_message("Hlp127",w$()))
+PROCsend_help(FNmessage_lookup("Hlp127"))
 OTHERWISE
-PROCsend_help(FNdecode_message("Hlp128",w$()))
+PROCsend_help(FNmessage_lookup("Hlp128"))
 ENDCASE
 WHEN loadcsv%
 CASE icon% OF
 WHEN 0
-PROCsend_help(FNdecode_message("Hlp129",w$()))
+PROCsend_help(FNmessage_lookup("Hlp129"))
 WHEN 1
-PROCsend_help(FNdecode_message("Hlp130",w$()))
+PROCsend_help(FNmessage_lookup("Hlp130"))
 WHEN 2
-PROCsend_help(FNdecode_message("Hlp131",w$()))
+PROCsend_help(FNmessage_lookup("Hlp131"))
 WHEN 3
-PROCsend_help(FNdecode_message("Hlp132",w$()))
+PROCsend_help(FNmessage_lookup("Hlp132"))
 WHEN 4
-PROCsend_help(FNdecode_message("Hlp133",w$()))
+PROCsend_help(FNmessage_lookup("Hlp133"))
 WHEN 5
-PROCsend_help(FNdecode_message("Hlp134",w$()))
+PROCsend_help(FNmessage_lookup("Hlp134"))
 WHEN 6
-PROCsend_help(FNdecode_message("Hlp135",w$()))
+PROCsend_help(FNmessage_lookup("Hlp135"))
 WHEN 7
-PROCsend_help(FNdecode_message("Hlp136",w$()))
+PROCsend_help(FNmessage_lookup("Hlp136"))
 WHEN 8
-PROCsend_help(FNdecode_message("Hlp137",w$()))
+PROCsend_help(FNmessage_lookup("Hlp137"))
 WHEN 9
-PROCsend_help(FNdecode_message("Hlp138",w$()))
+PROCsend_help(FNmessage_lookup("Hlp138"))
 WHEN 10
-PROCsend_help(FNdecode_message("Hlp139",w$()))
+PROCsend_help(FNmessage_lookup("Hlp139"))
 WHEN 11
-PROCsend_help(FNdecode_message("Hlp140",w$()))
+PROCsend_help(FNmessage_lookup("Hlp140"))
 WHEN 12
-PROCsend_help(FNdecode_message("Hlp141",w$()))
+PROCsend_help(FNmessage_lookup("Hlp141"))
 WHEN 13
-PROCsend_help(FNdecode_message("Hlp142",w$()))
+PROCsend_help(FNmessage_lookup("Hlp142"))
 OTHERWISE
-PROCsend_help(FNdecode_message("Hlp143",w$()))
+PROCsend_help(FNmessage_lookup("Hlp143"))
 ENDCASE
 WHEN prefs%
 CASE icon% OF
 WHEN 0
-PROCsend_help(FNdecode_message("Hlp144",w$()))
+PROCsend_help(FNmessage_lookup("Hlp144"))
 WHEN 1
-PROCsend_help(FNdecode_message("Hlp145",w$()))
+PROCsend_help(FNmessage_lookup("Hlp145"))
 WHEN 2
-PROCsend_help(FNdecode_message("Hlp146",w$()))
+PROCsend_help(FNmessage_lookup("Hlp146"))
 OTHERWISE
-PROCsend_help(FNdecode_message("Hlp147",w$()))
+PROCsend_help(FNmessage_lookup("Hlp147"))
 ENDCASE
 WHEN prefspane%
 CASE icon% OF
 WHEN 0,1
-PROCsend_help(FNdecode_message("Hlp148",w$()))
+PROCsend_help(FNmessage_lookup("Hlp148"))
 WHEN 2
-PROCsend_help(FNdecode_message("Hlp149",w$()))
+PROCsend_help(FNmessage_lookup("Hlp149"))
 WHEN 3
-PROCsend_help(FNdecode_message("Hlp150",w$()))
+PROCsend_help(FNmessage_lookup("Hlp150"))
 WHEN 4
-PROCsend_help(FNdecode_message("Hlp151",w$()))
+PROCsend_help(FNmessage_lookup("Hlp151"))
 WHEN 5,6
-PROCsend_help(FNdecode_message("Hlp152",w$()))
+PROCsend_help(FNmessage_lookup("Hlp152"))
 WHEN 7
-PROCsend_help(FNdecode_message("Hlp153",w$()))
+PROCsend_help(FNmessage_lookup("Hlp153"))
 WHEN 8
-PROCsend_help(FNdecode_message("Hlp154",w$()))
+PROCsend_help(FNmessage_lookup("Hlp154"))
 WHEN 9,10
-PROCsend_help(FNdecode_message("Hlp155",w$()))
+PROCsend_help(FNmessage_lookup("Hlp155"))
 WHEN 11
-PROCsend_help(FNdecode_message("Hlp156",w$()))
+PROCsend_help(FNmessage_lookup("Hlp156"))
 WHEN 12
-PROCsend_help(FNdecode_message("Hlp157",w$()))
+PROCsend_help(FNmessage_lookup("Hlp157"))
 WHEN 13
-PROCsend_help(FNdecode_message("Hlp158",w$()))
+PROCsend_help(FNmessage_lookup("Hlp158"))
 WHEN 14
-PROCsend_help(FNdecode_message("Hlp159",w$()))
+PROCsend_help(FNmessage_lookup("Hlp159"))
 WHEN 15
-PROCsend_help(FNdecode_message("Hlp160",w$()))
+PROCsend_help(FNmessage_lookup("Hlp160"))
 WHEN 16
-PROCsend_help(FNdecode_message("Hlp161",w$()))
+PROCsend_help(FNmessage_lookup("Hlp161"))
 WHEN 17
-PROCsend_help(FNdecode_message("Hlp162",w$()))
+PROCsend_help(FNmessage_lookup("Hlp162"))
 WHEN 18
-PROCsend_help(FNdecode_message("Hlp163",w$()))
+PROCsend_help(FNmessage_lookup("Hlp163"))
 WHEN 19
-PROCsend_help(FNdecode_message("Hlp164",w$()))
+PROCsend_help(FNmessage_lookup("Hlp164"))
 WHEN 20
-PROCsend_help(FNdecode_message("Hlp165",w$()))
+PROCsend_help(FNmessage_lookup("Hlp165"))
 WHEN 21,22
-PROCsend_help(FNdecode_message("Hlp166",w$()))
+PROCsend_help(FNmessage_lookup("Hlp166"))
 WHEN 23,24
-PROCsend_help(FNdecode_message("Hlp167",w$()))
+PROCsend_help(FNmessage_lookup("Hlp167"))
 WHEN 25,26
-PROCsend_help(FNdecode_message("Hlp168",w$()))
+PROCsend_help(FNmessage_lookup("Hlp168"))
 WHEN 27,28
-PROCsend_help(FNdecode_message("Hlp169",w$()))
+PROCsend_help(FNmessage_lookup("Hlp169"))
 WHEN 29,30
-PROCsend_help(FNdecode_message("Hlp170",w$()))
+PROCsend_help(FNmessage_lookup("Hlp170"))
 WHEN 31,32
-PROCsend_help(FNdecode_message("Hlp171",w$()))
+PROCsend_help(FNmessage_lookup("Hlp171"))
 WHEN 33
-PROCsend_help(FNdecode_message("Hlp172",w$()))
+PROCsend_help(FNmessage_lookup("Hlp172"))
 WHEN 34
-PROCsend_help(FNdecode_message("Hlp184",w$()))
+PROCsend_help(FNmessage_lookup("Hlp184"))
 WHEN 35
-PROCsend_help(FNdecode_message("Hlp185",w$()))
+PROCsend_help(FNmessage_lookup("Hlp185"))
 WHEN 36
-PROCsend_help(FNdecode_message("Hlp186",w$()))
+PROCsend_help(FNmessage_lookup("Hlp186"))
 WHEN 37
-PROCsend_help(FNdecode_message("Hlp187",w$()))
+PROCsend_help(FNmessage_lookup("Hlp187"))
 WHEN 43
-PROCsend_help(FNdecode_message("Hlp189",w$()))
+PROCsend_help(FNmessage_lookup("Hlp189"))
 OTHERWISE
-PROCsend_help(FNdecode_message("Hlp173",w$()))
+PROCsend_help(FNmessage_lookup("Hlp173"))
 ENDCASE
 WHEN selline%
 CASE icon% OF
 WHEN 0
-PROCsend_help(FNdecode_message("Hlp174",w$()))
+PROCsend_help(FNmessage_lookup("Hlp174"))
 WHEN 1
-PROCsend_help(FNdecode_message("Hlp175",w$()))
+PROCsend_help(FNmessage_lookup("Hlp175"))
 OTHERWISE
-PROCsend_help(FNdecode_message("Hlp176",w$()))
+PROCsend_help(FNmessage_lookup("Hlp176"))
 ENDCASE
 WHEN pane%
 CASE icon% OF
 WHEN 0
-PROCsend_help(FNdecode_message("Hlp182",w$()))
+PROCsend_help(FNmessage_lookup("Hlp182"))
 WHEN 1
-PROCsend_help(FNdecode_message("Hlp190",w$()))
+PROCsend_help(FNmessage_lookup("Hlp190"))
 WHEN 2
-PROCsend_help(FNdecode_message("Hlp191",w$()))
+PROCsend_help(FNmessage_lookup("Hlp191"))
 WHEN 3
-PROCsend_help(FNdecode_message("Hlp192",w$()))
+PROCsend_help(FNmessage_lookup("Hlp192"))
 WHEN 4
-PROCsend_help(FNdecode_message("Hlp193",w$()))
+PROCsend_help(FNmessage_lookup("Hlp193"))
 WHEN 5
-PROCsend_help(FNdecode_message("Hlp194",w$()))
+PROCsend_help(FNmessage_lookup("Hlp194"))
 WHEN 6
-PROCsend_help(FNdecode_message("Hlp195",w$()))
+PROCsend_help(FNmessage_lookup("Hlp195"))
 WHEN 7
-PROCsend_help(FNdecode_message("Hlp196",w$()))
+PROCsend_help(FNmessage_lookup("Hlp196"))
 WHEN 8
-PROCsend_help(FNdecode_message("Hlp197",w$()))
+PROCsend_help(FNmessage_lookup("Hlp197"))
 WHEN 9
-PROCsend_help(FNdecode_message("Hlp198",w$()))
+PROCsend_help(FNmessage_lookup("Hlp198"))
 WHEN 10
-PROCsend_help(FNdecode_message("Hlp199",w$()))
+PROCsend_help(FNmessage_lookup("Hlp199"))
 WHEN 11
-PROCsend_help(FNdecode_message("Hlp200",w$()))
+PROCsend_help(FNmessage_lookup("Hlp200"))
 WHEN 12
-PROCsend_help(FNdecode_message("Hlp201",w$()))
+PROCsend_help(FNmessage_lookup("Hlp201"))
 WHEN 13
-PROCsend_help(FNdecode_message("Hlp202",w$()))
+PROCsend_help(FNmessage_lookup("Hlp202"))
 WHEN 14
-PROCsend_help(FNdecode_message("Hlp203",w$()))
+PROCsend_help(FNmessage_lookup("Hlp203"))
 ENDCASE
 OTHERWISE
-PROCsend_help(FNdecode_message("Hlp188",w$()))
+PROCsend_help(FNmessage_lookup("Hlp188"))
 ENDCASE
 ENDPROC
 :
@@ -3805,8 +3778,8 @@ ENDPROC
 DEF PROCopen_window(whan%)
 !b%=whan%
 SYS "Wimp_GetWindowState",,b%
-IF !b%=main% OR !b%=prefs% THEN
-IF !b%=main% THEN
+IF !b%=MainWindow% OR !b%=prefs% THEN
+IF !b%=MainWindow% THEN
 !q%=pane%
 SYS "Wimp_GetWindowState",,q%
 q%!4=b%!4
@@ -3910,27 +3883,27 @@ IF b3$<>"" THENbuttons%=3
 IF buttons%=0 THENENDPROC
 CASE buttons% OF
 WHEN 1
-PROCset_icon_state(error%,5,0,0,0)
-PROCset_icon_state(error%,6,0,0,1)
-PROCset_icon_state(error%,7,0,0,1)
+PROCset_icon_state(ErrorWindow%,5,0,0,0)
+PROCset_icon_state(ErrorWindow%,6,0,0,1)
+PROCset_icon_state(ErrorWindow%,7,0,0,1)
 WHEN 2
-PROCset_icon_state(error%,5,0,0,0)
-PROCset_icon_state(error%,6,0,0,0)
-PROCset_icon_state(error%,7,0,0,1)
+PROCset_icon_state(ErrorWindow%,5,0,0,0)
+PROCset_icon_state(ErrorWindow%,6,0,0,0)
+PROCset_icon_state(ErrorWindow%,7,0,0,1)
 WHEN 3
-PROCset_icon_state(error%,5,0,0,0)
-PROCset_icon_state(error%,6,0,0,0)
-PROCset_icon_state(error%,7,0,0,0)
+PROCset_icon_state(ErrorWindow%,5,0,0,0)
+PROCset_icon_state(ErrorWindow%,6,0,0,0)
+PROCset_icon_state(ErrorWindow%,7,0,0,0)
 ENDCASE
 $errortext%=text$
-$errortitle%=title$+" "+FNdecode_message("Wrn0",w$())
+$errortitle%=title$+" "+FNmessage_lookup("Wrn0")
 $button1%=b1$
 $button2%=b2$
 $button3%=b3$
 IF c1%=1 c1%=12
 IF c2%=1 c2%=12
 IF c3%=1 c3%=12
-PROCopen_at(error%,(width%/2)-400,312)
+PROCopen_at(ErrorWindow%,(width%/2)-400,312)
 MOUSE RECTANGLE (width%/2)-402,308,802,436
 REPEAT
 SYS "Wimp_Poll",0,b% TO reason%
@@ -3942,7 +3915,7 @@ WHEN 17,18 :IF b%!16=&502 PROChelp
 ENDCASE
 UNTIL (reason%=6AND(b%!16>-1ANDb%!8<>2))OR(reason%=8AND(b%!24=13ORb%!24=&1B))
 MOUSE RECTANGLE 0,0,width%,height%
-PROCclose_window(error%)
+PROCclose_window(ErrorWindow%)
 CASE reason% OF
 WHEN 6 :code%=(b%!16)-5
 WHEN 8 :IF b%!24=13 THENcode%=0 ELSEcode%=buttons%-1
@@ -3954,24 +3927,21 @@ LOCAL err$,box%,cs%
 err$="" :err%=0 :box%=0 :cs%=0
 SYS "Hourglass_Smash"
 CASE ERR OF
-WHEN 20   :box%=1:err$=FNdecode_message("Err1",w$()) :cs%=0
-WHEN 204  :box%=2:err$=FNdecode_message("Err2",w$()) :cs%=1
-WHEN 214  :box%=2:err$=FNdecode_message("Err11",w$()):cs%=1
-WHEN 223  :box%=2:err$=FNdecode_message("Err3",w$()) :cs%=0:CLOSE#i%
-WHEN 275  :box%=2:err$=FNdecode_message("Err10",w$()):cs%=1
-WHEN 1491 :box%=2:err$=FNdecode_message("Err4",w$()) :cs%=0
-WHEN 67796:box%=2:err$=FNdecode_message("Err13",w$()):cs%=1
-WHEN 67797:box%=2:err$=FNdecode_message("Err5",w$()) :cs%=1
-WHEN 71603:box%=2:err$=FNdecode_message("Err12",w$()):cs%=1
-WHEN 71613:box%=2:err$=FNdecode_message("Err6",w$()) :cs%=0
-WHEN 71618:box%=2:err$=FNdecode_message("Err7",w$()) :cs%=1
-WHEN 71622:box%=2:err$=FNdecode_message("Err8",w$()) :cs%=1
-WHEN 71636:box%=2:err$=FNdecode_message("Err9",w$()) :cs%=1
+WHEN 20   :box%=1:err$=FNmessage_lookup("Err1") :cs%=0
+WHEN 204  :box%=2:err$=FNmessage_lookup("Err2") :cs%=1
+WHEN 214  :box%=2:err$=FNmessage_lookup("Err11"):cs%=1
+WHEN 223  :box%=2:err$=FNmessage_lookup("Err3") :cs%=0:CLOSE#i%
+WHEN 275  :box%=2:err$=FNmessage_lookup("Err10"):cs%=1
+WHEN 1491 :box%=2:err$=FNmessage_lookup("Err4") :cs%=0
+WHEN 67796:box%=2:err$=FNmessage_lookup("Err13"):cs%=1
+WHEN 67797:box%=2:err$=FNmessage_lookup("Err5") :cs%=1
+WHEN 71603:box%=2:err$=FNmessage_lookup("Err12"):cs%=1
+WHEN 71613:box%=2:err$=FNmessage_lookup("Err6") :cs%=0
+WHEN 71618:box%=2:err$=FNmessage_lookup("Err7") :cs%=1
+WHEN 71622:box%=2:err$=FNmessage_lookup("Err8") :cs%=1
+WHEN 71636:box%=2:err$=FNmessage_lookup("Err9") :cs%=1
 OTHERWISE
-w$(0)=STR$(ERR)
-w$(1)=REPORT$
-w$(2)=STR$(ERL)
-err%=FNreport(255,FNdecode_message("Err0",w$()),0,app$,1,1)
+err% = FNreport(255, FNmessage_param_lookup("Err0", STR$(ERR), REPORT$, STR$(ERL), ""), 0, app$, 1, 1)
 ENDCASE
 IF err%=2 THENPROCloose_fonts :SYS "Wimp_CloseDown" :END
 IF err$<>"" THEN
@@ -3979,7 +3949,7 @@ CASE box% OF
 WHEN 1 :err%=FNwarning(mess$,err$,"OK",1,"",0,"",0)
 WHEN 2 :err%=FNreport(255,err$,1,app$,1,0)
 ENDCASE
-IF cs% THENerr%=FNreport(255,FNdecode_message("Fil3",w$()),1,app$,1,0)
+IF cs% THENerr%=FNreport(255,FNmessage_lookup("Fil3"),1,app$,1,0)
 ENDIF
 ENDPROC
 :

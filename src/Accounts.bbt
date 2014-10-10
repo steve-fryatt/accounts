@@ -1908,13 +1908,13 @@ IF in%=0 AND f%<>1 e%=TRUE
 DEF PROCsave
 CASE savetype% OF
 WHEN account_file%
-SYS "XOS_GenerateError", b%+44 TO $file%
+$file% = FNstring_read(b%+44)
 PROCdatasave
 WHEN text_file%
-SYS "XOS_GenerateError", b%+44 TO $tfile%
+$tfile% = FNstring_read(b%+44)
 PROCtextsave
 WHEN csv_file%
-SYS "XOS_GenerateError", b%+44 TO $cfile%
+$cfile% = FNstring_read(b%+44)
 PROCcsvsave
 ENDCASE
 b%!12=b%!8

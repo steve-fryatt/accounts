@@ -25,6 +25,7 @@ REM permissions and limitations under the Licence.
 LIBRARY "BASIC:Menu"
 LIBRARY "BASIC:Message"
 LIBRARY "BASIC:Resources"
+LIBRARY "BASIC:Template"
 LIBRARY "BASIC:WimpSprite"
 
 build_version$="5.19"
@@ -2942,79 +2943,82 @@ SYS "Font_LoseFont",disp_font%
 ENDPROC
 :
 DEF PROCdefine_windows(resources$)
-LOCAL sprite_area%, ind_data%, to%
+LOCAL sprite_area%, ind_data%, ind_size%
 
-DIM ind_data% 7000
+ind_size% = 7000
+DIM ind_data% ind_size%
 
 sprite_area% = FNwimpsprite_load_user_sprites("<Account$Dir>.Sprites")
 
-PROCopen_templates(resources$ + "Templates")
-to%=FNload_template("Error",b%,ind_data%,7000)
+PROCtemplate_open(resources$ + "Templates")
+
+PROCtemplate_load("Error", b%, ind_data%, ind_size%, -1)
 SYS "Wimp_CreateWindow",,b% TO ErrorWindow%
-to%=FNload_template("Main",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("Main", b%, ind_data%, ind_size%, -1)
 title%=b%!72 :$title%="<Untitled>"
 SYS "Wimp_CreateWindow",,b% TO MainWindow%
-to%=FNload_template("Tools",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("Tools", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO tools%
-to%=FNload_template("Enter1",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("Enter1", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO enter1%
-to%=FNload_template("Enter2",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("Enter2", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO enter2%
-to%=FNload_template("TitlePane",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("TitlePane", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO pane%
-to%=FNload_template("Goto",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("Goto", b%, ind_data%, ind_size%, -1)
 SYS "Wimp_CreateWindow",,b% TO goto%
-to%=FNload_template("Select",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("Select", b%, ind_data%, ind_size%, -1)
 SYS "Wimp_CreateWindow",,b% TO selline%
-to%=FNload_template("Header",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("Header", b%, ind_data%, ind_size%, -1)
 SYS "Wimp_CreateWindow",,b% TO newhead%
-to%=FNload_template("Print",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("Print", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO print%
-to%=FNload_template("ExpText",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("ExpText", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO text%
-to%=FNload_template("ExpCSV",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("ExpCSV", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO csv%
-to%=FNload_template("Save",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("Save", b%, ind_data%, ind_size%, -1)
 SYS "Wimp_CreateWindow",,b% TO save%
-to%=FNload_template("Info",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("Info", b%, ind_data%, ind_size%, -1)
 b%!136+=(1<<6)+(font5%<<24)
 b%!168+=(1<<6)+(font5%<<24)
 b%!200+=(1<<6)+(font5%<<24)
 b%!392+=(1<<6)+(font4%<<24)
 SYS "Wimp_CreateWindow",,b% TO info%
-to%=FNload_template("Find",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("Find", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO find%
-to%=FNload_template("Found",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("Found", b%, ind_data%, ind_size%, -1)
 SYS "Wimp_CreateWindow",,b% TO foundw%
-to%=FNload_template("PrintSetUp",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("PrintSetUp", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO printset%
-to%=FNload_template("Prefs",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("Prefs", b%, ind_data%, ind_size%, -1)
 SYS "Wimp_CreateWindow",,b% TO prefs%
-to%=FNload_template("PrefsPane",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("PrefsPane", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO prefspane%
-to%=FNload_template("FileInfo",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("FileInfo", b%, ind_data%, ind_size%, -1)
 SYS "Wimp_CreateWindow",,b% TO fileinf%
-to%=FNload_template("LoadCSV",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("LoadCSV", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO loadcsv%
-to%=FNload_template("Merge",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("Merge", b%, ind_data%, ind_size%, -1)
 SYS "Wimp_CreateWindow",,b% TO merge%
-to%=FNload_template("Announce",b%,to%,7000-(to%-ind_data%))
+PROCtemplate_load("Announce", b%, ind_data%, ind_size%, -1)
 b%!168+=(1<<6)+(font1%<<24)
 b%!200+=(1<<6)+(font2%<<24)
 b%!232+=(1<<6)+(font3%<<24)
 SYS "Wimp_CreateWindow",,b% TO intro%
-PROCclose_templates
+
+PROCtemplate_close
 ENDPROC
 :
 DEF PROCdefine_icons
@@ -3852,21 +3856,6 @@ DEF FNindirection(wind%,icon%)
 q%!4=icon%
 SYS "Wimp_GetIconState",,q%
 =q%!28
-:
-DEF PROCopen_templates(file$)
-SYS "Wimp_OpenTemplate",,file$
-DIM template_name% 12
-ENDPROC
-:
-DEF FNload_template(name$,buff%,ind%,len%)
-$template_name%="            "
-$template_name%=name$
-SYS "Wimp_LoadTemplate",,buff%,ind%,ind%+len%,-1,template_name%,0 TO ,,new%
-=new%
-:
-DEF PROCclose_templates
-SYS "Wimp_CloseTemplate"
-ENDPROC
 :
 DEF FNwarning(title$,text$,b1$,c1%,b2$,c2%,b3$,c3%)
 LOCAL buttons%,code%

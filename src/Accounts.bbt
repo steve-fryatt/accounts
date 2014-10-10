@@ -25,6 +25,7 @@ REM permissions and limitations under the Licence.
 LIBRARY "BASIC:Menu"
 LIBRARY "BASIC:Message"
 LIBRARY "BASIC:Resources"
+LIBRARY "BASIC:String"
 LIBRARY "BASIC:Template"
 LIBRARY "BASIC:WimpSprite"
 
@@ -1500,7 +1501,7 @@ PROCupdate_title
 ENDIF
 IF all% THENfindno%-=1
 search$=$findtext%
-IF FNicon_state(find%,2)=0 search$=FNupper(search$)
+IF FNicon_state(find%,2)=0 search$=FNstring_to_upper(search$)
 found%=FALSE
 IF opt% THENfindno%=0
 IF findno%>=entries%-1 THEN
@@ -1520,7 +1521,7 @@ IF FNicon_state(find%,3) THEN
 REPEAT
 findno%+=1
 text$=text$(findno%)
-IF FNicon_state(find%,2)=0 text$=FNupper(text$)
+IF FNicon_state(find%,2)=0 text$=FNstring_to_upper(text$)
 IF INSTR(text$,search$) THEN
 IF NOT all% THENfound%=TRUE
 replace_pos%=INSTR(text$,search$)
@@ -1541,7 +1542,7 @@ ELSE
 REPEAT
 findno%+=1
 text$=text$(findno%)
-IF FNicon_state(find%,2)=0 text$=FNupper(text$)
+IF FNicon_state(find%,2)=0 text$=FNstring_to_upper(text$)
 IF text$=search$ THEN
 IF NOT all% THENfound%=TRUE
 insert_replace%=FALSE
@@ -1593,15 +1594,6 @@ ENDIF
 ENDIF
 IF all% THENPROCredraw_main
 ENDPROC
-:
-DEF FNupper(s$)
-LOCAL t$,z$,switch%
-FOR switch%=1 TO LEN(s$)
-z$=MID$(s$,switch%,1)
-IF ASC(z$)>=97 AND ASC(z$)<=122 THENz$=CHR$(ASC(z$)-32)
-t$+=z$
-NEXT switch%
-=t$
 :
 DEF PROCgoto
 LOCAL line%,offset%
@@ -1717,7 +1709,7 @@ csv%=FALSE
 IF b%!20<>-2 AND b%!20<>MainWindow% THENENDPROC
 IF b%!40<>account_file% AND b%!40<>csv_file% err%=FNreport(255,FNmessage_lookup("Fil2"),1,app$,1,0):ENDPROC
 IF b%!20=MainWindow% AND b%!40=csv_file% THENerr%=FNwarning(mess$,FNmessage_lookup("Fil4"),"OK",1,"",0,"",0):ENDPROC
-tf$=FNstring(b%+44)
+SYS "XOS_GenerateError", b%+44 TO tf$
 IF b%!20=MainWindow% THENPROCopen_merge_window :mergef$=tf$ :ENDPROC
 err%=0
 IF b%!40=csv_file% THENcsv%=TRUE
@@ -1916,13 +1908,13 @@ IF in%=0 AND f%<>1 e%=TRUE
 DEF PROCsave
 CASE savetype% OF
 WHEN account_file%
-$file%=FNstring(b%+44)
+SYS "XOS_GenerateError", b%+44 TO $file%
 PROCdatasave
 WHEN text_file%
-$tfile%=FNstring(b%+44)
+SYS "XOS_GenerateError", b%+44 TO $tfile%
 PROCtextsave
 WHEN csv_file%
-$cfile%=FNstring(b%+44)
+SYS "XOS_GenerateError", b%+44 TO $cfile%
 PROCcsvsave
 ENDCASE
 b%!12=b%!8
@@ -1930,13 +1922,6 @@ b%!16=3 :!b%=256
 SYS "Wimp_SendMessage",18,b%,b%!20,b%!24
 ENDPROC
 ENDPROC
-:
-DEF FNstring(ptr%)
-LOCAL a$
-WHILE ?ptr%<>0
-a$+=CHR$(?ptr%):ptr%+=1
-ENDWHILE
-=a$
 :
 DEF PROCstart_save(len%,type%,text%)
 IF drag_stop%<>-1 SYS drag_stop%

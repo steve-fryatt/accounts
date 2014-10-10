@@ -25,6 +25,7 @@ REM permissions and limitations under the Licence.
 LIBRARY "BASIC:Menu"
 LIBRARY "BASIC:Message"
 LIBRARY "BASIC:Resources"
+LIBRARY "BASIC:WimpSprite"
 
 build_version$="5.19"
 build_date$="26th August 1994"
@@ -2844,7 +2845,7 @@ join_main%=1
 PROCget_mode_vars
 DIM text$(max%),credit%(max%),payment%(max%),balance%(max%)
 PROCmessage_initialise(resources$ + "Messages")
-sprite_area%=FNload_sprites("<Account$Dir>.Sprites")
+
 Quit%=FALSE:RestartShutdown%=FALSE:app$=FNmessage_lookup("Task")
 
 REM Initialise with the Wimp.
@@ -2921,17 +2922,6 @@ IF err%=0 THEN Quit%=TRUE : RestartShutdown%=TRUE
 IF err%=1 THEN PROCopen_as_menu(save%)
 ENDPROC
 :
-DEF FNload_sprites(f$)
-LOCAL size%,area%
-in%=OPENIN(f$)
-size%=EXT#in%
-CLOSE#in%
-size%+=4
-DIM area% size%
-!area%=size% :area%!8=16
-SYS "OS_SpriteOp",&10A,area%,f$
-=area%
-:
 DEF PROCintro
 SYS "Font_FindFont",,"Homerton.Bold.Oblique",480,960 TO font1%
 SYS "Font_FindFont",,"Homerton.Medium",320,320 TO font2%
@@ -2952,8 +2942,12 @@ SYS "Font_LoseFont",disp_font%
 ENDPROC
 :
 DEF PROCdefine_windows(resources$)
+LOCAL sprite_area%, ind_data%, to%
+
 DIM ind_data% 7000
-:
+
+sprite_area% = FNwimpsprite_load_user_sprites("<Account$Dir>.Sprites")
+
 PROCopen_templates(resources$ + "Templates")
 to%=FNload_template("Error",b%,ind_data%,7000)
 SYS "Wimp_CreateWindow",,b% TO ErrorWindow%

@@ -28,6 +28,7 @@ LIBRARY "BASIC:Resources"
 LIBRARY "BASIC:String"
 LIBRARY "BASIC:Template"
 LIBRARY "BASIC:WimpSprite"
+LIBRARY "BASIC:Window"
 
 build_version$="5.19"
 build_date$="26th August 1994"
@@ -119,11 +120,11 @@ WHEN 2
 WHEN 3
 	SYS "Wimp_CloseWindow",,b%
 	IF !b% = MainWindow% THEN
-		PROCclose_window(enter%)
-		PROCclose_window(tools%)
-		PROCclose_window(pane%)
+		PROCwindow_close(enter%)
+		PROCwindow_close(tools%)
+		PROCwindow_close(pane%)
 	ENDIF
-	IF !b% = prefs% THEN PROCclose_window(prefspane%)
+	IF !b% = prefs% THEN PROCwindow_close(prefspane%)
 WHEN 6
 	PROCclick(b%!8, b%!12, b%!16)
 WHEN 7
@@ -147,7 +148,7 @@ REM Close the splash screen if it has been on screen long enough.
 DEF PROCclose_intro
 IF (IntroUpAt% = 0) OR (TIME < IntroUpAt% + IntroDisplayTime%) THEN ENDPROC
 
-PROCclose_window(intro%)
+PROCwindow_close(intro%)
 IntroUpAt%=0
 ENDPROC
 
@@ -193,17 +194,17 @@ WHEN 5       :PROCdelete
 WHEN 6       :PROCcut
 WHEN 7       :PROCcopy
 WHEN 8       :PROCclear_select
-WHEN 9       :PROCopen_as_menu(csv%)
-WHEN 10      :PROCopen_as_menu(find%)
-WHEN 11      :PROCopen_as_menu(goto%)
+WHEN 9       :PROCwindow_open_as_menu_at(csv%,!b%,b%!4)
+WHEN 10      :PROCwindow_open_as_menu_at(find%,!b%,b%!4)
+WHEN 11      :PROCwindow_open_as_menu_at(goto%,!b%,b%!4)
 WHEN 12      :PROCgoto_selection
-WHEN 13      :PROCopen_as_menu(newhead%)
-WHEN 14      :PROCopen_as_menu(printset%)
+WHEN 13      :PROCwindow_open_as_menu_at(newhead%,!b%,b%!4)
+WHEN 14      :PROCwindow_open_as_menu_at(printset%,!b%,b%!4)
 ENDCASE
 WHEN 256,1024
 CASE icon% OF
-WHEN 9       :PROCopen_as_menu(save%)
-WHEN 14      :PROCopen_as_menu(print%)
+WHEN 9       :PROCwindow_open_as_menu_at(save%,!b%,b%!4)
+WHEN 14      :PROCwindow_open_as_menu_at(print%,!b%,b%!4)
 ENDCASE
 WHEN 2 :PROCupdate_menu
 PROCmenu_create(mmenu%,!b%,b%!4)
@@ -373,7 +374,7 @@ WHEN 4 :IF button%=4 OR button%=1 PROCfind(FALSE,FALSE,FALSE)
 WHEN 6 :IF button%=4 OR button%=1 PROCfind(FALSE,FALSE,TRUE)
 WHEN 7 :IF button%=4 OR button%=1 PROCfind(FALSE,TRUE,FALSE)
 WHEN 5
-PROCclose_window(foundw%)
+PROCwindow_close(foundw%)
 PROCclear_button(foundw%,4)
 PROCclear_button(foundw%,6)
 PROCclear_button(foundw%,7)
@@ -410,8 +411,8 @@ WHEN 0 :PROCload_dft_prefs(FALSE)
 WHEN 1 :PROCsave_prefs(TRUE)
 WHEN 2 :PROCload_dft_prefs(TRUE)
 WHEN 3 :PROCload_prefs(FALSE)
-PROCclose_window(prefs%)
-PROCclose_window(prefspane%)
+PROCwindow_close(prefs%)
+PROCwindow_close(prefspane%)
 WHEN 4 :PROCsave_prefs(FALSE)
 ENDCASE
 WHEN prefspane%
@@ -464,7 +465,7 @@ button%=b%!8
 CASE FNmenu_current_handle OF
 WHEN imenu%
 CASE sel1% OF
-WHEN 0 :PROCopen_as_menu(info%) :button%=4
+WHEN 0 :PROCwindow_open_as_menu_at(info%,!b%,b%!4) :button%=4
 WHEN 1 :PROCopen_window(prefs%) :PROCend_caret(prefspane%,23)
 WHEN 2 :Quit%=FNsaved
 ENDCASE
@@ -498,23 +499,23 @@ WHEN mmenu%
 CASE sel1% OF
 WHEN 0
 CASE sel2% OF
-WHEN 0 :PROCopen_as_menu(info%) :button%=4
-WHEN 1 :PROCopen_as_menu(fileinf%) :button%=4
-WHEN 2 :PROCopen_as_menu(find%) :button%=4
-WHEN 3 :PROCopen_as_menu(goto%) :button%=4
-WHEN 4 :PROCopen_as_menu(newhead%) :button%=4
+WHEN 0 :PROCwindow_open_as_menu_at(info%,!b%,b%!4) :button%=4
+WHEN 1 :PROCwindow_open_as_menu_at(fileinf%,!b%,b%!4) :button%=4
+WHEN 2 :PROCwindow_open_as_menu_at(find%,!b%,b%!4) :button%=4
+WHEN 3 :PROCwindow_open_as_menu_at(goto%,!b%,b%!4) :button%=4
+WHEN 4 :PROCwindow_open_as_menu_at(newhead%,!b%,b%!4) :button%=4
 WHEN 5 :PROCclear
 ENDCASE
 WHEN 1
 CASE sel2% OF
 WHEN -1,0 :PROCquick_save(file%)
-WHEN 1 :PROCopen_as_menu(text%) :button%=4
-WHEN 2 :PROCopen_as_menu(csv%) :button%=4
+WHEN 1 :PROCwindow_open_as_menu_at(text%,!b%,b%!4) :button%=4
+WHEN 2 :PROCwindow_open_as_menu_at(csv%,!b%,b%!4) :button%=4
 ENDCASE
 WHEN 2 :IF sel2%>-1 THENPROCaddval(sel2%)
 WHEN 3
 CASE sel2% OF
-WHEN -1,0 :PROCopen_as_menu(selline%) :button%=4
+WHEN -1,0 :PROCwindow_open_as_menu_at(selline%,!b%,b%!4) :button%=4
 WHEN 1 :PROCremove
 WHEN 2 :PROCdelete
 WHEN 3 :PROCaddval(3)
@@ -529,14 +530,14 @@ WHEN 3 :PROCclip_clear
 ENDCASE
 WHEN 5
 CASE sel2% OF
-WHEN -1,0 :PROCopen_as_menu(print%) :button%=4
-WHEN 1 :PROCopen_as_menu(printset%) :button%=4
+WHEN -1,0 :PROCwindow_open_as_menu_at(print%,!b%,b%!4) :button%=4
+WHEN 1 :PROCwindow_open_as_menu_at(printset%,!b%,b%!4) :button%=4
 ENDCASE
 WHEN 6
 !b%=tools%
 SYS "Wimp_GetWindowState",,b%
 IF b%!32 AND 1<<16 THEN
-PROCclose_window(tools%)
+PROCwindow_close(tools%)
 PROCmenu_set_state(mmenu%,6,0,0)
 ELSE
 PROCopen_window(tools%)
@@ -546,7 +547,7 @@ WHEN 7
 !b%=enter%
 SYS "Wimp_GetWindowState",,b%
 IF b%!32 AND 1<<16 THEN
-PROCclose_window(enter%)
+PROCwindow_close(enter%)
 PROCmenu_set_state(mmenu%,7,0,0)
 ELSE
 !b%=enter%
@@ -600,6 +601,7 @@ IF button%=1 PROCupdate_menu :PROCmenu_create(FNmenu_current_handle,0,0)
 ENDPROC
 :
 DEF PROCkey_press(key%,whan%,icon%)
+SYS "Wimp_GetPointerInfo",,b%
 CASE key% OF
 WHEN 4  :PROCdate(whan%,icon%,b%!20)
 WHEN 13 :
@@ -641,14 +643,14 @@ WHEN 1 :PROCpage_home
 WHEN 2 :PROCend_caret(enter%,6)
 WHEN 3 :PROCpage_home :PROCend_caret(enter%,6)
 ENDCASE
-WHEN &180 :PROCopen_as_menu(print%)
-WHEN &190 :PROCopen_as_menu(printset%)
+WHEN &180 :PROCwindow_open_as_menu_at(print%,!b%,b%!4)
+WHEN &190 :PROCwindow_open_as_menu_at(printset%,!b%,b%!4)
 WHEN &181 :PROCaddval(0)
 WHEN &191
 !b%=tools%
 SYS "Wimp_GetWindowState",,b%
 IF b%!32 AND 1<<16 THEN
-PROCclose_window(tools%)
+PROCwindow_close(tools%)
 PROCmenu_set_state(mmenu%,6,0,0)
 ELSE
 PROCopen_window(tools%)
@@ -658,7 +660,7 @@ WHEN &1A1
 !b%=enter%
 SYS "Wimp_GetWindowState",,b%
 IF b%!32 AND 1<<16 THEN
-PROCclose_window(enter%)
+PROCwindow_close(enter%)
 PROCmenu_set_state(mmenu%,7,0,0)
 ELSE
 !b%=enter%
@@ -714,12 +716,12 @@ WHEN &192,&1DD :PROCaddval(1)
 WHEN &183      :IF F3_qsave% THEN
 PROCquick_save(file%)
 ELSE
-PROCopen_as_menu(save%)
+PROCwindow_open_as_menu_at(save%,!b%,b%!4)
 ENDIF
-WHEN &193      :PROCopen_as_menu(text%)
-WHEN &1A3      :PROCopen_as_menu(csv%)
-WHEN &184      :PROCopen_as_menu(find%)
-WHEN &194      :PROCopen_as_menu(selline%)
+WHEN &193      :PROCwindow_open_as_menu_at(text%,!b%,b%!4)
+WHEN &1A3      :PROCwindow_open_as_menu_at(csv%,!b%,b%!4)
+WHEN &184      :PROCwindow_open_as_menu_at(find%,!b%,b%!4)
+WHEN &194      :PROCwindow_open_as_menu_at(selline%,!b%,b%!4)
 WHEN &185,24   :PROCdelete
 WHEN &195      :PROCremove
 WHEN &186      :PROCaddval(3)
@@ -760,8 +762,8 @@ WHEN 11,12 :PROCend_caret(enter%,13)
 ENDCASE
 ENDIF
 WHEN &1A9 :PROCclear
-WHEN &1CA :PROCopen_as_menu(goto%)
-WHEN &1CB :PROCopen_as_menu(newhead%)
+WHEN &1CA :PROCwindow_open_as_menu_at(goto%,!b%,b%!4)
+WHEN &1CB :PROCwindow_open_as_menu_at(newhead%,!b%,b%!4)
 WHEN &18E
 CASE whan% OF
 WHEN enter% :PROCline_down
@@ -1487,7 +1489,7 @@ ENDIF
 DEF PROCfind(opt%,all%,rep%)
 LOCAL search$,text$,done%,found%,flag%,o%
 PROCmenu_create(-1,0,0)
-PROCclose_window(foundw%)
+PROCwindow_close(foundw%)
 done%=FALSE :flag%=FALSE
 IF entries%=1 err%=FNwarning(mess$,FNmessage_lookup("Fin1"),"OK",1,"",0,"",0) :ENDPROC
 IF rep% THEN
@@ -1510,7 +1512,7 @@ $foundline%="-"
 PROCshade_button(foundw%,4)
 PROCshade_button(foundw%,6)
 PROCshade_button(foundw%,7)
-PROCopen_at(foundw%,(width%/2)-334,456)
+PROCwindow_open_centred_at(foundw%,(width%/2)-334,456)
 o%=select%
 select%=0
 PROCredraw_line(o%)
@@ -1569,7 +1571,7 @@ $gotoline%=STR$(findno%)
 PROCgoto
 $foundtext%=text$(findno%)
 $foundline%=STR$(findno%)
-PROCopen_at(foundw%,(width%/2)-334,456)
+PROCwindow_open_centred_at(foundw%,(width%/2)-334,456)
 PROCredraw_line(select%)
 ELSE
 IF NOT all% THEN
@@ -1582,7 +1584,7 @@ $foundline%="-"
 PROCshade_button(foundw%,4)
 PROCshade_button(foundw%,6)
 PROCshade_button(foundw%,7)
-PROCopen_at(foundw%,(width%/2)-334,456)
+PROCwindow_open_centred_at(foundw%,(width%/2)-334,456)
 o%=select%
 select%=0
 PROCredraw_line(o%)
@@ -1734,7 +1736,12 @@ IF (q%!32 AND (1<<16)) THENPROCpage_home
 PROCredraw_main
 ENDIF
 PROCredraw_enter
-IF csv% THENPROCopen_as_menu(loadcsv%) :csvf$=tf$ :ENDPROC
+IF csv% THEN
+	SYS "Wimp_GetPointerInfo",,q%
+	PROCwindow_open_as_menu_at(loadcsv%, !q%, q%!4)
+	csvf$=tf$
+	ENDPROC
+ENDIF
 file$=tf$
 c%=-1
 SYS "Hourglass_On"
@@ -1777,7 +1784,8 @@ ELSE
 PROCshade_button(merge%,2)
 PROCshade_button(merge%,3)
 ENDIF
-PROCopen_as_menu(merge%)
+SYS "Wimp_GetPointerInfo",,q%
+PROCwindow_open_as_menu_at(merge%, !q%, q%!4)
 ENDPROC
 :
 DEF PROCmerge_files(method%)
@@ -2068,7 +2076,10 @@ ENDPROC
 DEF FNsaved
 IF modified%=FALSE = TRUE
 oktoquit%=FNwarning(warn$,FNmessage_lookup("OK5"),"Quit",1,"Save",1,"Cancel",0)
-IF oktoquit%=1  PROCopen_as_menu(save%)
+IF oktoquit% = 1 THEN
+	SYS "Wimp_GetPointerInfo",,q%
+	PROCwindow_open_as_menu_at(save%, !q%, q%!4)
+ENDIF
 =(oktoquit%=0)
 :
 DEF PROCprint
@@ -2124,7 +2135,7 @@ NEXT
 IF form_feeds% AND top_of_form%=FALSE THENBPUT#o%,form_feed$
 CLOSE#o%
 SYS "Hourglass_Off"
-PROCclose_window(print%)
+PROCwindow_close(print%)
 PROCmenu_create(-1,0,0)
 ENDPROC
 :
@@ -2358,7 +2369,7 @@ IF save_prefs% THENCLOSE#out%
 !b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 IF (b%!32 AND (1<<16)) THENopen%=TRUE ELSEopen%=FALSE
-IF open% THENPROCclose_window(enter%)
+IF open% THENPROCwindow_close(enter%)
 IF oj%<>join_main% THEN
 IF join_main% THEN
 enter%=enter1%
@@ -2408,8 +2419,8 @@ ELSE
 PROCmenu_set_state(mmenu%,8,0,0)
 ENDIF
 IF open% THENPROCopen_window(MainWindow%) :PROCopen_window(enter%)
-PROCclose_window(prefspane%)
-PROCclose_window(prefs%)
+PROCwindow_close(prefspane%)
+PROCwindow_close(prefs%)
 PROCredraw_main
 ENDPROC
 :
@@ -2513,7 +2524,7 @@ IF load% THENCLOSE#in%
 !b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 IF (b%!32 AND (1<<16)) THENopen%=TRUE ELSEopen%=FALSE
-IF open% THENPROCclose_window(enter%)
+IF open% THENPROCwindow_close(enter%)
 IF oj%<>join_main% THEN
 IF join_main% THEN
 enter%=enter1%
@@ -2899,7 +2910,10 @@ b%!16=0
 SYS "Wimp_SendMessage",19,b%
 err%=FNwarning(warn$,FNmessage_lookup("OK6"),"Reset",1,"Save",0,"Cancel",0)
 IF err%=0 THEN Quit%=TRUE : RestartShutdown%=TRUE
-IF err%=1 THEN PROCopen_as_menu(save%)
+IF err%=1 THEN
+	SYS "Wimp_GetPointerInfo",,q%
+	PROCwindow_open_as_menu_at(save%, !q%, q%!4)
+ENDIF
 ENDPROC
 :
 DEF PROCintro
@@ -3805,31 +3819,6 @@ SYS "Wimp_OpenWindow",,b%
 ENDIF
 ENDPROC
 :
-DEF PROCopen_at(whan%,x%,y%)
-LOCAL w%,h%
-!q%=whan%
-SYS "Wimp_GetWindowState",,q%
-w%=q%!12-q%!4
-h%=q%!16-q%!8
-q%!4=x%
-q%!8=y%
-q%!12=x%+w%
-q%!16=y%+h%
-SYS "Wimp_OpenWindow",,q%
-ENDPROC
-:
-DEF PROCopen_as_menu(wind%)
-!q%=wind%
-SYS"Wimp_GetWindowState",,q%
-SYS"Wimp_CreateMenu",,wind%,(width%-(q%!12-q%!4))/2,(1024+(q%!16-q%!8))/2
-ENDPROC
-:
-DEF PROCclose_window(whan%)
-!q%=whan%
-SYS "Wimp_GetWindowState",,q%
-SYS "Wimp_CloseWindow",,q%
-ENDPROC
-:
 DEF FNindirection(wind%,icon%)
 !q%=wind%
 q%!4=icon%
@@ -3865,7 +3854,7 @@ $button3%=b3$
 IF c1%=1 c1%=12
 IF c2%=1 c2%=12
 IF c3%=1 c3%=12
-PROCopen_at(ErrorWindow%,(width%/2)-400,312)
+PROCwindow_open_centred_at(ErrorWindow%,(width%/2)-400,312)
 MOUSE RECTANGLE (width%/2)-402,308,802,436
 REPEAT
 SYS "Wimp_Poll",0,b% TO reason%
@@ -3877,7 +3866,7 @@ WHEN 17,18 :IF b%!16=&502 PROChelp
 ENDCASE
 UNTIL (reason%=6AND(b%!16>-1ANDb%!8<>2))OR(reason%=8AND(b%!24=13ORb%!24=&1B))
 MOUSE RECTANGLE 0,0,width%,height%
-PROCclose_window(ErrorWindow%)
+PROCwindow_close(ErrorWindow%)
 CASE reason% OF
 WHEN 6 :code%=(b%!16)-5
 WHEN 8 :IF b%!24=13 THENcode%=0 ELSEcode%=buttons%-1

@@ -40,17 +40,11 @@
 #
 # Task Name
 #
-Task:Accounts
-#             
-# Warning Box Title
-#
-Wrn0:from Accounts!
-Wrn1:Message
-Wrn2:Warning
+TaskName:Accounts
+TaskSpr:!accounts
 #
 # Error Messages
 #
-Err0:Accounts has suffered an internal error (Error %0; %1 at line %2). Click 'OK' to continue, or 'Cancel' to exit program.
 Err1:The value that you have just tried to enter is too big.
 Err2:Unable to open output file. Leafname may be too long, or Directory does not exist.
 Err3:This file is not in Account format.
@@ -118,11 +112,17 @@ Sel5:This is not a valid line.
 # Confirmation Messages
 #
 OK1:Are you sure you wish to delete entry %0? This action can not be undone.
+OK1B:Cancel,Delete
 OK2:Are you sure you wish to remove the entries up to and including entry %0? This action can not be undone.
+OK2B:Cancel,Remove
 OK3:This account has not been saved. Are you sure you wish to clear this account?
+OK3B:Cancel,Clear
 OK4:The current account has not been saved and loading this new file will delete it. Are you sure you wish to load the new file?
+OK4B:Cancel,Load
 OK5:This account has not been saved. Are you sure you wish to quit Accounts?
+OK5B:Cancel,Save
 OK6:This account has not been saved. Are you sure you wish to reset the computer?
+OK6B:Cancel,Save,Reset
 #
 # Range Errors
 #

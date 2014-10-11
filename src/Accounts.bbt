@@ -28,17 +28,21 @@ LIBRARY "BASIC:Message"
 LIBRARY "BASIC:Resources"
 LIBRARY "BASIC:String"
 LIBRARY "BASIC:Template"
+LIBRARY "BASIC:WimpError"
 LIBRARY "BASIC:WimpSprite"
 LIBRARY "BASIC:Window"
 
 build_version$="5.19"
 build_date$="26th August 1994"
 
+PROCwimperror_initialise("Accounts", "!accounts")
+ON ERROR result% = FNwimperror_program : END
+
 SYS "XOS_GetEnv" TO CommandLine$
 
-PROCinit
+PROCinitialise
 
-ON ERROR PROCerror
+ON ERROR IF NOT FNcheck_error(ERR) THEN Quit% = FNwimperror_program
 
 WHILE NOT Quit%
 	PROCpoll
@@ -56,8 +60,6 @@ REM Perform a Wimp_Poll
 :
 DEF PROCpoll
 LOCAL err%
-LOCAL ERROR
-ON ERROR LOCAL PROCerror
 
 IF IntroUpAt% <> 0 THEN
 	SYS "Wimp_PollIdle", 0, b%, IntroDisplayTime% + IntroUpAt% TO reason%
@@ -137,10 +139,8 @@ WHEN 9
 WHEN 17, 18
 	PROCrecieve
 WHEN 19
-	err% = FNwarning(mess$, FNmessage_lookup("Fil1"), "OK", 1, "", 0, "", 0)
+	PROCwimperror_report(FNmessage_lookup("Fil1"), 0, 1, "")
 ENDCASE
-
-RESTORE ERROR
 ENDPROC
 
 
@@ -865,9 +865,9 @@ ENDCASE
 ENDPROC
 :
 DEF PROCaddval(opp%)
-IF opp%<>0 AND select%=0 err%=FNwarning(mess$,FNmessage_lookup("Sel4"),"OK",1,"",0,"",0):ENDPROC
+IF opp%<>0 AND select%=0 THEN PROCwimperror_report(FNmessage_lookup("Sel4"), 1, 1, ""):ENDPROC
 LOCAL push%,text$,credit%,payment%
-IF opp%<>3 AND entries%>1000 err%=FNwarning(mess$,FNmessage_lookup("Val2"),"OK",1,"",0,"",0):ENDPROC
+IF opp%<>3 AND entries%>1000 THEN PROCwimperror_report(FNmessage_lookup("Val2"), 1, 1, ""):ENDPROC
 IF FNicon_selected(enter%,0) THEN
 text$=$string%
 credit%=FNval($cred%)
@@ -938,9 +938,9 @@ IF opp%=0 THENPROCpage_end
 ENDPROC
 :
 DEF PROCdelete
-IF select%=0 err%=FNwarning(mess$,FNmessage_lookup("Sel0"),"OK",1,"",0,"",0):ENDPROC
+IF select%=0 THEN PROCwimperror_report(FNmessage_lookup("Sel0"), 1, 1, ""):ENDPROC
 LOCAL push%
-err%=FNwarning(warn$,FNmessage_param_lookup("OK1", STR$(select%), "", "", ""),"Delete",1,"Cancel",0,"",0)
+err% = FNwimperror_report(FNmessage_param_lookup("OK1", STR$(select%), "", "", ""), 4, 0, FNmessage_lookup("OK1B"))
 IF err%=1 ENDPROC
 SYS "Hourglass_On"
 FOR push%=select% TO entries%-2
@@ -968,8 +968,8 @@ PROCset_extent(0)
 ENDPROC
 :
 DEF PROCremove
-IF select%=0 err%=FNwarning(mess$,FNmessage_lookup("Sel1"),"OK",1,"",0,"",0):ENDPROC
-err%=FNwarning(warn$,FNmessage_param_lookup("OK2", STR$(select%), "", "", ""),"Remove",1,"Cancel",0,"",0)
+IF select%=0 THEN PROCwimperror_report(FNmessage_lookup("Sel1"), 1, 1, ""):ENDPROC
+err% = FNwimperror_report(FNmessage_param_lookup("OK2", STR$(select%), "", "", ""), 4, 0, FNmessage_lookup("OK2B"))
 IF err%=1 ENDPROC
 LOCAL push%
 SYS "Hourglass_On"
@@ -1000,7 +1000,7 @@ PROCset_extent(0)
 ENDPROC
 :
 DEF PROCcut
-IF select%=0 err%=FNwarning(mess$,FNmessage_lookup("Sel2"),"OK",1,"",0,"",0):ENDPROC
+IF select%=0 THEN PROCwimperror_report(FNmessage_lookup("Sel2"), 1, 1, ""):ENDPROC
 LOCAL push%
 $clip_string%=text$(select%)
 $clip_cred%=FNpoint(credit%(select%))
@@ -1036,7 +1036,7 @@ PROCset_extent(0)
 ENDPROC
 :
 DEF PROCcopy
-IF select%=0 err%=FNwarning(mess$,FNmessage_lookup("Sel3"),"OK",1,"",0,"",0):ENDPROC
+IF select%=0 THEN PROCwimperror_report(FNmessage_lookup("Sel3"), 1, 1, ""):ENDPROC
 $clip_string%=text$(select%)
 $clip_cred%=FNpoint(credit%(select%))
 $clip_pay%=FNpoint(payment%(select%))
@@ -1084,7 +1084,7 @@ ENDPROC
 DEF PROCkey_select
 LOCAL val%,o%
 val%=VAL($selctline%)
-IF val%<1 OR val%>=entries% THENerr%=FNwarning(mess$,FNmessage_lookup("Sel5"),"OK",1,"",0,"",0) :ENDPROC
+IF val%<1 OR val%>=entries% THEN PROCwimperror_report(FNmessage_lookup("Sel5"), 1, 1, "") : ENDPROC
 o%=select%
 select%=val%
 PROCredraw_line(o%)
@@ -1118,7 +1118,7 @@ ENDPROC
 :
 DEF PROCclear
 err%=0
-IF modified% err%=FNwarning(warn$,FNmessage_lookup("OK3"),"Clear",1,"Cancel",0,"",0)
+IF modified% THEN err% = FNwimperror_report(FNmessage_lookup("OK3"), 4, 0, FNmessage_lookup("OK3B"))
 IF err%=1 ENDPROC
 text$()=""
 credit%()=0
@@ -1154,7 +1154,7 @@ ENDPROC
 :
 DEF PROCcheck_size
 IF balance%(entries%-1)>2000000000 THEN
-err%=FNwarning(mess$,FNmessage_lookup("Val0"),"OK",1,"",0,"",0)
+PROCwimperror_report(FNmessage_lookup("Val0"), 1, 1, "")
 entries%-=1
 text$(entries%)=""
 credit%(entries%)=0
@@ -1162,7 +1162,7 @@ payment%(entries%)=0
 balance%(entries%)=0
 ENDIF
 IF balance%(entries%-1)<-2000000000 THEN
-err%=FNwarning(mess$,FNmessage_lookup("Val1"),"OK",1,"",0,"",0)
+PROCwimperror_report(FNmessage_lookup("Val1"), 1, 1, "")
 entries%-=1
 text$(entries%)=""
 credit%(entries%)=0
@@ -1492,7 +1492,7 @@ LOCAL search$,text$,done%,found%,flag%,o%
 PROCmenu_create(-1,0,0)
 PROCwindow_close(foundw%)
 done%=FALSE :flag%=FALSE
-IF entries%=1 err%=FNwarning(mess$,FNmessage_lookup("Fin1"),"OK",1,"",0,"",0) :ENDPROC
+IF entries%=1 THEN PROCwimperror_report(FNmessage_lookup("Fin1"), 1, 1, "") :ENDPROC
 IF rep% THEN
 IF insert_replace% THEN
 text$(findno%)=LEFT$(LEFT$(text$(findno%),replace_pos%-1)+$replacetext%+MID$(text$(findno%),replace_pos%+replace_len%),20)
@@ -1577,8 +1577,8 @@ PROCredraw_line(select%)
 ELSE
 IF NOT all% THEN
 IF opt% THEN
-err% = FNwarning(mess$, FNmessage_param_lookup("Fin0", $findtext%, "", "", ""), "OK", 1, "", 0, "", 0)
-PROCpage_home
+	PROCwimperror_report(FNmessage_param_lookup("Fin0", $findtext%, "", "", ""), 1, 1, "")
+	PROCpage_home
 ELSE
 $foundtext%=FNmessage_lookup("Fin2")
 $foundline%="-"
@@ -1592,7 +1592,7 @@ PROCredraw_line(o%)
 ENDIF
 ELSE
 PROCpage_home
-IF NOT flag% THEN err% = FNwarning(mess$, FNmessage_param_lookup("Fin0", $findtext%, "", "", ""), "OK", 1, "", 0, "", 0)
+IF NOT flag% THEN PROCwimperror_report(FNmessage_param_lookup("Fin0", $findtext%, "", "", ""), 1, 1, "")
 ENDIF
 ENDIF
 IF all% THENPROCredraw_main
@@ -1710,13 +1710,13 @@ DEF PROCdataload
 LOCAL tf$,csv%
 csv%=FALSE
 IF b%!20<>-2 AND b%!20<>MainWindow% THENENDPROC
-IF b%!40<>account_file% AND b%!40<>csv_file% err%=FNreport(255,FNmessage_lookup("Fil2"),1,app$,1,0):ENDPROC
-IF b%!20=MainWindow% AND b%!40=csv_file% THENerr%=FNwarning(mess$,FNmessage_lookup("Fil4"),"OK",1,"",0,"",0):ENDPROC
+IF b%!40<>account_file% AND b%!40<>csv_file% PROCwimperror_report(FNmessage_lookup("Fil2"), 1, 1, ""):ENDPROC
+IF b%!20=MainWindow% AND b%!40=csv_file% THEN PROCwimperror_report(FNmessage_lookup("Fil4"), 1, 1, ""):ENDPROC
 SYS "XOS_GenerateError", b%+44 TO tf$
 IF b%!20=MainWindow% THENPROCopen_merge_window :mergef$=tf$ :ENDPROC
 err%=0
 IF b%!40=csv_file% THENcsv%=TRUE
-IF modified% THENerr%=FNwarning(warn$,FNmessage_lookup("OK4"),"Load",1,"Cancel",0,"",0)
+IF modified% THEN err% = FNwimperror_report(FNmessage_lookup("OK4"), 4, 0, FNmessage_lookup("OK4B"))
 IF err%=1 THENENDPROC
 text$()=""
 credit%()=0
@@ -1827,7 +1827,7 @@ ENDCASE
 IF NOT EOF#i% THENfinished%=FALSE
 CLOSE#i%
 SYS "Hourglass_Off"
-IF NOT finished% THENerr%=FNwarning(mess$,FNmessage_lookup("Mer0"),"OK",1,"",0,"",0)
+IF NOT finished% THEN err% = PROCwimperror_report(FNmessage_lookup("Mer0"), 0, 1, "")
 PROCrecalc
 PROCmenu_create(-1,0,0)
 modified%=TRUE
@@ -1878,8 +1878,8 @@ UNTIL EOF#i% OR entries%>max% OR failed%
 IF NOT EOF#i% AND NOT failed% THENfinished%=FALSE
 CLOSE#i%
 SYS "Hourglass_Off"
-IF NOT finished% THENerr%=FNwarning(mess$,FNmessage_lookup("Csv0"),"OK",1,"",0,"",0)
-IF failed% THENerr%=FNwarning(mess$,FNmessage_lookup("Csv1"),"OK",1,"",0,"",0)
+IF NOT finished% THEN PROCwimperror_report(FNmessage_lookup("Csv0"), 0, 1, "")
+IF failed% THEN PROCwimperror_report(FNmessage_lookup("Csv1"), 0, 1, "")
 $file%=csvf$
 PROCrecalc
 modified%=FALSE
@@ -1985,7 +1985,7 @@ WHEN tfile% :PROCtextsave
 WHEN cfile% :PROCcsvsave
 ENDCASE
 ELSE
-err%=FNreport(255,FNmessage_lookup("Fil0"),1,app$,1,0)
+PROCwimperror_report(FNmessage_lookup("Fil0"), 0, 1, "")
 ENDIF
 ENDPROC
 :
@@ -2009,10 +2009,10 @@ ENDPROC
 :
 DEF PROCtextsave
 LOCAL c%,percent%
-IF VAL($text1%)=VAL($text2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Exp0"),"OK",1,"",1,"",0):ENDPROC
-IF VAL($text1%)>VAL($text2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Exp1"),"OK",1,"",1,"",0):ENDPROC
-IF VAL($text1%)>=entries% OR VAL($text2%)>=entries% PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Exp2"),"OK",1,"",1,"",0):ENDPROC
-IF VAL($text1%)<=0 OR VAL($text2%)<=0 PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Exp3"),"OK",1,"",1,"",0):ENDPROC
+IF VAL($text1%)=VAL($text2%) PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Exp0"), 0, 1, ""):ENDPROC
+IF VAL($text1%)>VAL($text2%) PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Exp1"), 0, 1, ""):ENDPROC
+IF VAL($text1%)>=entries% OR VAL($text2%)>=entries% PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Exp2"), 0, 1, ""):ENDPROC
+IF VAL($text1%)<=0 OR VAL($text2%)<=0 PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Exp3"), 0, 1, ""):ENDPROC
 SYS "Hourglass_On"
 o%=OPENOUT($tfile%)
 IF FNicon_selected(text%,12) THEN
@@ -2045,10 +2045,10 @@ ENDPROC
 :
 DEF PROCcsvsave
 LOCAL c%,percent%
-IF VAL($csv1%)=VAL($csv2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Exp0"),"OK",1,"",1,"",0):ENDPROC
-IF VAL($csv1%)>VAL($csv2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Exp1"),"OK",1,"",1,"",0):ENDPROC
-IF VAL($csv1%)>=entries% OR VAL($csv2%)>=entries% PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Exp2"),"OK",1,"",1,"",0):ENDPROC
-IF VAL($csv1%)<=0 OR VAL($csv2%)<=0 PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Exp3"),"OK",1,"",1,"",0):ENDPROC
+IF VAL($csv1%)=VAL($csv2%) PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Exp0"), 0, 1, ""):ENDPROC
+IF VAL($csv1%)>VAL($csv2%) PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Exp1"), 0, 1, ""):ENDPROC
+IF VAL($csv1%)>=entries% OR VAL($csv2%)>=entries% PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Exp2"), 0, 1, ""):ENDPROC
+IF VAL($csv1%)<=0 OR VAL($csv2%)<=0 PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Exp3"), 0, 1, ""):ENDPROC
 SYS "Hourglass_On"
 o%=OPENOUT($cfile%)
 IF FNicon_selected(csv%,12) THEN
@@ -2075,8 +2075,8 @@ PROCmenu_create(-1,0,0)
 ENDPROC
 :
 DEF FNsaved
-IF modified%=FALSE = TRUE
-oktoquit%=FNwarning(warn$,FNmessage_lookup("OK5"),"Quit",1,"Save",1,"Cancel",0)
+IF modified% = FALSE THEN =TRUE
+oktoquit% = FNwimperror_report(FNmessage_lookup("OK5"), 4, 0, FNmessage_lookup("OK5B"))
 IF oktoquit% = 1 THEN
 	SYS "Wimp_GetPointerInfo",,q%
 	PROCwindow_open_as_menu_at(save%, !q%, q%!4)
@@ -2085,10 +2085,10 @@ ENDIF
 :
 DEF PROCprint
 LOCAL c%,percent%,s%,top_of_form%,current_line%
-IF VAL($print1%)=VAL($print2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Prn0"),"OK",1,"",1,"",0):ENDPROC
-IF VAL($print1%)>VAL($print2%) PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Prn1"),"OK",1,"",1,"",0):ENDPROC
-IF VAL($print1%)>=entries% OR VAL($print2%)>=entries% PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Prn2"),"OK",1,"",1,"",0):ENDPROC
-IF VAL($print1%)<=0 OR VAL($print2%)<=0 PROCmenu_create(-1,0,0):err%=FNwarning(mess$,FNmessage_lookup("Prn3"),"OK",1,"",1,"",0):ENDPROC
+IF VAL($print1%)=VAL($print2%) PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Prn0"), 0, 1, ""):ENDPROC
+IF VAL($print1%)>VAL($print2%) PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Prn1"), 0, 1, ""):ENDPROC
+IF VAL($print1%)>=entries% OR VAL($print2%)>=entries% PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Prn2"), 0, 1, ""):ENDPROC
+IF VAL($print1%)<=0 OR VAL($print2%)<=0 PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Prn3"), 0, 1, ""):ENDPROC
 SYS &80140 TO,s%
 SYS "Hourglass_On"
 o%=OPENOUT("<Account$PrintFile>")
@@ -2751,8 +2751,7 @@ pos%-=1
 type%=3
 ENDIF
 ENDIF
-IF flag% err%=FNwarning(mess$,FNmessage_lookup("Dat0"),"OK",1,"",0,"",0)
-IF flag% THENENDPROC
+IF flag% THEN PROCwimperror_report(FNmessage_lookup("Dat0"), 0, 1, "") : ENDPROC
 text$=FNadd_date(text$,length%,pos%,type%,2,0)
 $(b%!28)=text$
 PROCredraw_part(window%,b%!8+2,b%!12+4,b%!16-b%!8-4,b%!20-b%!12-8)
@@ -2812,33 +2811,32 @@ LOCAL s$
 s$=STR$(val%)
 IF LEN(s$)=1 THENs$="0"+s$
 =s$
-:
-DEF PROCinit
-LOCAL resources$
 
-ON ERROR SYS"Hourglass_Smash" :PRINT TAB(0,0);ERL;REPORT$ :END
+
+REM Initialise ourselves, internally and with the Wimp.
+:
+DEF PROCinitialise
+LOCAL resources$, task_name$, task_sprite$
+
 SYS "Hourglass_On"
+
+REM Set up the quit flag and global data blocks.
+
+Quit% = FALSE
+
 DIM b% 4000, q% 255, a% 255
 
 REM Locate the application resources.
 
 resources$ = FNresources_find_territory_folder("<Account$Dir>.Resources")
 
+REM Load the messages file.
 
-max%=1000
-modified%=FALSE
-select%=0
-entries%=1
-months$="JanFebMarAprMayJunJulAugSepOctNovDec"
-account_file%=&1AC
-text_file%=&FFF
-csv_file%=&DFE
-join_main%=1
-PROCget_mode_vars
-DIM text$(max%),credit%(max%),payment%(max%),balance%(max%)
 PROCmessage_initialise(resources$ + "Messages")
 
-Quit%=FALSE:RestartShutdown%=FALSE:app$=FNmessage_lookup("Task")
+task_name$ = FNmessage_lookup("TaskName")
+task_sprite$ = FNmessage_lookup("TaskSpr")
+PROCwimperror_initialise(task_name$, task_sprite$)
 
 REM Initialise with the Wimp.
 
@@ -2851,10 +2849,27 @@ q%!20 = &502
 q%!24 = &400C1
 q%!28 = 0
 
-SYS "Wimp_Initialise", 300, &4B534154, app$, q%
-:
-mess$=FNmessage_lookup("Wrn1")
-warn$=FNmessage_lookup("Wrn2")
+SYS "Wimp_Initialise", 310, &4B534154, task_name$, q%
+
+
+
+
+RestartShutdown%=FALSE
+
+max%=1000
+modified%=FALSE
+select%=0
+entries%=1
+months$="JanFebMarAprMayJunJulAugSepOctNovDec"
+account_file%=&1AC
+text_file%=&FFF
+csv_file%=&DFE
+join_main%=1
+PROCget_mode_vars
+DIM text$(max%),credit%(max%),payment%(max%),balance%(max%)
+
+
+
 :
 PROCintro
 PROCdefine_windows(resources$)
@@ -2909,7 +2924,7 @@ IF NOT modified% THEN ENDPROC
 b%!12=b%!8
 b%!16=0
 SYS "Wimp_SendMessage",19,b%
-err%=FNwarning(warn$,FNmessage_lookup("OK6"),"Reset",1,"Save",0,"Cancel",0)
+err% = FNwimperror_report(FNmessage_lookup("OK6"), 4, 0, FNmessage_lookup("OK6B"))
 IF err%=0 THEN Quit%=TRUE : RestartShutdown%=TRUE
 IF err%=1 THEN
 	SYS "Wimp_GetPointerInfo",,q%
@@ -2946,8 +2961,6 @@ sprite_area% = FNwimpsprite_load_user_sprites("<Account$Dir>.Sprites")
 
 PROCtemplate_open(resources$ + "Templates")
 
-PROCtemplate_load("Error", b%, ind_data%, ind_size%, -1)
-SYS "Wimp_CreateWindow",,b% TO ErrorWindow%
 PROCtemplate_load("Main", b%, ind_data%, ind_size%, -1)
 title%=b%!72 :$title%="<Untitled>"
 SYS "Wimp_CreateWindow",,b% TO MainWindow%
@@ -3083,13 +3096,6 @@ csv1%=FNicon_indirection(csv%,10)
 csv2%=FNicon_indirection(csv%,11)
 $csv1%="1"
 $csv2%="1"
-:
-REM Error
-errortext%=FNicon_indirection(ErrorWindow%,4)
-errortitle%=FNicon_indirection(ErrorWindow%,3)
-button1%=FNicon_indirection(ErrorWindow%,5)
-button2%=FNicon_indirection(ErrorWindow%,6)
-button3%=FNicon_indirection(ErrorWindow%,7)
 :
 REM Print
 print1%=FNicon_indirection(print%,7)
@@ -3393,8 +3399,6 @@ PROCsend_help(FNmessage_lookup("Hlp93"))
 OTHERWISE
 PROCsend_help(FNmessage_lookup("Hlp94"))
 ENDCASE
-WHEN ErrorWindow%
-PROCsend_help(FNmessage_lookup("Hlp95"))
 WHEN printset%
 CASE icon% OF
 WHEN 0
@@ -3733,92 +3737,66 @@ ELSE
 SYS "Wimp_OpenWindow",,b%
 ENDIF
 ENDPROC
+
+
+REM Test an error to see if it is one that we recognise and can hande.
+REM
+REM \param err%			The error code to be tested.
+REM \return			TRUE if the error was recogniosed; FALSE if not.
 :
-DEF FNwarning(title$,text$,b1$,c1%,b2$,c2%,b3$,c3%)
-LOCAL buttons%,code%
-title$=LEFT$(title$,9)
-IF b1$<>"" THENbuttons%=1
-IF b2$<>"" THENbuttons%=2
-IF b3$<>"" THENbuttons%=3
-IF buttons%=0 THENENDPROC
-CASE buttons% OF
-WHEN 1
-PROCicon_set_state(ErrorWindow%,5,0,0,0)
-PROCicon_set_state(ErrorWindow%,6,0,0,1)
-PROCicon_set_state(ErrorWindow%,7,0,0,1)
-WHEN 2
-PROCicon_set_state(ErrorWindow%,5,0,0,0)
-PROCicon_set_state(ErrorWindow%,6,0,0,0)
-PROCicon_set_state(ErrorWindow%,7,0,0,1)
-WHEN 3
-PROCicon_set_state(ErrorWindow%,5,0,0,0)
-PROCicon_set_state(ErrorWindow%,6,0,0,0)
-PROCicon_set_state(ErrorWindow%,7,0,0,0)
+DEF FNcheck_error(err%)
+LOCAL token$, save_error%
+
+save_error% = FALSE
+token$ = ""
+
+CASE err% OF
+WHEN 20
+	token$ = "Err1"
+WHEN 204
+	token$ = "Err2"
+	save_error% = TRUE
+WHEN 214
+	token$ = "Err11"
+	save_error% = TRUE
+WHEN 223
+	token$ = "Err3" : CLOSE#i%
+WHEN 275
+	token$ = "Err10"
+	save_error% = TRUE
+WHEN 1491
+	token$ = "Err4"
+WHEN 67796
+	token$ = "Err13"
+	save_error% = TRUE
+WHEN 67797
+	token$ = "Err5"
+	save_error% = TRUE
+WHEN 71603
+	token$ = "Err12"
+	save_error% = TRUE
+WHEN 71613
+	token$ = "Err6"
+WHEN 71618
+	token$ = "Err7"
+	save_error% = TRUE
+WHEN 71622
+	token$ = "Err8"
+	save_error% = TRUE
+WHEN 71636
+	token$ = "Err9"
+	save_error% = TRUE
 ENDCASE
-$errortext%=text$
-$errortitle%=title$+" "+FNmessage_lookup("Wrn0")
-$button1%=b1$
-$button2%=b2$
-$button3%=b3$
-IF c1%=1 c1%=12
-IF c2%=1 c2%=12
-IF c3%=1 c3%=12
-PROCwindow_open_centred_at(ErrorWindow%,(width%/2)-400,312)
-MOUSE RECTANGLE (width%/2)-402,308,802,436
-REPEAT
-SYS "Wimp_Poll",0,b% TO reason%
-CASE reason% OF
-WHEN 1 :PROCredraw
-WHEN 2 :SYS "Wimp_OpenWindow",,b%
-WHEN 3 :SYS "Wimp_CloseWindow",,b%
-WHEN 17,18 :IF b%!16=&502 PROChelp
-ENDCASE
-UNTIL (reason%=6AND(b%!16>-1ANDb%!8<>2))OR(reason%=8AND(b%!24=13ORb%!24=&1B))
-MOUSE RECTANGLE 0,0,width%,height%
-PROCwindow_close(ErrorWindow%)
-CASE reason% OF
-WHEN 6 :code%=(b%!16)-5
-WHEN 8 :IF b%!24=13 THENcode%=0 ELSEcode%=buttons%-1
-ENDCASE
-=code%
-:
-DEF PROCerror
-LOCAL err$,box%,cs%
-err$="" :err%=0 :box%=0 :cs%=0
-SYS "Hourglass_Smash"
-CASE ERR OF
-WHEN 20   :box%=1:err$=FNmessage_lookup("Err1") :cs%=0
-WHEN 204  :box%=2:err$=FNmessage_lookup("Err2") :cs%=1
-WHEN 214  :box%=2:err$=FNmessage_lookup("Err11"):cs%=1
-WHEN 223  :box%=2:err$=FNmessage_lookup("Err3") :cs%=0:CLOSE#i%
-WHEN 275  :box%=2:err$=FNmessage_lookup("Err10"):cs%=1
-WHEN 1491 :box%=2:err$=FNmessage_lookup("Err4") :cs%=0
-WHEN 67796:box%=2:err$=FNmessage_lookup("Err13"):cs%=1
-WHEN 67797:box%=2:err$=FNmessage_lookup("Err5") :cs%=1
-WHEN 71603:box%=2:err$=FNmessage_lookup("Err12"):cs%=1
-WHEN 71613:box%=2:err$=FNmessage_lookup("Err6") :cs%=0
-WHEN 71618:box%=2:err$=FNmessage_lookup("Err7") :cs%=1
-WHEN 71622:box%=2:err$=FNmessage_lookup("Err8") :cs%=1
-WHEN 71636:box%=2:err$=FNmessage_lookup("Err9") :cs%=1
-OTHERWISE
-err% = FNreport(255, FNmessage_param_lookup("Err0", STR$(ERR), REPORT$, STR$(ERL), ""), 0, app$, 1, 1)
-ENDCASE
-IF err%=2 THENPROCloose_fonts :SYS "Wimp_CloseDown" :END
-IF err$<>"" THEN
-CASE box% OF
-WHEN 1 :err%=FNwarning(mess$,err$,"OK",1,"",0,"",0)
-WHEN 2 :err%=FNreport(255,err$,1,app$,1,0)
-ENDCASE
-IF cs% THENerr%=FNreport(255,FNmessage_lookup("Fil3"),1,app$,1,0)
-ENDIF
-ENDPROC
-:
-DEF FNreport(errno%,err$,error%,task$,ok%,cancel%)
-LOCAL flag%,response%
-!q%=errno%
-$(q%+4)=err$+CHR$(0)
-flag%=ok%+(cancel%<<1)+(error%<<4)
-IF error%=1 task$="Message from "+task$
-SYS "Wimp_ReportError",q%,flag%,task$ TO ,response%
-=response%
+
+REM We don't recognise the error, so exit without claiming it.
+
+IF token$ == "" THEN =FALSE
+
+REM It's an error code we recognise, so report it and exit showing that
+REM we've claimed the error.
+
+PROCwimperror_report(FNmessage_lookup(token$), 0, 1, "")
+IF save_error% THEN PROCwimperror_report(FNmessage_lookup("Fil3"), 0, 2, "")
+
+=TRUE
 

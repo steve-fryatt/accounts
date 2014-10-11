@@ -1935,15 +1935,9 @@ q%!36=len%
 q%!12=0
 q%!16=1
 q%!40=type%
-$(q%+44)=FNgetleaf($text%)
+$(q%+44)=FNstring_leafname($text%)
 SYS "Wimp_SendMessage",18,q%,q%!20,q%!24
 ENDPROC
-:
-DEF FNgetleaf(a$)
-WHILE INSTR(a$,".")
-a$=MID$(a$,INSTR(a$,".")+1)
-ENDWHILE
-=a$+CHR$0
 :
 DEF PROCdrag_box(whan%)
 LOCAL ox%,oy%,spr$
@@ -2014,7 +2008,7 @@ SYS "Hourglass_On"
 o%=OPENOUT($tfile%)
 IF FNicon_state(text%,12) THEN
 BPUT#o%,"      "+FNtext("Date: "+LEFT$(TIME$,15),34,TRUE);
-BPUT#o%,FNtext("File: "+LEFT$(FNgetleaf($file%),LENFNgetleaf($file%)-1),32,FALSE)
+BPUT#o%,FNtext("File: "+LEFT$(FNstring_leafname($file%),LEN(FNstring_leafname($file%))-1),32,FALSE)
 BPUT#o%," "
 ENDIF
 IF FNicon_state(text%,13) THEN
@@ -2091,7 +2085,7 @@ top_of_form%=TRUE
 FOR c%=VAL($print1%) TO VAL($print2%)
 IF top_of_form% AND FNicon_state(print%,9) THEN
 BPUT#o%,"      "+FNtext("Date: "+LEFT$(TIME$,15),34,TRUE);
-BPUT#o%,FNtext("File: "+LEFT$(FNgetleaf($file%),LENFNgetleaf($file%)-1),32,FALSE)+CHR$(13)
+BPUT#o%,FNtext("File: "+LEFT$(FNstring_leafname($file%),LEN(FNstring_leafname($file%))-1),32,FALSE)+CHR$(13)
 current_line%-=1
 ENDIF
 IF top_of_form% THEN

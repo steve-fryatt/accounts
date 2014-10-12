@@ -911,7 +911,6 @@ text$=$clip_string%
 credit%=FNval($clip_cred%)
 payment%=FNval($clip_pay%)
 ENDIF
-inc%=FALSE
 CASE opp% OF
 WHEN 3
 IF select%<>0 THEN
@@ -1673,7 +1672,7 @@ IF FNmenu_state(MainMenu%,8) THENyh%-=68
 IF yh% MOD 32<>0 THENyh%-=(yh% MOD 32)
 offset%=b%!24
 offset%+=yh%
-IF offset%>0 offest%=0
+IF offset%>0 offset%=0
 b%!24=offset%
 SYS "Wimp_OpenWindow",,b%
 ENDPROC
@@ -1687,7 +1686,7 @@ IF FNmenu_state(MainMenu%,8) THENyh%-=68
 IF yh% MOD 32<>0 THENyh%-=(yh% MOD 32)
 offset%=b%!24
 offset%-=yh%
-IF offset%<-31520 offest%=-31520
+IF offset%<-31520 offset%=-31520
 b%!24=offset%
 SYS "Wimp_OpenWindow",,b%
 ENDPROC
@@ -1712,7 +1711,7 @@ LOCAL offset%
 SYS "Wimp_GetWindowState",,b%
 offset%=b%!24
 offset%+=32
-IF offset%>0 offest%=0
+IF offset%>0 offset%=0
 b%!24=offset%
 SYS "Wimp_OpenWindow",,b%
 ENDPROC
@@ -1723,7 +1722,7 @@ LOCAL offset%
 SYS "Wimp_GetWindowState",,b%
 offset%=b%!24
 offset%-=32
-IF offset%<-31520 offest%=-31520
+IF offset%<-31520 offset%=-31520
 b%!24=offset%
 SYS "Wimp_OpenWindow",,b%
 ENDPROC
@@ -2912,12 +2911,41 @@ DIM text$(max%),credit%(max%),payment%(max%),balance%(max%)
 PROCintro
 PROCdefine_windows(resources$)
 PROCdefine_icons
-PROCbuild_menus(resources$)
+
+REM Initialise and load the menu templates.
+
+PROCmenu_initialise
+
+b%!0 = InfoWindow%
+b%!4 = InfoWindow%
+b%!8 = fileinf%
+b%!12 = find%
+b%!16 = goto%
+b%!20 = newhead%
+b%!24 = save%
+b%!28 = text%
+b%!32 = csv%
+b%!36 = selline%
+b%!40 = print%
+b%!44 = printset%
+PROCmenu_load_templates(resources$ + "Menus", b%)
+IconbarMenu% = b%!0
+MainMenu% = b%!4
+REM gmenu% = b%!8
+REM fmenu% = b%!12
+emenu% = b%!16
+smenu% = b%!20
+cmenu% = b%!24
+REM pmenu% = b%!28
+ColourMenu% = b%!32
+
 PROCupdate_menu
 PROCload_printcodes
 PROCload_prefs(TRUE)
 PROCdrag_init
+
 SYS "Hourglass_Off"
+
 state%=INSTR(CommandLine$,"!RunImage")+11
 CommandLine$=MID$(CommandLine$,state%)
 IF CommandLine$<>"" PROCinit_load(CommandLine$)
@@ -3161,37 +3189,7 @@ cl_desc%=FNicon_indirection(loadcsv%,0)
 cl_cred%=FNicon_indirection(loadcsv%,1)
 cl_pay%=FNicon_indirection(loadcsv%,2)
 ENDPROC
-:
-DEF PROCbuild_menus(resources$)
-DIM mb% 1624
-ColourMenu%=mb%+1064
 
-PROCmenu_initialise
-
-b%!0 = InfoWindow%
-b%!4 = InfoWindow%
-b%!8 = fileinf%
-b%!12 = find%
-b%!16 = goto%
-b%!20 = newhead%
-b%!24 = save%
-b%!28 = text%
-b%!32 = csv%
-b%!36 = selline%
-b%!40 = print%
-b%!44 = printset%
-PROCmenu_load_templates(resources$ + "Menus", b%)
-IconbarMenu% = b%!0
-MainMenu% = b%!4
-gmenu% = b%!8
-fmenu% = b%!12
-emenu% = b%!16
-smenu% = b%!20
-cmenu% = b%!24
-pmenu% = b%!28
-ColourMenu% = b%!32
-ENDPROC
-:
 
 
 REM Process requests for interactive help text.

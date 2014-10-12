@@ -2942,8 +2942,6 @@ DEF PROCintro
 SYS "Font_FindFont",,"Homerton.Bold.Oblique",480,960 TO font1%
 SYS "Font_FindFont",,"Homerton.Medium",320,320 TO font2%
 SYS "Font_FindFont",,"Homerton.Medium.Oblique",320,320 TO font3%
-SYS "Font_FindFont",,"Homerton.Bold.Oblique",480,480 TO font4%
-SYS "Font_FindFont",,"Homerton.Medium",224,224 TO font5%
 SYS "Font_FindFont",,"Corpus.Medium",192,192 TO disp_font%
 IntroDisplayTime%=100*8
 ENDPROC
@@ -2952,8 +2950,6 @@ DEF PROCloose_fonts
 SYS "Font_LoseFont",font1%
 SYS "Font_LoseFont",font2%
 SYS "Font_LoseFont",font3%
-SYS "Font_LoseFont",font4%
-SYS "Font_LoseFont",font5%
 SYS "Font_LoseFont",disp_font%
 ENDPROC
 :
@@ -2999,11 +2995,7 @@ b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO csv%
 PROCtemplate_load("Save", b%, ind_data%, ind_size%, -1)
 SYS "Wimp_CreateWindow",,b% TO save%
-PROCtemplate_load("Info", b%, ind_data%, ind_size%, -1)
-b%!136+=(1<<6)+(font5%<<24)
-b%!168+=(1<<6)+(font5%<<24)
-b%!200+=(1<<6)+(font5%<<24)
-b%!392+=(1<<6)+(font4%<<24)
+PROCtemplate_load("ProgInfo", b%, ind_data%, ind_size%, -1)
 SYS "Wimp_CreateWindow",,b% TO InfoWindow%
 PROCtemplate_load("Find", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
@@ -3038,8 +3030,8 @@ DEF PROCdefine_icons
 icon% = FNicon_create_standard_bar(-1, "!Accounts")
 :
 REM Info
-$FNicon_indirection(InfoWindow%,2)=CHR$(169) + " Stephen Fryatt, 1992-" + MID$(build_date$, 8)
-$FNicon_indirection(InfoWindow%,3)=build_version$+" ("+build_date$+")"
+$FNicon_indirection(InfoWindow%,4)=CHR$(169) + " Stephen Fryatt, 1992-" + MID$(build_date$, 8)
+$FNicon_indirection(InfoWindow%,6)=build_version$+" ("+build_date$+")"
 :
 REM Intro
 $FNicon_indirection(intro%,2)=FNmessage_param_lookup("Int0", build_version$, "", "", "")

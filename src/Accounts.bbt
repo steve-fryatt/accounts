@@ -28,6 +28,7 @@ LIBRARY "BASIC:Message"
 LIBRARY "BASIC:Resources"
 LIBRARY "BASIC:String"
 LIBRARY "BASIC:Template"
+LIBRARY "BASIC:Url"
 LIBRARY "BASIC:WimpError"
 LIBRARY "BASIC:WimpSprite"
 LIBRARY "BASIC:Window"
@@ -139,7 +140,7 @@ WHEN 9
 WHEN 17, 18
 	PROCuser_message(b%)
 WHEN 19
-	PROCwimperror_report(FNmessage_lookup("Fil1"), 0, 1, "")
+	IF b%!16 = &4AF80 THEN PROCurl_bounce(b%)
 ENDCASE
 ENDPROC
 
@@ -176,6 +177,13 @@ PROCicon_put_caret_at_end(enter%,6)
 ENDIF
 IF FNmenu_state(MainMenu%,6) THENPROCopen_window(tools%)
 ENDCASE
+
+WHEN InfoWindow%
+	IF button% = 4 AND icon% = 8 THEN
+		PROCurl_launch(FNmessage_lookup("SupportURL"))
+		PROCmenu_create(-1,0,0)
+	ENDIF
+
 WHEN tools%
 CASE button% OF
 WHEN 1,4
@@ -867,6 +875,7 @@ CASE block%!16 OF
 	WHEN 10		: PROCsave_desktop
 	WHEN &502	: PROCsend_interactive_help(block%)
 	WHEN &400C1	: PROCget_mode_vars
+	WHEN &4E383	: PROCurl_bounce(block%)
 ENDCASE
 ENDPROC
 :

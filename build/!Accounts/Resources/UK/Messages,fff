@@ -25,6 +25,10 @@
 TaskName:Accounts
 TaskSpr:!accounts
 
+SupportURL:http://www.stevefryatt.org.uk/software/
+
+URLFailed:Could not find an application to launch the given URL.
+
 # Window Furniture
 
 Untitled:<Untitled>
@@ -54,7 +58,6 @@ Err13:Disc Not Found.
 # Filer Messages
 #
 Fil0:To save, drag the icon to a directory viewer.
-Fil1:To save, drag the icon to a directory viewer. Accounts does not support inter-application file transfers.
 Fil2:This is not an Account file or a CSV file. To load an account, drag an account file from a directory viewer to the Accounts icon.
 Fil3:Accounts is unable to save this file.
 Fil4:To load a CSV file, drag its icon to the Accounts icon on the icon bar.
@@ -217,7 +220,8 @@ Hlp85:This is the Print window.|MClick here to toggle the column headings on and
 Hlp86:This is the Print window.|MClick here to start the printer.
 Hlp87:This is the Print window.|MClick here to cancel.
 Hlp88:This is the Print window.|MIt allows you to print your accounts out|Mon a standard Dot-Matrix printer.
-Help.Info:\TInfo \w.|MIt shows information about your version of Accounts.
+Help.Info:\Tprogram information \w for the Accounts application.|MIt shows information about your version of Accounts.
+Help.Info.Website:\Tprogram information \w for the Accounts application.|M\Svisit its website for information and updates.
 Hlp90:This is the File Info window.|MThis icon shows you if your account has been modified.
 Hlp91:This is the File Info window.|MThis icon shows you how many entries there are in the current account.
 Hlp92:This is the File Info window.|MThis icon shows you the current file size.

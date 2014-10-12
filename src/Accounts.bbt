@@ -1123,22 +1123,26 @@ PROCicon_set_state(enter%,1,0,0,0)
 ENDPROC
 :
 DEF PROCclear
-err%=0
-IF modified% THEN err% = FNwimperror_report(FNmessage_lookup("OK3"), 4, 0, FNmessage_lookup("OK3B"))
-IF err%=1 ENDPROC
-text$()=""
-credit%()=0
-payment%()=0
-balance%()=0
-entries%=1
-select%=0
-$file%="Account"
-$tfile%="TextFile"
-$cfile%="CSVFile"
-$string%=""
-$cred%="0.00"
-$pay%="0.00"
-modified%=FALSE
+err% = 0
+IF modified% THEN
+	err% = FNwimperror_report(FNmessage_lookup("OK3"), 4, 0, FNmessage_lookup("OK3B"))
+	IF err% = 1 THEN ENDPROC
+ENDIF
+
+text$() = ""
+credit%() = 0
+payment%() = 0
+balance%() = 0
+entries% = 1
+select% = 0
+$file% = FNmessage_lookup("FileName")
+$tfile% = FNmessage_lookup("TextName")
+$cfile% = FNmessage_lookup("CsvName")
+$string% = ""
+$cred% = "0.00"
+$pay% = "0.00"
+modified% = FALSE
+
 PROCupdate_tools(select%)
 PROCupdate_menu
 PROCupdate_title
@@ -1367,17 +1371,17 @@ SYS "Wimp_ForceRedraw",MainWindow%,b%!20,base%,b%!20+wth%,top%
 ENDPROC
 :
 DEF PROCupdate_title
-IF $file%<>"Account" THEN
+IF $file% <> FNmessage_lookup("FileName") THEN
 IF modified% $title%=$file%+" *" ELSE$title%=$file%
 $fileinf_name%=$file%
 ELSE
-IF modified% $title%="<Untitled> *" ELSE$title%="<Untitled>"
-$fileinf_name%="<Untitled>"
+IF modified% THEN $title% = FNmessage_lookup("Untitled") + " *" ELSE $title% = FNmessage_lookup("Untitled")
+$fileinf_name% = FNmessage_lookup("Untitled")
 ENDIF
 IF modified% THEN
-$safe%="Yes"
+	$safe% = FNmessage_lookup("Yes")
 ELSE
-$safe%="No"
+	$safe% = FNmessage_lookup("No")
 ENDIF
 !b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
@@ -1730,7 +1734,7 @@ payment%()=0
 balance%()=0
 entries%=1
 select%=0
-$file%="Account"
+$file%=FNmessage_lookup("FileName")
 $string%=""
 $cred%="0.00"
 $pay%="0.00"
@@ -2045,7 +2049,7 @@ NEXT
 CLOSE#o%
 SYS "OS_File",&12,$tfile%,text_file%
 SYS "Hourglass_Off"
-$tfile%="TextFile"
+$tfile%=FNmessage_lookup("TextName")
 PROCmenu_create(-1,0,0)
 ENDPROC
 :
@@ -2076,7 +2080,7 @@ NEXT
 CLOSE#o%
 SYS "OS_File",&12,$cfile%,csv_file%
 SYS "Hourglass_Off"
-$cfile%="CSVFile"
+$cfile%=FNmessage_lookup("CsvName")
 PROCmenu_create(-1,0,0)
 ENDPROC
 :
@@ -2964,7 +2968,8 @@ sprite_area% = FNwimpsprite_load_user_sprites("<Account$Dir>.Sprites")
 PROCtemplate_open(resources$ + "Templates")
 
 PROCtemplate_load("Main", b%, ind_data%, ind_size%, -1)
-title%=b%!72 :$title%="<Untitled>"
+title% = b%!72
+$title% = FNmessage_lookup("Untitled")
 SYS "Wimp_CreateWindow",,b% TO MainWindow%
 PROCtemplate_load("Tools", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
@@ -3077,11 +3082,11 @@ header%=FNicon_indirection(newhead%,1)
 :
 REM Save
 file%=FNicon_indirection(save%,1)
-$file%="Account"
+$file%=FNmessage_lookup("FileName")
 :
 REM Export Text
 tfile%=FNicon_indirection(text%,1)
-$tfile%="TextFile"
+$tfile%=FNmessage_lookup("TextName")
 text1%=FNicon_indirection(text%,10)
 text2%=FNicon_indirection(text%,11)
 $text1%="1"
@@ -3089,7 +3094,7 @@ $text2%="1"
 :
 REM Export CSV
 cfile%=FNicon_indirection(csv%,1)
-$cfile%="CSVFile"
+$cfile%=FNmessage_lookup("CsvName")
 csv1%=FNicon_indirection(csv%,10)
 csv2%=FNicon_indirection(csv%,11)
 $csv1%="1"

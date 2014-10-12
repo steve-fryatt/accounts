@@ -136,8 +136,8 @@ Int0:Accounts %0
 #
 # Help Messages
 #
-Hlp0:This is the Accounts application, a bank accounts manager.|MClick SELECT to open the current account.|MClick MENU to display the icon-bar menu.
-Hlp1:This is the Main Accounts window.|MEditing is done via the Enter window.|MClick SELECT to select an entry.|MClick MENU to display the main Accounts menu.
+Help.IconBar:This is the Accounts application, a bank accounts manager.|M\SELECTopen the current account.|MClick MENU to display the icon-bar menu.
+Help.Main:\TMain Accounts \w.|MEditing is done via the Enter window.|M\SELECTselect an entry.|MClick MENU to display the main Accounts menu.
 Hlp2:This is the Accounts toolbox.|MThis icon is the Add Entry Icon.|MIt adds an entry to the end of the account.
 Hlp3:This is the Accounts toolbox.|MThis icon is the Insert Above Icon.|MIt inserts an entry above the currently selected line.
 Hlp4:This is the Accounts toolbox.|MThis icon is the Insert Below Icon.|MIt inserts an entry below the currently selected line.
@@ -159,7 +159,7 @@ Hlp19:This is the Accounts Enter window.|MThis icon lets you enter a new descrip
 Hlp20:This is the Accounts Enter window.|MThis icon lets you enter a new credit on the clip_board.|MClick here to gain the caret.|MPressing RETURN moves to the next field.
 Hlp21:This is the Accounts Enter window.|MThis icon lets you enter a new payment on the clip_board.|MClick here to gain the caret.|MPressing RETURN adds this line to the end of the account.
 Hlp22:This is the Accounts Enter window.|MIt allows you to add new entries to the current account.|MIt also contains the clip-board.|MClick in any of the white boxes to give Accounts input-focus.
-Hlp23:This is the Goto Line window.|MEnter the line you wish to go to,|Min the range 1-1000.|MClick here to get the caret.
+Hlp23:This is the Goto Line window.|MEnter the line you wish to go to, in the range 1-1000.|MClick here to get the caret.
 Hlp24:This is the Goto Line window.|MClick here to go to the line shown.
 Hlp25:This is the Goto Line window.|MIt allows you to go to any line in the account.
 Hlp26:This is the Find window.|MType in the string that you wish to search for.|MClick here to get the caret.
@@ -225,7 +225,7 @@ Hlp85:This is the Print window.|MClick here to toggle the column headings on and
 Hlp86:This is the Print window.|MClick here to start the printer.
 Hlp87:This is the Print window.|MClick here to cancel.
 Hlp88:This is the Print window.|MIt allows you to print your accounts out|Mon a standard Dot-Matrix printer.
-Hlp89:This is the Info window.|MIt shows information about your version of Accounts.
+Help.Info:\TInfo \w.|MIt shows information about your version of Accounts.
 Hlp90:This is the File Info window.|MThis icon shows you if your account has been modified.
 Hlp91:This is the File Info window.|MThis icon shows you how many entries there are in the current account.
 Hlp92:This is the File Info window.|MThis icon shows you the current file size.

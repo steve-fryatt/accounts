@@ -30,9 +30,8 @@ menu(icon_bar_menu, "Accounts")
 	item("Info") {
 		d_box(program_info);
 	}
-	item("Choices...") {
-		dotted;
-	}
+	item("Help");
+	item("Choices...");
 	item("Quit");
 }
 

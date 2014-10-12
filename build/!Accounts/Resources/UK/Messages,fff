@@ -337,3 +337,9 @@ Hlp201:This is the Tool-bar.|MThis is the goto selection icon.|MClick to go to t
 Hlp202:This is the Tool-bar.|MThis is the new header icon.|MClick to insert a new initial balance for this account.
 Hlp203:This is the Tool-bar.|MThis is the printing icon.|MClick to open the print window.|MDouble-click to open the print set up window.
 Hlp204:This is the Tool-bar.|MIt contains icons to access many of the features of Accounts.|MOptions that are greyed out are only available when there is a selection.
+
+Help.IconBarMenu.00:\Rto see information about Accounts and visit its website.
+Help.IconBarMenu.01:\Sread the Accounts documentation.
+Help.IconBarMenu.02:\Schange the settings for Accounts.
+Help.IconBarMenu.03:\Squit Accounts.
+

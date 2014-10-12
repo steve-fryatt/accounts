@@ -136,7 +136,7 @@ WHEN 7
 WHEN 8
 	PROCkey_press(b%!24, !b%, b%!4)
 WHEN 9
-	PROCmenu
+	PROCmenu_selection(b%)
 WHEN 17, 18
 	PROCuser_message(b%)
 WHEN 19
@@ -158,25 +158,26 @@ ENDPROC
 REM Process mouse click events
 REM
 REM \param button%		The clicked mouse button.
-REM \param wind%		The window under the mouse.
+REM \param window%		The window under the mouse.
 REM \param icon%		The icon under the mouse.
 :
-DEF PROCclick(button%, wind%, icon%)
-LOCAL size%,loop%
+DEF PROCclick(button%, window%, icon%)
+LOCAL size%, loop%
 
-CASE wind% OF
+CASE window% OF
 WHEN -2
-CASE button% OF
-WHEN 2 :PROCmenu_create_iconbar(IconbarMenu%,!b%)
-WHEN 4
-PROCopen_window(MainWindow%)
-PROCset_extent(TRUE)
-IF FNmenu_state(MainMenu%,7) THEN
-PROCopen_window(enter%)
-PROCicon_put_caret_at_end(enter%,6)
-ENDIF
-IF FNmenu_state(MainMenu%,6) THENPROCopen_window(tools%)
-ENDCASE
+	CASE button% OF
+	WHEN 2
+		PROCmenu_create_iconbar(IconbarMenu%, !b%)
+	WHEN 4
+		PROCopen_window(MainWindow%)
+		PROCset_extent(TRUE)
+		IF FNmenu_state(MainMenu%, 7) THEN
+			PROCopen_window(enter%)
+			PROCicon_put_caret_at_end(enter%, 6)
+		ENDIF
+		IF FNmenu_state(MainMenu%, 6) THEN PROCopen_window(tools%)
+	ENDCASE
 
 WHEN InfoWindow%
 	IF button% = 4 AND icon% = 8 THEN
@@ -231,7 +232,7 @@ WHEN enter%
 CASE button% OF
 WHEN 1,4
 CASE icon% OF
-WHEN 0,1 :PROCcheck_select(wind%,icon%)
+WHEN 0,1 :PROCcheck_select(window%,icon%)
 ENDCASE
 WHEN 2 :PROCupdate_menu
 PROCmenu_create(MainMenu%,!b%,b%!4)
@@ -372,7 +373,7 @@ WHEN selline%
 IF icon%=1 PROCkey_select
 WHEN find%
 CASE icon% OF
-WHEN 3,4 :PROCcheck_select(wind%,icon%)
+WHEN 3,4 :PROCcheck_select(window%,icon%)
 WHEN 5 :PROCfind(TRUE,FALSE,FALSE)
 WHEN 6 :PROCmenu_create(-1,0,0)
 WHEN 7 :PROCfind(TRUE,TRUE,FALSE)
@@ -426,21 +427,21 @@ WHEN 4 :PROCsave_prefs(FALSE)
 ENDCASE
 WHEN prefspane%
 CASE icon% OF
-WHEN 12,13,14 :PROCcheck_select(wind%,icon%)
-WHEN 16,17,18,19 :PROCcheck_select(wind%,icon%)
-WHEN 47,48,49 :PROCcheck_select(wind%,icon%)
+WHEN 12,13,14 :PROCcheck_select(window%,icon%)
+WHEN 16,17,18,19 :PROCcheck_select(window%,icon%)
+WHEN 47,48,49 :PROCcheck_select(window%,icon%)
 WHEN 34,35,36,37,52
 FOR loop%=0 TO 15
-PROCmenu_set_state(wmenu%,loop%,0,0)
+PROCmenu_set_state(ColourMenu%,loop%,0,0)
 NEXT loop%
 CASE icon% OF
-WHEN 34 :PROCmenu_set_state(wmenu%,VAL($entry_c%),1,0)
-WHEN 35 :PROCmenu_set_state(wmenu%,VAL($numb_c%),1,0)
-WHEN 36 :PROCmenu_set_state(wmenu%,VAL($sel_c%),1,0)
-WHEN 37 :PROCmenu_set_state(wmenu%,VAL($unused_c%),1,0)
-WHEN 52 :PROCmenu_set_state(wmenu%,VAL($overdrawn_c%),1,0)
+WHEN 34 :PROCmenu_set_state(ColourMenu%,VAL($entry_c%),1,0)
+WHEN 35 :PROCmenu_set_state(ColourMenu%,VAL($numb_c%),1,0)
+WHEN 36 :PROCmenu_set_state(ColourMenu%,VAL($sel_c%),1,0)
+WHEN 37 :PROCmenu_set_state(ColourMenu%,VAL($unused_c%),1,0)
+WHEN 52 :PROCmenu_set_state(ColourMenu%,VAL($overdrawn_c%),1,0)
 ENDCASE
-PROCmenu_create(wmenu%,!b%,b%!4)
+PROCmenu_create(ColourMenu%,!b%,b%!4)
 prefs_menu%=icon%
 ENDCASE
 WHEN merge%
@@ -463,150 +464,168 @@ WHEN 13 :PROCcsv_load
 ENDCASE
 ENDCASE
 ENDPROC
+
+
+
+REM Process selections from menus.
+REM
+REM \param block%		The menu selection block.
 :
-DEF PROCmenu
-LOCAL sel1%,sel2%,sel3%,button%,loop%
-sel1%=!b%
-sel2%=b%!4
-sel3%=b%!8
-SYS "Wimp_GetPointerInfo",,b%
-button%=b%!8
+DEF PROCmenu_selection(block%)
+LOCAL reopen%, loop%
+
+SYS "Wimp_GetPointerInfo",,q%
+reopen% = (q%!8 = 1)
+
 CASE FNmenu_current_handle OF
 WHEN IconbarMenu%
-CASE sel1% OF
-WHEN 0 :PROCwindow_open_as_menu_at(InfoWindow%,!b%,b%!4) :button%=4
-WHEN 1 :PROCopen_window(prefs%) :PROCicon_put_caret_at_end(prefspane%,23)
-WHEN 2 :Quit%=FNsaved
-ENDCASE
-WHEN wmenu%
-FOR loop%=0 TO 15
-PROCmenu_set_state(wmenu%,loop%,0,0)
-NEXT loop%
-CASE prefs_menu% OF
-WHEN 34
-$entry_c%=STR$(sel1%)
-PROCredraw_part(prefspane%,42,-1352,50,48)
-PROCmenu_set_state(wmenu%,VAL($entry_c%),1,0)
-WHEN 35
-$numb_c%=STR$(sel1%)
-PROCredraw_part(prefspane%,42,-1428,50,48)
-PROCmenu_set_state(wmenu%,VAL($numb_c%),1,0)
-WHEN 36
-$sel_c%=STR$(sel1%)
-PROCredraw_part(prefspane%,42,-1508,50,48)
-PROCmenu_set_state(wmenu%,VAL($sel_c%),1,0)
-WHEN 37
-$unused_c%=STR$(sel1%)
-PROCredraw_part(prefspane%,42,-1588,50,48)
-PROCmenu_set_state(wmenu%,VAL($unused_c%),1,0)
-WHEN 52
-$overdrawn_c%=STR$(sel1%)
-PROCredraw_part(prefspane%,42,-1668,50,48)
-PROCmenu_set_state(wmenu%,VAL($overdrawn_c%),1,0)
-ENDCASE
+	CASE b%!0 OF
+	WHEN 1
+		OSCLI("%Filer_Run <Account$Dir>.!Help")
+	WHEN 2
+		PROCopen_window(prefs%)
+		PROCicon_put_caret_at_end(prefspane%, 23)
+	WHEN 3
+		Quit% = FNsaved
+	ENDCASE
+
+WHEN ColourMenu%
+	FOR loop% = 0 TO 15
+		PROCmenu_set_state(ColourMenu%, loop%, 0, 0)
+	NEXT loop%
+
+	CASE prefs_menu% OF
+	WHEN 34
+		$entry_c% = STR$(b%!0)
+		PROCredraw_part(prefspane%, 42, -1352, 50, 48)
+		PROCmenu_set_state(ColourMenu%, VAL($entry_c%), 1, 0)
+	WHEN 35
+		$numb_c%=STR$(b%!0)
+		PROCredraw_part(prefspane%,42,-1428,50,48)
+		PROCmenu_set_state(ColourMenu%,VAL($numb_c%),1,0)
+	WHEN 36
+		$sel_c%=STR$(b%!0)
+		PROCredraw_part(prefspane%,42,-1508,50,48)
+		PROCmenu_set_state(ColourMenu%,VAL($sel_c%),1,0)
+	WHEN 37
+		$unused_c%=STR$(b%!0)
+		PROCredraw_part(prefspane%,42,-1588,50,48)
+		PROCmenu_set_state(ColourMenu%,VAL($unused_c%),1,0)
+	WHEN 52
+		$overdrawn_c%=STR$(b%!0)
+		PROCredraw_part(prefspane%,42,-1668,50,48)
+		PROCmenu_set_state(ColourMenu%,VAL($overdrawn_c%),1,0)
+	ENDCASE
+
 WHEN MainMenu%
-CASE sel1% OF
-WHEN 0
-CASE sel2% OF
-WHEN 0 :PROCwindow_open_as_menu_at(InfoWindow%,!b%,b%!4) :button%=4
-WHEN 1 :PROCwindow_open_as_menu_at(fileinf%,!b%,b%!4) :button%=4
-WHEN 2 :PROCwindow_open_as_menu_at(find%,!b%,b%!4) :button%=4
-WHEN 3 :PROCwindow_open_as_menu_at(goto%,!b%,b%!4) :button%=4
-WHEN 4 :PROCwindow_open_as_menu_at(newhead%,!b%,b%!4) :button%=4
-WHEN 5 :PROCclear
+	CASE b%!0 OF
+	WHEN 0
+		CASE b%!4 OF
+			WHEN 0 :PROCwindow_open_as_menu_at(InfoWindow%,!b%,b%!4) : reopen% = FALSE
+			WHEN 1 :PROCwindow_open_as_menu_at(fileinf%,!b%,b%!4) : reopen% = FALSE
+			WHEN 2 :PROCwindow_open_as_menu_at(find%,!b%,b%!4) : reopen% = FALSE
+			WHEN 3 :PROCwindow_open_as_menu_at(goto%,!b%,b%!4) : reopen% = FALSE
+			WHEN 4 :PROCwindow_open_as_menu_at(newhead%,!b%,b%!4) : reopen% = FALSE
+			WHEN 5 :PROCclear
+		ENDCASE
+	WHEN 1
+		CASE b%!4 OF
+			WHEN -1,0 :PROCquick_save(file%)
+			WHEN 1 :PROCwindow_open_as_menu_at(text%,!b%,b%!4) : reopen% = FALSE
+			WHEN 2 :PROCwindow_open_as_menu_at(csv%,!b%,b%!4) : reopen% = FALSE
+		ENDCASE
+	WHEN 2
+		IF b%!4 > -1 THEN PROCaddval(b%!4)
+	WHEN 3
+		CASE b%!4 OF
+			WHEN -1,0 : PROCwindow_open_as_menu_at(selline%,!b%,b%!4) : reopen% = FALSE
+			WHEN 1 :PROCremove
+			WHEN 2 :PROCdelete
+			WHEN 3 :PROCaddval(3)
+			WHEN 4 :PROCclear_select
+		ENDCASE
+	WHEN 4
+		CASE b%!4 OF
+			WHEN 0 :PROCcut
+			WHEN 1 :PROCcopy
+			WHEN 2 :PROCcurrent
+			WHEN 3 :PROCclip_clear
+		ENDCASE
+	WHEN 5
+		CASE b%!4 OF
+			WHEN -1,0 :PROCwindow_open_as_menu_at(print%,!b%,b%!4) : reopen% = FALSE
+			WHEN 1 :PROCwindow_open_as_menu_at(printset%,!b%,b%!4) : reopen% = FALSE
+		ENDCASE
+	WHEN 6
+		!b%=tools%
+		SYS "Wimp_GetWindowState",,b%
+		IF b%!32 AND 1<<16 THEN
+			PROCwindow_close(tools%)
+			PROCmenu_set_state(MainMenu%,6,0,0)
+		ELSE
+			PROCopen_window(tools%)
+			PROCmenu_set_state(MainMenu%,6,1,0)
+		ENDIF
+	WHEN 7
+		!b%=enter%
+		SYS "Wimp_GetWindowState",,b%
+		IF b%!32 AND 1<<16 THEN
+			PROCwindow_close(enter%)
+			PROCmenu_set_state(MainMenu%,7,0,0)
+		ELSE
+			!b%=enter%
+			SYS "Wimp_GetWindowState",,b%
+			!q%=MainWindow%
+			SYS "Wimp_GetWindowState",,q%
+			b%!4=q%!4+40
+			b%!16=q%!8-44
+			b%!8=q%!8-236
+			b%!12=q%!4+1236
+			b%!20=0
+			b%!24=0
+			b%!28=pane%
+			SYS "Wimp_OpenWindow",,b%
+			PROCicon_put_caret_at_end(enter%,6)
+			PROCmenu_set_state(MainMenu%,7,1,0)
+		ENDIF
+	WHEN 8
+		IF FNmenu_state(MainMenu%,8) THEN
+			!b%=pane%
+			SYS "Wimp_GetWindowState",,b%
+			!q%=MainWindow%
+			SYS "Wimp_GetWindowState",,q%
+			b%!4=q%!4
+			b%!16=q%!16
+			b%!8=q%!16-36
+			b%!12=q%!12
+			b%!20=0
+			b%!24=0
+			b%!28=q%!28
+			SYS "Wimp_OpenWindow",,b%
+			PROCmenu_set_state(MainMenu%,8,0,0)
+		ELSE
+			!b%=pane%
+			SYS "Wimp_GetWindowState",,b%
+			b%!4=q%!4
+			b%!16=q%!16-100
+			b%!8=q%!16-136
+			b%!12=q%!12
+			b%!20=0
+			b%!24=0
+			b%!28=q%!28
+			SYS "Wimp_OpenWindow",,b%
+			PROCmenu_set_state(MainMenu%,8,1,0)
+		ENDIF
+
+		PROCredraw_main
+		PROCset_extent(0)
+	ENDCASE
 ENDCASE
-WHEN 1
-CASE sel2% OF
-WHEN -1,0 :PROCquick_save(file%)
-WHEN 1 :PROCwindow_open_as_menu_at(text%,!b%,b%!4) :button%=4
-WHEN 2 :PROCwindow_open_as_menu_at(csv%,!b%,b%!4) :button%=4
-ENDCASE
-WHEN 2 :IF sel2%>-1 THENPROCaddval(sel2%)
-WHEN 3
-CASE sel2% OF
-WHEN -1,0 :PROCwindow_open_as_menu_at(selline%,!b%,b%!4) :button%=4
-WHEN 1 :PROCremove
-WHEN 2 :PROCdelete
-WHEN 3 :PROCaddval(3)
-WHEN 4 :PROCclear_select
-ENDCASE
-WHEN 4
-CASE sel2% OF
-WHEN 0 :PROCcut
-WHEN 1 :PROCcopy
-WHEN 2 :PROCcurrent
-WHEN 3 :PROCclip_clear
-ENDCASE
-WHEN 5
-CASE sel2% OF
-WHEN -1,0 :PROCwindow_open_as_menu_at(print%,!b%,b%!4) :button%=4
-WHEN 1 :PROCwindow_open_as_menu_at(printset%,!b%,b%!4) :button%=4
-ENDCASE
-WHEN 6
-!b%=tools%
-SYS "Wimp_GetWindowState",,b%
-IF b%!32 AND 1<<16 THEN
-PROCwindow_close(tools%)
-PROCmenu_set_state(MainMenu%,6,0,0)
-ELSE
-PROCopen_window(tools%)
-PROCmenu_set_state(MainMenu%,6,1,0)
+
+IF reopen% THEN
+	PROCupdate_menu
+	PROCmenu_create(FNmenu_current_handle, 0, 0)
 ENDIF
-WHEN 7
-!b%=enter%
-SYS "Wimp_GetWindowState",,b%
-IF b%!32 AND 1<<16 THEN
-PROCwindow_close(enter%)
-PROCmenu_set_state(MainMenu%,7,0,0)
-ELSE
-!b%=enter%
-SYS "Wimp_GetWindowState",,b%
-!q%=MainWindow%
-SYS "Wimp_GetWindowState",,q%
-b%!4=q%!4+40
-b%!16=q%!8-44
-b%!8=q%!8-236
-b%!12=q%!4+1236
-b%!20=0
-b%!24=0
-b%!28=pane%
-SYS "Wimp_OpenWindow",,b%
-PROCicon_put_caret_at_end(enter%,6)
-PROCmenu_set_state(MainMenu%,7,1,0)
-ENDIF
-WHEN 8
-IF FNmenu_state(MainMenu%,8) THEN
-!b%=pane%
-SYS "Wimp_GetWindowState",,b%
-!q%=MainWindow%
-SYS "Wimp_GetWindowState",,q%
-b%!4=q%!4
-b%!16=q%!16
-b%!8=q%!16-36
-b%!12=q%!12
-b%!20=0
-b%!24=0
-b%!28=q%!28
-SYS "Wimp_OpenWindow",,b%
-PROCmenu_set_state(MainMenu%,8,0,0)
-ELSE
-!b%=pane%
-SYS "Wimp_GetWindowState",,b%
-b%!4=q%!4
-b%!16=q%!16-100
-b%!8=q%!16-136
-b%!12=q%!12
-b%!20=0
-b%!24=0
-b%!28=q%!28
-SYS "Wimp_OpenWindow",,b%
-PROCmenu_set_state(MainMenu%,8,1,0)
-ENDIF
-PROCredraw_main
-PROCset_extent(0)
-ENDCASE
-ENDCASE
-IF button%=1 PROCupdate_menu :PROCmenu_create(FNmenu_current_handle,0,0)
 ENDPROC
 :
 DEF PROCkey_press(key%,whan%,icon%)
@@ -3145,7 +3164,7 @@ ENDPROC
 :
 DEF PROCbuild_menus(resources$)
 DIM mb% 1624
-wmenu%=mb%+1064
+ColourMenu%=mb%+1064
 
 PROCmenu_initialise
 
@@ -3170,7 +3189,7 @@ emenu% = b%!16
 smenu% = b%!20
 cmenu% = b%!24
 pmenu% = b%!28
-wmenu% = b%!32
+ColourMenu% = b%!32
 ENDPROC
 :
 

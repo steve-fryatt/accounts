@@ -60,8 +60,8 @@ menu(main_menu, "Accounts")
 		submenu(main_print_menu);
 		dotted;
 	}
-	item("Show enter ^F1");
 	item("Show tools ‹F1");
+	item("Show enter ^F1");
 	item("Toolbar    ^F2");
 }
 

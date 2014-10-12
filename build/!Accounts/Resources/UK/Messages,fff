@@ -133,12 +133,40 @@ Int0:Accounts %0
 #
 Help.IconBar:This is the Accounts application, a bank accounts manager.|M\SELECTopen the current account.|MClick MENU to display the icon-bar menu.
 Help.Main:\TMain Accounts \w.|MEditing is done via the Enter window.|M\SELECTselect an entry.|MClick MENU to display the main Accounts menu.
-Hlp2:This is the Accounts toolbox.|MThis icon is the Add Entry Icon.|MIt adds an entry to the end of the account.
-Hlp3:This is the Accounts toolbox.|MThis icon is the Insert Above Icon.|MIt inserts an entry above the currently selected line.
-Hlp4:This is the Accounts toolbox.|MThis icon is the Insert Below Icon.|MIt inserts an entry below the currently selected line.
-Hlp5:This is the Accounts toolbox.|MThis icon is the Modify Selection Icon.|MIt modifies the currently selected line.
-Hlp6:This is the Accounts toolbox.|MThis icon is the Delete Selection Icon.|MIt deletes the currently selected line.
-Hlp7:This is the Accounts toolbox.|MIt provides some of the more common features of Accounts.
+Help.TBox.Add:\TAccounts toolbox.|MThis icon is the Add Entry Icon.|MIt adds an entry to the end of the account.
+Help.TBox.InsUp:\TAccounts toolbox.|MThis icon is the Insert Above Icon.|MIt inserts an entry above the currently selected line.
+Help.TBox.InsDown:\Ttoolbox.|MThis icon is the Insert Below Icon.|MIt inserts an entry below the currently selected line.
+Help.TBox.Modify:\TAccounts toolbox.|MThis icon is the Modify Selection Icon.|MIt modifies the currently selected line.
+Help.TBox.Delete:\TAccounts toolbox.|MThis icon is the Delete Selection Icon.|MIt deletes the currently selected line.
+Help.TBox:\TAccounts toolbox.|MIt provides some of the more common features of Accounts.
+Help.TBar.Title:\Tmain Accounts window.|MYou are now over the column titles.
+Help.TBar.Add:\TTool-bar.|M\Tadd entry icon.|M\Sto add the contents of the enter window to the end of the account.
+Help.TBar.InsUp:\TTool-bar.|M\Tinsert above icon.|M\Sto insert the contents of the enter window above the selected line.
+Help.TBar.InsDown:\TTool-bar.|M\Tinsert below icon.|M\Sto insert the contents of the enter window below the selected line.
+Help.TBar.Modify:\TTool-bar.|M\Tmodify icon.|M\Sto updaye the selected line with the contents of the enter window.
+Help.TBar.Delete:\TTool-bar.|M\Tdelete icon.|M\Sto delete the selected line from the account.
+Help.TBar.Cut:\TTool-bar.|M\Tcut icon.|M\Sto cut the selected line to the clip-board.
+Help.TBar.Copy:\TTool-bar.|M\Tcopy icon.|M\Sto copy the selected line to the clip-board.
+Help.TBar.Clear:\TTool-bar.|M\Tclear selection icon.|M\Sto clear the selected line.
+Help.TBar.File:\TTool-bar.|M\Tfiling icon.|M\Sto open the save account window.|MDouble-click to open the export CSV window.
+Help.TBar.Find:\TTool-bar.|M\Tsearch icon.|M\Sto open the find and replace window.
+Help.TBar.Goto:\TTool-bar.|M\Tgoto icon.|M\Sto open the goto window.
+Help.TBar.GotoSel:\TTool-bar.|M\Tgoto selection icon.|M\Sto go to the selected line.
+Help.TBar.Head:\TTool-bar.|M\Tnew header icon.|M\Sto insert a new initial balance for this account.
+Help.TBar.Print:\TTool-bar.|M\Tprinting icon.|M\Sto open the print window.|MDouble-click to open the print set up window.
+Help.SLine:\TSelect Line \w.|MIt allows you to selct a line from the keyboard.
+Help.SLine.Line:\TSelect Line \w.|MEnter the line you wish to select here.
+Help.SLine.OK:\TSelect Line \w.|M\Sselect the line.
+Help.Head:\TNew Header \w.|MIt allows you to enter a new initial balance for the account.
+Help.Head.Value:\TNew Header \w.|MEnter a new value for the initial balance here.|M\Sget the caret.
+Help.Head.OK:\TNew Header \w.|M\Sinsert the new value.
+Help.Head.Cancel:\TNew Header \w.|M\Scancel the action.
+Help.Goto:\TGoto Line \w.|MIt allows you to go to any line in the account.
+Help.Goto.Line:\TGoto Line \w.|MEnter the line you wish to go to, in the range 1-1000.|M\Sget the caret.
+Help.Goto.OK:\TGoto Line \w.|M\Sgo to the line shown.
+
+
+
 Hlp8:This is the Accounts Enter window.|MThis icon selects the current line for all input functions.
 Hlp9:This is the Accounts Enter window.|MThis icon selects the Clip-Board for all input functions.
 Hlp10:This is the Accounts Enter window.|MThis column allows you to enter new descriptions.|MClick in any of the white boxes to give Accounts input-focus.
@@ -154,9 +182,6 @@ Hlp19:This is the Accounts Enter window.|MThis icon lets you enter a new descrip
 Hlp20:This is the Accounts Enter window.|MThis icon lets you enter a new credit on the clip_board.|MClick here to gain the caret.|MPressing RETURN moves to the next field.
 Hlp21:This is the Accounts Enter window.|MThis icon lets you enter a new payment on the clip_board.|MClick here to gain the caret.|MPressing RETURN adds this line to the end of the account.
 Hlp22:This is the Accounts Enter window.|MIt allows you to add new entries to the current account.|MIt also contains the clip-board.|MClick in any of the white boxes to give Accounts input-focus.
-Hlp23:This is the Goto Line window.|MEnter the line you wish to go to, in the range 1-1000.|MClick here to get the caret.
-Hlp24:This is the Goto Line window.|MClick here to go to the line shown.
-Hlp25:This is the Goto Line window.|MIt allows you to go to any line in the account.
 Hlp26:This is the Find window.|MType in the string that you wish to search for.|MClick here to get the caret.
 Hlp27:This is the Find window.|MThis icon toggles case sensitivity on and off.
 Hlp28:This is the Find window.|MThis icon sets find to search for a sub-string within a description.
@@ -169,10 +194,6 @@ Hlp34:This is the Found window.|MThis icon displays the line at wich the match w
 Hlp35:This is the Found window.|MClick here to continue the search.
 Hlp36:This is the Found window.|MClick here to end the search.
 Hlp37:This is the Found window.|MIt shows information about the match found.
-Hlp38:This is the New Header window.|MEnter a new value fro the initial balance here.|MClick here to get the caret.
-Hlp39:This is the New Header window.|MClick here to insert the new value.
-Hlp40:This is the New Header window.|MClick here to cancel the action.
-Hlp41:This is the New Header window.|MIt allows you to enter a new initial balance for the account.
 Hlp42:This is the Save window.|MDrag this icon to a director viewer to save the account.
 Hlp43:This is the Save window.|MType the file-name in here.
 Hlp44:This is the Save window.|MClick here if the file-name has a full path-name to save.
@@ -306,15 +327,11 @@ Hlp170:This is the Preferences window.|MThis sets the colour used for the unused
 Hlp171:This is the Preferences window.|MThis section contains miscellaneous options.
 Hlp172:This is the Preferences window.|MSet this to make pressing F3 the same as clicking on 'OK' in the Save as: window, rather than just opening this window.
 Hlp173:This is the Preferences window.|MThis scrolling section contains all of the options, divided into sections.
-Hlp174:This is the Select Line window.|MEnter the line you wish to select here.
-Hlp175:This is the Select Line window.|MClick here to select the line.
-Hlp176:This is the Select Line window.|MIt allows you to selct a line from the keyboard.
 Hlp177:This is the main Accounts window.|MYou are now over the entry numbers.
 Hlp178:This is the main Accounts window.|MYou are now over the description column.
 Hlp179:This is the main Accounts window.|MYou are now over the credit column.
 Hlp180:This is the main Accounts window.|MYou are now over the payment column.
 Hlp181:This is the main Accounts window.|MYou are now over the balance column.
-Hlp182:This is the main Accounts window.|MYou are now over the column titles.
 Hlp183:This is the Find window.|MUse this section to set the search options.
 Hlp184:This is the Preferences window.|MClick here to open a menu containing all the colours that can be used for the entries.
 Hlp185:This is the Preferences window.|MClick here to open a menu containing all the colours that can be used for the row numbers.
@@ -322,20 +339,6 @@ Hlp186:This is the Preferences window.|MClick here to open a menu containing all
 Hlp187:This is the Preferences window.|MClick here to open a menu containing all the colours that can be used for the unused lines.
 Hlp188:This is the Accounts application, a bank accounts manager.|MThere is no help avaliable for this window.
 Hlp189:This is the Preferences window.|MSet this to turn the tool-bar at the top of the main window on or off.
-Hlp190:This is the Tool-bar.|MThis is the add entry icon.|MClick to add the contents of the enter window to the end of the account.
-Hlp191:This is the Tool-bar.|MThis is the insert above icon.|MClick to insert the contents of the enter window above the selected line.
-Hlp192:This is the Tool-bar.|MThis is the insert below icon.|MClick to insert the contents of the enter window below the selected line.
-Hlp193:This is the Tool-bar.|MThis is the modify icon.|MClick to updaye the selected line with the contents of the enter window.
-Hlp194:This is the Tool-bar.|MThis is the delete icon.|MClick to delete the selected line from the account.
-Hlp195:This is the Tool-bar.|MThis is the cut icon.|MClick to cut the selected line to the clip-board.
-Hlp196:This is the Tool-bar.|MThis is the copy icon.|MClick to copy the selected line to the clip-board.
-Hlp197:This is the Tool-bar.|MThis is the clear selection icon.|MClick to clear the selected line.
-Hlp198:This is the Tool-bar.|MThis is the filing icon.|MClick to open the save account window.|MDouble-click to open the export CSV window.
-Hlp199:This is the Tool-bar.|MThis is the search icon.|MClick to open the find and replace window.
-Hlp200:This is the Tool-bar.|MThis is the goto icon.|MClick to open the goto window.
-Hlp201:This is the Tool-bar.|MThis is the goto selection icon.|MClick to go to the selected line.
-Hlp202:This is the Tool-bar.|MThis is the new header icon.|MClick to insert a new initial balance for this account.
-Hlp203:This is the Tool-bar.|MThis is the printing icon.|MClick to open the print window.|MDouble-click to open the print set up window.
 Hlp204:This is the Tool-bar.|MIt contains icons to access many of the features of Accounts.|MOptions that are greyed out are only available when there is a selection.
 
 Help.IconBarMenu.00:\Rto see information about Accounts and visit its website.

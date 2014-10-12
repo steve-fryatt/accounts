@@ -77,7 +77,7 @@ WHEN 2
 	SYS "Wimp_OpenWindow",,b%
 	IF !b% = MainWindow% OR !b% = prefs% THEN
 		IF !b% = MainWindow% THEN
-			!q% = pane%
+			!q% = TBarWindow%
 			SYS "Wimp_GetWindowState",,q%
 			q%!4 = b%!4
 			q%!16 = b%!16
@@ -99,11 +99,11 @@ WHEN 2
 				q%!12 = b%!4 + 1236
 				q%!20 = 0
 				q%!24 = 0
-				q%!28 = pane%
+				q%!28 = TBarWindow%
 				SYS "Wimp_OpenWindow",,q%
 				b%!28 = enter%
 			ELSE
-				b%!28 = pane%
+				b%!28 = TBarWindow%
 			ENDIF
 			SYS "Wimp_OpenWindow",,b%
 		ELSE
@@ -125,8 +125,8 @@ WHEN 3
 	SYS "Wimp_CloseWindow",,b%
 	IF !b% = MainWindow% THEN
 		PROCwindow_close(enter%)
-		PROCwindow_close(tools%)
-		PROCwindow_close(pane%)
+		PROCwindow_close(TBoxWindow%)
+		PROCwindow_close(TBarWindow%)
 	ENDIF
 	IF !b% = prefs% THEN PROCwindow_close(prefspane%)
 WHEN 6
@@ -176,7 +176,7 @@ WHEN -2
 			PROCopen_window(enter%)
 			PROCicon_put_caret_at_end(enter%, 6)
 		ENDIF
-		IF FNmenu_state(MainMenu%, 6) THEN PROCopen_window(tools%)
+		IF FNmenu_state(MainMenu%, 6) THEN PROCopen_window(TBoxWindow%)
 	ENDCASE
 
 WHEN InfoWindow%
@@ -185,7 +185,7 @@ WHEN InfoWindow%
 		PROCmenu_create(-1,0,0)
 	ENDIF
 
-WHEN tools%
+WHEN TBoxWindow%
 CASE button% OF
 WHEN 1,4
 CASE icon% OF
@@ -195,7 +195,7 @@ ENDCASE
 WHEN 2 :PROCupdate_menu
 PROCmenu_create(MainMenu%,!b%,b%!4)
 ENDCASE
-WHEN pane%
+WHEN TBarWindow%
 CASE button% OF
 WHEN 1,4
 CASE icon% OF
@@ -206,9 +206,9 @@ WHEN 7       :PROCcopy
 WHEN 8       :PROCclear_select
 WHEN 9       :PROCwindow_open_as_menu_at(csv%,!b%,b%!4)
 WHEN 10      :PROCwindow_open_as_menu_at(find%,!b%,b%!4)
-WHEN 11      :PROCwindow_open_as_menu_at(goto%,!b%,b%!4)
+WHEN 11      :PROCwindow_open_as_menu_at(GotoWindow%,!b%,b%!4)
 WHEN 12      :PROCgoto_selection
-WHEN 13      :PROCwindow_open_as_menu_at(newhead%,!b%,b%!4)
+WHEN 13      :PROCwindow_open_as_menu_at(HeadWindow%,!b%,b%!4)
 WHEN 14      :PROCwindow_open_as_menu_at(printset%,!b%,b%!4)
 ENDCASE
 WHEN 256,1024
@@ -367,9 +367,9 @@ PROCmenu_create(-1,0,0)
 WHEN 12
 PROCmenu_create(-1,0,0)
 ENDCASE
-WHEN goto%
+WHEN GotoWindow%
 IF icon%=1 PROCgoto
-WHEN selline%
+WHEN SLineWindow%
 IF icon%=1 PROCkey_select
 WHEN find%
 CASE icon% OF
@@ -390,7 +390,7 @@ PROCclear_button(foundw%,6)
 PROCclear_button(foundw%,7)
 $foundtext%=""
 ENDCASE
-WHEN newhead%
+WHEN HeadWindow%
 CASE icon% OF
 WHEN 2 :PROCnew_header
 WHEN 3 :PROCmenu_create(-1,0,0)
@@ -524,8 +524,8 @@ WHEN MainMenu%
 			WHEN 0 :PROCwindow_open_as_menu_at(InfoWindow%,!b%,b%!4) : reopen% = FALSE
 			WHEN 1 :PROCwindow_open_as_menu_at(fileinf%,!b%,b%!4) : reopen% = FALSE
 			WHEN 2 :PROCwindow_open_as_menu_at(find%,!b%,b%!4) : reopen% = FALSE
-			WHEN 3 :PROCwindow_open_as_menu_at(goto%,!b%,b%!4) : reopen% = FALSE
-			WHEN 4 :PROCwindow_open_as_menu_at(newhead%,!b%,b%!4) : reopen% = FALSE
+			WHEN 3 :PROCwindow_open_as_menu_at(GotoWindow%,!b%,b%!4) : reopen% = FALSE
+			WHEN 4 :PROCwindow_open_as_menu_at(HeadWindow%,!b%,b%!4) : reopen% = FALSE
 			WHEN 5 :PROCclear
 		ENDCASE
 	WHEN 1
@@ -538,7 +538,7 @@ WHEN MainMenu%
 		IF b%!4 > -1 THEN PROCaddval(b%!4)
 	WHEN 3
 		CASE b%!4 OF
-			WHEN -1,0 : PROCwindow_open_as_menu_at(selline%,!b%,b%!4) : reopen% = FALSE
+			WHEN -1,0 : PROCwindow_open_as_menu_at(SLineWindow%,!b%,b%!4) : reopen% = FALSE
 			WHEN 1 :PROCremove
 			WHEN 2 :PROCdelete
 			WHEN 3 :PROCaddval(3)
@@ -557,13 +557,13 @@ WHEN MainMenu%
 			WHEN 1 :PROCwindow_open_as_menu_at(printset%,!b%,b%!4) : reopen% = FALSE
 		ENDCASE
 	WHEN 6
-		!b%=tools%
+		!b%=TBoxWindow%
 		SYS "Wimp_GetWindowState",,b%
 		IF b%!32 AND 1<<16 THEN
-			PROCwindow_close(tools%)
+			PROCwindow_close(TBoxWindow%)
 			PROCmenu_set_state(MainMenu%,6,0,0)
 		ELSE
-			PROCopen_window(tools%)
+			PROCopen_window(TBoxWindow%)
 			PROCmenu_set_state(MainMenu%,6,1,0)
 		ENDIF
 	WHEN 7
@@ -583,14 +583,14 @@ WHEN MainMenu%
 			b%!12=q%!4+1236
 			b%!20=0
 			b%!24=0
-			b%!28=pane%
+			b%!28=TBarWindow%
 			SYS "Wimp_OpenWindow",,b%
 			PROCicon_put_caret_at_end(enter%,6)
 			PROCmenu_set_state(MainMenu%,7,1,0)
 		ENDIF
 	WHEN 8
 		IF FNmenu_state(MainMenu%,8) THEN
-			!b%=pane%
+			!b%=TBarWindow%
 			SYS "Wimp_GetWindowState",,b%
 			!q%=MainWindow%
 			SYS "Wimp_GetWindowState",,q%
@@ -604,7 +604,7 @@ WHEN MainMenu%
 			SYS "Wimp_OpenWindow",,b%
 			PROCmenu_set_state(MainMenu%,8,0,0)
 		ELSE
-			!b%=pane%
+			!b%=TBarWindow%
 			SYS "Wimp_GetWindowState",,b%
 			b%!4=q%!4
 			b%!16=q%!16-100
@@ -638,9 +638,9 @@ WHEN save%      :PROCquick_save(file%)
 WHEN text%      :PROCquick_save(tfile%)
 WHEN csv%       :PROCquick_save(cfile%)
 WHEN find%      :PROCfind(TRUE,FALSE,FALSE)
-WHEN newhead%   :PROCnew_header
-WHEN goto%      :PROCgoto
-WHEN selline%   :PROCkey_select
+WHEN HeadWindow%   :PROCnew_header
+WHEN GotoWindow%      :PROCgoto
+WHEN SLineWindow%   :PROCkey_select
 WHEN print%     :PROCprint
 WHEN printset%  :PROCset_printcodes
 WHEN prefspane% :PROCsave_prefs(FALSE)
@@ -675,13 +675,13 @@ WHEN &180 :PROCwindow_open_as_menu_at(print%,!b%,b%!4)
 WHEN &190 :PROCwindow_open_as_menu_at(printset%,!b%,b%!4)
 WHEN &181 :PROCaddval(0)
 WHEN &191
-!b%=tools%
+!b%=TBoxWindow%
 SYS "Wimp_GetWindowState",,b%
 IF b%!32 AND 1<<16 THEN
-PROCwindow_close(tools%)
+PROCwindow_close(TBoxWindow%)
 PROCmenu_set_state(MainMenu%,6,0,0)
 ELSE
-PROCopen_window(tools%)
+PROCopen_window(TBoxWindow%)
 PROCmenu_set_state(MainMenu%,6,1,0)
 ENDIF
 WHEN &1A1
@@ -704,14 +704,14 @@ b%!8=q%!8-206+over%
 b%!12=q%!4+1238
 b%!20=0
 b%!24=0
-b%!28=pane%
+b%!28=TBarWindow%
 SYS "Wimp_OpenWindow",,b%
 PROCicon_put_caret_at_end(enter%,6)
 PROCmenu_set_state(MainMenu%,7,1,0)
 ENDIF
 WHEN &1A2
 IF FNmenu_state(MainMenu%,8) THEN
-!b%=pane%
+!b%=TBarWindow%
 SYS "Wimp_GetWindowState",,b%
 !q%=MainWindow%
 SYS "Wimp_GetWindowState",,q%
@@ -725,7 +725,7 @@ b%!28=q%!28
 SYS "Wimp_OpenWindow",,b%
 PROCmenu_set_state(MainMenu%,8,0,0)
 ELSE
-!b%=pane%
+!b%=TBarWindow%
 SYS "Wimp_GetWindowState",,b%
 b%!4=q%!4
 b%!16=q%!16
@@ -749,7 +749,7 @@ ENDIF
 WHEN &193      :PROCwindow_open_as_menu_at(text%,!b%,b%!4)
 WHEN &1A3      :PROCwindow_open_as_menu_at(csv%,!b%,b%!4)
 WHEN &184      :PROCwindow_open_as_menu_at(find%,!b%,b%!4)
-WHEN &194      :PROCwindow_open_as_menu_at(selline%,!b%,b%!4)
+WHEN &194      :PROCwindow_open_as_menu_at(SLineWindow%,!b%,b%!4)
 WHEN &185,24   :PROCdelete
 WHEN &195      :PROCremove
 WHEN &186      :PROCaddval(3)
@@ -790,8 +790,8 @@ WHEN 11,12 :PROCicon_put_caret_at_end(enter%,13)
 ENDCASE
 ENDIF
 WHEN &1A9 :PROCclear
-WHEN &1CA :PROCwindow_open_as_menu_at(goto%,!b%,b%!4)
-WHEN &1CB :PROCwindow_open_as_menu_at(newhead%,!b%,b%!4)
+WHEN &1CA :PROCwindow_open_as_menu_at(GotoWindow%,!b%,b%!4)
+WHEN &1CB :PROCwindow_open_as_menu_at(HeadWindow%,!b%,b%!4)
 WHEN &18E
 CASE whan% OF
 WHEN enter% :PROCline_down
@@ -1454,18 +1454,18 @@ PROCmenu_set_state(smenu%,1,0,1)
 PROCmenu_set_state(smenu%,2,0,1)
 PROCmenu_set_state(smenu%,3,0,1)
 PROCmenu_set_state(smenu%,4,0,1)
-PROCicon_set_state(tools%,1,0,1,0)
-PROCicon_set_state(tools%,2,0,1,0)
-PROCicon_set_state(tools%,3,0,1,0)
-PROCicon_set_state(tools%,4,0,1,0)
-PROCicon_set_state(pane%,2,0,1,0)
-PROCicon_set_state(pane%,3,0,1,0)
-PROCicon_set_state(pane%,4,0,1,0)
-PROCicon_set_state(pane%,5,0,1,0)
-PROCicon_set_state(pane%,6,0,1,0)
-PROCicon_set_state(pane%,7,0,1,0)
-PROCicon_set_state(pane%,8,0,1,0)
-PROCicon_set_state(pane%,12,0,1,0)
+PROCicon_set_state(TBoxWindow%,1,0,1,0)
+PROCicon_set_state(TBoxWindow%,2,0,1,0)
+PROCicon_set_state(TBoxWindow%,3,0,1,0)
+PROCicon_set_state(TBoxWindow%,4,0,1,0)
+PROCicon_set_state(TBarWindow%,2,0,1,0)
+PROCicon_set_state(TBarWindow%,3,0,1,0)
+PROCicon_set_state(TBarWindow%,4,0,1,0)
+PROCicon_set_state(TBarWindow%,5,0,1,0)
+PROCicon_set_state(TBarWindow%,6,0,1,0)
+PROCicon_set_state(TBarWindow%,7,0,1,0)
+PROCicon_set_state(TBarWindow%,8,0,1,0)
+PROCicon_set_state(TBarWindow%,12,0,1,0)
 ELSE
 PROCmenu_set_state(cmenu%,0,0,0)
 PROCmenu_set_state(cmenu%,1,0,0)
@@ -1475,18 +1475,18 @@ PROCmenu_set_state(smenu%,1,0,0)
 PROCmenu_set_state(smenu%,2,0,0)
 PROCmenu_set_state(smenu%,3,0,0)
 PROCmenu_set_state(smenu%,4,0,0)
-PROCicon_set_state(tools%,1,0,0,0)
-PROCicon_set_state(tools%,2,0,0,0)
-PROCicon_set_state(tools%,3,0,0,0)
-PROCicon_set_state(tools%,4,0,0,0)
-PROCicon_set_state(pane%,2,0,0,0)
-PROCicon_set_state(pane%,3,0,0,0)
-PROCicon_set_state(pane%,4,0,0,0)
-PROCicon_set_state(pane%,5,0,0,0)
-PROCicon_set_state(pane%,6,0,0,0)
-PROCicon_set_state(pane%,7,0,0,0)
-PROCicon_set_state(pane%,8,0,0,0)
-PROCicon_set_state(pane%,12,0,0,0)
+PROCicon_set_state(TBoxWindow%,1,0,0,0)
+PROCicon_set_state(TBoxWindow%,2,0,0,0)
+PROCicon_set_state(TBoxWindow%,3,0,0,0)
+PROCicon_set_state(TBoxWindow%,4,0,0,0)
+PROCicon_set_state(TBarWindow%,2,0,0,0)
+PROCicon_set_state(TBarWindow%,3,0,0,0)
+PROCicon_set_state(TBarWindow%,4,0,0,0)
+PROCicon_set_state(TBarWindow%,5,0,0,0)
+PROCicon_set_state(TBarWindow%,6,0,0,0)
+PROCicon_set_state(TBarWindow%,7,0,0,0)
+PROCicon_set_state(TBarWindow%,8,0,0,0)
+PROCicon_set_state(TBarWindow%,12,0,0,0)
 ENDIF
 ENDPROC
 :
@@ -1809,7 +1809,7 @@ IF FNmenu_state(MainMenu%,7) THEN
 PROCopen_window(enter%)
 PROCicon_put_caret_at_end(enter%,6)
 ENDIF
-IF FNmenu_state(MainMenu%,6) PROCopen_window(tools%)
+IF FNmenu_state(MainMenu%,6) PROCopen_window(TBoxWindow%)
 PROCicon_set_state(enter%,0,1,0,0)
 PROCicon_set_state(enter%,1,0,0,0)
 ENDPROC
@@ -1933,7 +1933,7 @@ IF FNmenu_state(MainMenu%,7) THEN
 PROCopen_window(enter%)
 PROCicon_put_caret_at_end(enter%,6)
 ENDIF
-IF FNmenu_state(MainMenu%,6) PROCopen_window(tools%)
+IF FNmenu_state(MainMenu%,6) PROCopen_window(TBoxWindow%)
 PROCmenu_create(-1,0,0)
 ENDPROC
 :
@@ -2920,12 +2920,12 @@ b%!0 = InfoWindow%
 b%!4 = InfoWindow%
 b%!8 = fileinf%
 b%!12 = find%
-b%!16 = goto%
-b%!20 = newhead%
+b%!16 = GotoWindow%
+b%!20 = HeadWindow%
 b%!24 = save%
 b%!28 = text%
 b%!32 = csv%
-b%!36 = selline%
+b%!36 = SLineWindow%
 b%!40 = print%
 b%!44 = printset%
 PROCmenu_load_templates(resources$ + "Menus", b%)
@@ -3029,7 +3029,7 @@ $title% = FNmessage_lookup("Untitled")
 SYS "Wimp_CreateWindow",,b% TO MainWindow%
 PROCtemplate_load("Tools", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
-SYS "Wimp_CreateWindow",,b% TO tools%
+SYS "Wimp_CreateWindow",,b% TO TBoxWindow%
 PROCtemplate_load("Enter1", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO enter1%
@@ -3038,13 +3038,13 @@ b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO enter2%
 PROCtemplate_load("TitlePane", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
-SYS "Wimp_CreateWindow",,b% TO pane%
+SYS "Wimp_CreateWindow",,b% TO TBarWindow%
 PROCtemplate_load("Goto", b%, ind_data%, ind_size%, -1)
-SYS "Wimp_CreateWindow",,b% TO goto%
+SYS "Wimp_CreateWindow",,b% TO GotoWindow%
 PROCtemplate_load("Select", b%, ind_data%, ind_size%, -1)
-SYS "Wimp_CreateWindow",,b% TO selline%
+SYS "Wimp_CreateWindow",,b% TO SLineWindow%
 PROCtemplate_load("Header", b%, ind_data%, ind_size%, -1)
-SYS "Wimp_CreateWindow",,b% TO newhead%
+SYS "Wimp_CreateWindow",,b% TO HeadWindow%
 PROCtemplate_load("Print", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO print%
@@ -3122,8 +3122,8 @@ bfilesize%=FNicon_indirection(fileinf%,8)
 units%=FNicon_indirection(fileinf%,4)
 :
 REM Goto
-gotoline%=FNicon_indirection(goto%,0)
-selctline%=FNicon_indirection(selline%,0)
+gotoline%=FNicon_indirection(GotoWindow%,0)
+selctline%=FNicon_indirection(SLineWindow%,0)
 :
 REM Find
 findtext%=FNicon_indirection(find%,1)
@@ -3134,7 +3134,7 @@ foundtext%=FNicon_indirection(foundw%,2)
 foundline%=FNicon_indirection(foundw%,3)
 :
 REM New Header
-header%=FNicon_indirection(newhead%,1)
+header%=FNicon_indirection(HeadWindow%,1)
 :
 REM Save
 file%=FNicon_indirection(save%,1)
@@ -3204,8 +3204,13 @@ REM relevant token name.
 
 CASE message%!32 OF
 	WHEN -2			: root$ = "IconBar"
+	WHEN GotoWindow%	: root$ = "Goto"
+	WHEN HeadWindow%	: root$ = "Head"
 	WHEN MainWindow%	: root$ = "Main"
 	WHEN InfoWindow%	: root$ = "Info"
+	WHEN SLineWindow%	: root$ = "SLine"
+	WHEN TBoxWindow%	: root$ = "TBox"
+	WHEN TBarWindow%	: root$ = "TBar"
 REM	WHEN ChoicesWindow%	: root$ = "Choices"
 	OTHERWISE		: root$ = ""
 ENDCASE
@@ -3252,21 +3257,6 @@ ENDPROC
 
 DEF PROChelp(window%, icon%)
 CASE window% OF
-WHEN tools%
-CASE icon% OF
-WHEN 0
-PROCsend_help(FNmessage_lookup("Hlp2"))
-WHEN 1
-PROCsend_help(FNmessage_lookup("Hlp3"))
-WHEN 2
-PROCsend_help(FNmessage_lookup("Hlp4"))
-WHEN 3
-PROCsend_help(FNmessage_lookup("Hlp5"))
-WHEN 4
-PROCsend_help(FNmessage_lookup("Hlp6"))
-OTHERWISE
-PROCsend_help(FNmessage_lookup("Hlp7"))
-ENDCASE
 WHEN enter%
 CASE icon% OF
 WHEN 0
@@ -3299,15 +3289,6 @@ WHEN 13
 PROCsend_help(FNmessage_lookup("Hlp21"))
 OTHERWISE
 PROCsend_help(FNmessage_lookup("Hlp22"))
-ENDCASE
-WHEN goto%
-CASE icon% OF
-WHEN 0
-PROCsend_help(FNmessage_lookup("Hlp23"))
-WHEN 1
-PROCsend_help(FNmessage_lookup("Hlp24"))
-OTHERWISE
-PROCsend_help(FNmessage_lookup("Hlp25"))
 ENDCASE
 WHEN find%
 CASE icon% OF
@@ -3348,17 +3329,6 @@ WHEN 7
 PROCsend_help(FNmessage_lookup("Hlp123"))
 OTHERWISE
 PROCsend_help(FNmessage_lookup("Hlp37"))
-ENDCASE
-WHEN newhead%
-CASE icon% OF
-WHEN 1
-PROCsend_help(FNmessage_lookup("Hlp38"))
-WHEN 2
-PROCsend_help(FNmessage_lookup("Hlp39"))
-WHEN 3
-PROCsend_help(FNmessage_lookup("Hlp40"))
-OTHERWISE
-PROCsend_help(FNmessage_lookup("Hlp41"))
 ENDCASE
 WHEN save%
 CASE icon% OF
@@ -3652,48 +3622,6 @@ PROCsend_help(FNmessage_lookup("Hlp189"))
 OTHERWISE
 PROCsend_help(FNmessage_lookup("Hlp173"))
 ENDCASE
-WHEN selline%
-CASE icon% OF
-WHEN 0
-PROCsend_help(FNmessage_lookup("Hlp174"))
-WHEN 1
-PROCsend_help(FNmessage_lookup("Hlp175"))
-OTHERWISE
-PROCsend_help(FNmessage_lookup("Hlp176"))
-ENDCASE
-WHEN pane%
-CASE icon% OF
-WHEN 0
-PROCsend_help(FNmessage_lookup("Hlp182"))
-WHEN 1
-PROCsend_help(FNmessage_lookup("Hlp190"))
-WHEN 2
-PROCsend_help(FNmessage_lookup("Hlp191"))
-WHEN 3
-PROCsend_help(FNmessage_lookup("Hlp192"))
-WHEN 4
-PROCsend_help(FNmessage_lookup("Hlp193"))
-WHEN 5
-PROCsend_help(FNmessage_lookup("Hlp194"))
-WHEN 6
-PROCsend_help(FNmessage_lookup("Hlp195"))
-WHEN 7
-PROCsend_help(FNmessage_lookup("Hlp196"))
-WHEN 8
-PROCsend_help(FNmessage_lookup("Hlp197"))
-WHEN 9
-PROCsend_help(FNmessage_lookup("Hlp198"))
-WHEN 10
-PROCsend_help(FNmessage_lookup("Hlp199"))
-WHEN 11
-PROCsend_help(FNmessage_lookup("Hlp200"))
-WHEN 12
-PROCsend_help(FNmessage_lookup("Hlp201"))
-WHEN 13
-PROCsend_help(FNmessage_lookup("Hlp202"))
-WHEN 14
-PROCsend_help(FNmessage_lookup("Hlp203"))
-ENDCASE
 OTHERWISE
 PROCsend_help(FNmessage_lookup("Hlp188"))
 ENDCASE
@@ -3770,7 +3698,7 @@ DEF PROCopen_window(whan%)
 SYS "Wimp_GetWindowState",,b%
 IF !b%=MainWindow% OR !b%=prefs% THEN
 IF !b%=MainWindow% THEN
-!q%=pane%
+!q%=TBarWindow%
 SYS "Wimp_GetWindowState",,q%
 q%!4=b%!4
 q%!16=b%!16
@@ -3792,11 +3720,11 @@ q%!8=b%!8-236+over%
 q%!12=b%!4+1236
 q%!20=0
 q%!24=0
-q%!28=pane%
+q%!28=TBarWindow%
 SYS "Wimp_OpenWindow",,q%
 b%!28=enter%
 ELSE
-b%!28=pane%
+b%!28=TBarWindow%
 ENDIF
 SYS "Wimp_OpenWindow",,b%
 ELSE

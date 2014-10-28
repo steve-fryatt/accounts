@@ -164,6 +164,8 @@ Help.Head.Cancel:\TNew Header \w.|M\Scancel the action.
 Help.Goto:\TGoto Line \w.|MIt allows you to go to any line in the account.
 Help.Goto.Line:\TGoto Line \w.|MEnter the line you wish to go to, in the range 1-1000.|M\Sget the caret.
 Help.Goto.OK:\TGoto Line \w.|M\Sgo to the line shown.
+Help.Info:\Tprogram information \w for the Accounts application.|MIt shows information about your version of Accounts.
+Help.Info.Website:\Tprogram information \w for the Accounts application.|M\Svisit its website for information and updates.
 
 
 
@@ -241,8 +243,6 @@ Hlp85:This is the Print window.|MClick here to toggle the column headings on and
 Hlp86:This is the Print window.|MClick here to start the printer.
 Hlp87:This is the Print window.|MClick here to cancel.
 Hlp88:This is the Print window.|MIt allows you to print your accounts out|Mon a standard Dot-Matrix printer.
-Help.Info:\Tprogram information \w for the Accounts application.|MIt shows information about your version of Accounts.
-Help.Info.Website:\Tprogram information \w for the Accounts application.|M\Svisit its website for information and updates.
 Hlp90:This is the File Info window.|MThis icon shows you if your account has been modified.
 Hlp91:This is the File Info window.|MThis icon shows you how many entries there are in the current account.
 Hlp92:This is the File Info window.|MThis icon shows you the current file size.

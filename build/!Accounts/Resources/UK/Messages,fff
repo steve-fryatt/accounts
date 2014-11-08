@@ -115,7 +115,7 @@ OK3B:Cancel,Clear
 OK4:The current account has not been saved and loading this new file will delete it. Are you sure you wish to load the new file?
 OK4B:Cancel,Load
 OK5:This account has not been saved. Are you sure you wish to quit Accounts?
-OK5B:Cancel,Save
+OK5B:Cancel,Save,Quit
 OK6:This account has not been saved. Are you sure you wish to reset the computer?
 OK6B:Cancel,Save,Reset
 #

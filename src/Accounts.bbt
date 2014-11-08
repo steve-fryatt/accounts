@@ -1754,7 +1754,7 @@ IF b%!20=MainWindow% THENPROCopen_merge_window :mergef$=tf$ :ENDPROC
 err%=0
 IF b%!40=csv_file% THENcsv%=TRUE
 IF modified% THEN err% = FNwimperror_report(FNmessage_lookup("OK4"), 4, 0, FNmessage_lookup("OK4B"))
-IF err%=1 THENENDPROC
+IF err%=1 THEN ENDPROC
 text$()=""
 credit%()=0
 payment%()=0
@@ -2114,11 +2114,11 @@ ENDPROC
 DEF FNsaved
 IF modified% = FALSE THEN =TRUE
 oktoquit% = FNwimperror_report(FNmessage_lookup("OK5"), 4, 0, FNmessage_lookup("OK5B"))
-IF oktoquit% = 1 THEN
+IF oktoquit% = 2 THEN
 	SYS "Wimp_GetPointerInfo",,q%
 	PROCwindow_open_as_menu_at(save%, !q%, q%!4)
 ENDIF
-=(oktoquit%=0)
+=(oktoquit% = 3)
 :
 DEF PROCprint
 LOCAL c%,percent%,s%,top_of_form%,current_line%
@@ -2991,11 +2991,15 @@ b%!12=b%!8
 b%!16=0
 SYS "Wimp_SendMessage",19,b%
 err% = FNwimperror_report(FNmessage_lookup("OK6"), 4, 0, FNmessage_lookup("OK6B"))
-IF err%=0 THEN Quit%=TRUE : RestartShutdown%=TRUE
-IF err%=1 THEN
+CASE err% OF
+WHEN 3
+	Quit% = TRUE
+	RestartShutdown% = TRUE
+
+WHEN 2
 	SYS "Wimp_GetPointerInfo",,q%
 	PROCwindow_open_as_menu_at(save%, !q%, q%!4)
-ENDIF
+ENDCASE
 ENDPROC
 :
 DEF PROCintro

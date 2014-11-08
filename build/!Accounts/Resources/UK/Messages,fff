@@ -166,6 +166,48 @@ Help.Goto.Line:\TGoto Line \w.|MEnter the line you wish to go to, in the range 1
 Help.Goto.OK:\TGoto Line \w.|M\Sgo to the line shown.
 Help.Info:\Tprogram information \w for the Accounts application.|MIt shows information about your version of Accounts.
 Help.Info.Website:\Tprogram information \w for the Accounts application.|M\Svisit its website for information and updates.
+Help.Prefs/Help.PrefsPane:\TPreferences \w.|MIt allows you to set up features of Accounts to suit your own method of working.
+Help.Prefs.Cancel:\TPreferences \w.|M\Sforget any changes made.
+Help.Prefs.Save:\TPreferences \w.|M\Suse the changes made, and save them to disc for future use.
+Help.Prefs.OK:\TPreferences \w.|M\Suse the changes made.
+Help.PrefsPane.Enter:\TPreferences \w.|MThis section relates only to the enter \w.
+Help.PrefsPane.RetCaret:\TPreferences \w.|MSet this to return the caret to the 'descriptions' icon after pressing return in 'payments'.
+Help.PrefsPane.SetClip:\TPreferences \w.|MSet this to make Accounts automatically select the clip-board after you cut or copy a line.
+Help.PrefsPane.JoinMain:\TPreferences \w.|MSet this to join the Enter window to the main one (as a 'pane').|MUnset it to give the Enter window a title bar and allow it to be moved separately.
+Help.PrefsPane.Open:\TPreferences \w.|MThis section sets which windows open by default on clicking on the Accounts icon or loading a file.
+Help.PrefsPane.OpnTBox:\TPreferences \w.|MSet this to open the Toolbox.
+Help.PrefsPane.OpnEnter:\TPreferences \w.|MSet this to open the Enter window/pane.
+Help.PrefsPane.Dates:\TPreferences \w.|MThis section controls the automatic date insetion feature.
+Help.PrefsPane.DFormat:\TPreferences \w.|MThis part controls the format of the date.
+Help.PrefsPane.DFmt1:\TPreferences \w.|MInsert the date in DD/MM/YY format.|M(eg. 28/04/93)
+Help.PrefsPane.DFmt2:\TPreferences \w.|MInsert the date in DD Mmm YY format.|M(eg. 28 Apr 93)
+Help.PrefsPane.DFmt3:\TPreferences \w.|MInsert the date in Mmm DD YY format.|M(eg. Apr 28 93)
+Help.PrefsPane.DOption:\TPreferences \w.|MThis part controls the way the date is inserted.
+Help.PrefsPane.DOptInsT:\TPreferences \w.|MInsert tha date at the caret.
+Help.PrefsPane.DOptOvrw:\TPreferences \w.|MOverwite the text after the caret with the date.
+Help.PrefsPane.DOptInsE:\TPreferences \w.|MInsert the date at the end, pushing the contents of the icon left.
+Help.PrefsPane.DOptOvrwE:\TPreferences \w.|MOverwite the text at the end of the icon with the date.
+Help.PrefsPane.DOptFit:\TPreferences \w.|MApplies only to first two options:|MIf set, makes sure all the date is included, by moving the caret back if it is too close to the end of the line.
+Help.PrefsPane.Colours:\TPreferences \w.|MThis section sets the colours used in the main window.|MAll numbers are as in the WIMP palette.
+Help.PrefsPane.ColEntries:\TPreferences \w.|M\Tcolour used for the entries.
+Help.PrefsPane.ColNums:\TPreferences \w.|M\Tcolour used for the line numbers.
+Help.PrefsPane.ColSel:\TPreferences \w.|M\Tcolour used for the background of the selected line.
+Help.PrefsPane.ColUnused:\TPreferences \w.|M\Tcolour used for the unused lines.
+Help.PrefsPane.ColOverdrawn:\TPreferences \w.|M\Tcolour used for overdrawn entries.
+Help.PrefsPane.ColSEntries:\TPreferences \w.|M\Schange the colour used for the entries.
+Help.PrefsPane.ColSNums:\TPreferences \w.|M\Schange the colour used for row numbers.
+Help.PrefsPane.ColSSel:\TPreferences \w.|M\Schange the colour used for the selected line.
+Help.PrefsPane.ColSUnused:\TPreferences \w.|M\Schange the colour used for unused lines.
+Help.PrefsPane.ColSOverdrawn:\TPreferences \w.|M\Schange the colour used for overdrawn lines.
+Help.PrefsPane.Misc:\TPreferences \w.|MThis section contains miscellaneous options.
+Help.PrefsPane.F3Quick:\TPreferences \w.|MSet this to make pressing F3 the same as clicking on 'OK' in the Save as: \w, rather than just opening this window.
+Help.PrefsPane.Toolbar:\TPreferences \w.|MSet this to turn the tool-bar at the top of the main \w on or off.
+Help.PrefsPane.OutlineFont:\TPreferences \w.|M\Stoggle whether the main \w display uses the System Font or an antialiased font.
+Help.PrefsPane.Home:\TPreferences \w.|MThis section controls the way that the Home key operates.
+Help.PrefsPane.HomeWind:\TPreferences \w.|M\Smake the Home hey return the main \w to the top.
+Help.PrefsPane.HomeCaret:\TPreferences \w.|M\Smake the Home key return the caret to the start of the current field.
+Help.PrefsPane.HomeBoth:\TPreferences \w.|M\Smake the Home key return the main \w to the top and the caret to the start of the current field.
+
 
 
 
@@ -297,48 +339,13 @@ Hlp140:This is the Inport CSV File window.|MThis shows the column used for the p
 Hlp141:This is the Inport CSV File window.|MClick here to cancel the load.
 Hlp142:This is the Inport CSV File window.|MClick here to load the CSV file.
 Hlp143:This is the Inport CSV File window.|MIt allows you to load CSV files into Accounts.
-Hlp144:This is the Preferences window.|MClick here to forget any changes made.
-Hlp145:This is the Preferences window.|MClick here to use the changes made, and save them to disc for future use.
-Hlp146:This is the Preferences window.|MClick here to use the changes made.
-Hlp147:This is the Preferences window.|MIt allows you to set up features of Accounts to suit your own method of working.
-Hlp148:This is the Preferences window.|MThis section relates only to the enter window.
-Hlp149:This is the Preferences window.|MSet this to return the caret to the 'descriptions' icon after pressing return in 'payments'.
-Hlp150:This is the Preferences window.|MSet this to make Accounts automatically select the clip-board after you cut or copy a line.
-Hlp151:This is the Preferences window.|MSet this to join the Enter window to the main one (as a 'pane').|MUnset it to give the Enter window a title bar and allow it to be moved separately.
-Hlp152:This is the Preferences window.|MThis section sets which windows open by default on clicking on the Accounts icon or loading a file.
-Hlp153:This is the Preferences window.|MSet this to open the Toolbox.
-Hlp154:This is the Preferences window.|MSet this to open the Enter window/pane.
-Hlp155:This is the Preferences window.|MThis section controls the automatic date insetion feature.
-Hlp156:This is the Preferences window.|MThis part controls the format of the date.
-Hlp157:This is the Preferences window.|MInsert the date in DD/MM/YY format.|M(eg. 28/04/93)
-Hlp158:This is the Preferences window.|MInsert the date in DD Mmm YY format.|M(eg. 28 Apr 93)
-Hlp159:This is the Preferences window.|MInsert the date in Mmm DD YY format.|M(eg. Apr 28 93)
-Hlp160:This is the Preferences window.|MThis part controls the way the date is inserted.
-Hlp161:This is the Preferences window.|MInsert tha date at the caret.
-Hlp162:This is the Preferences window.|MOverwite the text after the caret with the date.
-Hlp163:This is the Preferences window.|MInsert the date at the end, pushing the contents of the icon left.
-Hlp164:This is the Preferences window.|MOverwite the text at the end of the icon with the date.
-Hlp165:This is the Preferences window.|MApplies only to first two options:|MIf set, makes sure all the date is included, by moving the caret back if it is too close to the end of the line.
-Hlp166:This is the Preferences window.|MThis section sets the colours used in the main window.|MAll numbers are as in the WIMP palette.
-Hlp167:This is the Preferences window.|MThis sets the colour used for the entries.
-Hlp168:This is the Preferences window.|MThis sets the colour used for the line numbers.
-Hlp169:This is the Preferences window.|MThis sets the colour used for the background of the selected line.
-Hlp170:This is the Preferences window.|MThis sets the colour used for the unused lines.
-Hlp171:This is the Preferences window.|MThis section contains miscellaneous options.
-Hlp172:This is the Preferences window.|MSet this to make pressing F3 the same as clicking on 'OK' in the Save as: window, rather than just opening this window.
-Hlp173:This is the Preferences window.|MThis scrolling section contains all of the options, divided into sections.
 Hlp177:This is the main Accounts window.|MYou are now over the entry numbers.
 Hlp178:This is the main Accounts window.|MYou are now over the description column.
 Hlp179:This is the main Accounts window.|MYou are now over the credit column.
 Hlp180:This is the main Accounts window.|MYou are now over the payment column.
 Hlp181:This is the main Accounts window.|MYou are now over the balance column.
 Hlp183:This is the Find window.|MUse this section to set the search options.
-Hlp184:This is the Preferences window.|MClick here to open a menu containing all the colours that can be used for the entries.
-Hlp185:This is the Preferences window.|MClick here to open a menu containing all the colours that can be used for the row numbers.
-Hlp186:This is the Preferences window.|MClick here to open a menu containing all the colours that can be used for the selected line.
-Hlp187:This is the Preferences window.|MClick here to open a menu containing all the colours that can be used for the unused lines.
 Hlp188:This is the Accounts application, a bank accounts manager.|MThere is no help avaliable for this window.
-Hlp189:This is the Preferences window.|MSet this to turn the tool-bar at the top of the main window on or off.
 Hlp204:This is the Tool-bar.|MIt contains icons to access many of the features of Accounts.|MOptions that are greyed out are only available when there is a selection.
 
 Help.IconBarMenu.00:\Rto see information about Accounts and visit its website.

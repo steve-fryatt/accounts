@@ -75,7 +75,7 @@ WHEN 1
 	PROCredraw
 WHEN 2
 	SYS "Wimp_OpenWindow",,b%
-	IF !b% = MainWindow% OR !b% = prefs% THEN
+	IF !b% = MainWindow% OR !b% = PrefsWindow% THEN
 		IF !b% = MainWindow% THEN
 			!q% = TBarWindow%
 			SYS "Wimp_GetWindowState",,q%
@@ -107,7 +107,7 @@ WHEN 2
 			ENDIF
 			SYS "Wimp_OpenWindow",,b%
 		ELSE
-			!q% = prefspane%
+			!q% = PrefsPaneWindow%
 			SYS "Wimp_GetWindowState",,q%
 			q%!4 = b%!4 + 22
 			q%!16 = b%!8 + 402
@@ -115,7 +115,7 @@ WHEN 2
 			q%!12 = b%!4 + 502
 			q%!28 = b%!28
 			SYS "Wimp_OpenWindow",,q%
-			b%!28 = prefspane%
+			b%!28 = PrefsPaneWindow%
 			SYS "Wimp_OpenWindow",,b%
 		ENDIF
 	ELSE
@@ -128,7 +128,7 @@ WHEN 3
 		PROCwindow_close(TBoxWindow%)
 		PROCwindow_close(TBarWindow%)
 	ENDIF
-	IF !b% = prefs% THEN PROCwindow_close(prefspane%)
+	IF !b% = PrefsWindow% THEN PROCwindow_close(PrefsPaneWindow%)
 WHEN 6
 	PROCclick(b%!8, b%!12, b%!16)
 WHEN 7
@@ -415,17 +415,17 @@ ELSE
 IF VAL($page_length%)<999 $page_length%=STR$(VAL($page_length%)+1)
 PROCredraw_part(printset%,220,-68,80,48)
 ENDCASE
-WHEN prefs%
+WHEN PrefsWindow%
 CASE icon% OF
 WHEN 0 :PROCload_dft_prefs(FALSE)
 WHEN 1 :PROCsave_prefs(TRUE)
 WHEN 2 :PROCload_dft_prefs(TRUE)
 WHEN 3 :PROCload_prefs(FALSE)
-PROCwindow_close(prefs%)
-PROCwindow_close(prefspane%)
+PROCwindow_close(PrefsWindow%)
+PROCwindow_close(PrefsPaneWindow%)
 WHEN 4 :PROCsave_prefs(FALSE)
 ENDCASE
-WHEN prefspane%
+WHEN PrefsPaneWindow%
 CASE icon% OF
 WHEN 12,13,14 :PROCcheck_select(window%,icon%)
 WHEN 16,17,18,19 :PROCcheck_select(window%,icon%)
@@ -483,8 +483,8 @@ WHEN IconbarMenu%
 	WHEN 1
 		OSCLI("%Filer_Run <Account$Dir>.!Help")
 	WHEN 2
-		PROCopen_window(prefs%)
-		PROCicon_put_caret_at_end(prefspane%, 23)
+		PROCopen_window(PrefsWindow%)
+		PROCicon_put_caret_at_end(PrefsPaneWindow%, 23)
 	WHEN 3
 		Quit% = FNsaved
 	ENDCASE
@@ -497,23 +497,23 @@ WHEN ColourMenu%
 	CASE prefs_menu% OF
 	WHEN 34
 		$entry_c% = STR$(b%!0)
-		PROCredraw_part(prefspane%, 42, -1352, 50, 48)
+		PROCredraw_part(PrefsPaneWindow%, 42, -1352, 50, 48)
 		PROCmenu_set_state(ColourMenu%, VAL($entry_c%), 1, 0)
 	WHEN 35
 		$numb_c%=STR$(b%!0)
-		PROCredraw_part(prefspane%,42,-1428,50,48)
+		PROCredraw_part(PrefsPaneWindow%,42,-1428,50,48)
 		PROCmenu_set_state(ColourMenu%,VAL($numb_c%),1,0)
 	WHEN 36
 		$sel_c%=STR$(b%!0)
-		PROCredraw_part(prefspane%,42,-1508,50,48)
+		PROCredraw_part(PrefsPaneWindow%,42,-1508,50,48)
 		PROCmenu_set_state(ColourMenu%,VAL($sel_c%),1,0)
 	WHEN 37
 		$unused_c%=STR$(b%!0)
-		PROCredraw_part(prefspane%,42,-1588,50,48)
+		PROCredraw_part(PrefsPaneWindow%,42,-1588,50,48)
 		PROCmenu_set_state(ColourMenu%,VAL($unused_c%),1,0)
 	WHEN 52
 		$overdrawn_c%=STR$(b%!0)
-		PROCredraw_part(prefspane%,42,-1668,50,48)
+		PROCredraw_part(PrefsPaneWindow%,42,-1668,50,48)
 		PROCmenu_set_state(ColourMenu%,VAL($overdrawn_c%),1,0)
 	ENDCASE
 
@@ -643,7 +643,7 @@ WHEN GotoWindow%      :PROCgoto
 WHEN SLineWindow%   :PROCkey_select
 WHEN print%     :PROCprint
 WHEN printset%  :PROCset_printcodes
-WHEN prefspane% :PROCsave_prefs(FALSE)
+WHEN PrefsPaneWindow% :PROCsave_prefs(FALSE)
 WHEN enter%
 CASE icon% OF
 WHEN 6  :PROCicon_put_caret_at_end(enter%,7)
@@ -823,12 +823,12 @@ WHEN 1 :PROCicon_put_caret_at_end(printset%,12)
 WHEN 12,13,14,15,16 :PROCicon_put_caret_at_end(printset%,icon%+1)
 WHEN 17 :PROCicon_put_caret_at_end(printset%,1)
 ENDCASE
-WHEN prefspane%
+WHEN PrefsPaneWindow%
 CASE icon% OF
-WHEN 23 :PROCicon_put_caret_at_end(prefspane%,25)
-WHEN 25 :PROCicon_put_caret_at_end(prefspane%,27)
-WHEN 27 :PROCicon_put_caret_at_end(prefspane%,29)
-WHEN 29 :PROCicon_put_caret_at_end(prefspane%,23)
+WHEN 23 :PROCicon_put_caret_at_end(PrefsPaneWindow%,25)
+WHEN 25 :PROCicon_put_caret_at_end(PrefsPaneWindow%,27)
+WHEN 27 :PROCicon_put_caret_at_end(PrefsPaneWindow%,29)
+WHEN 29 :PROCicon_put_caret_at_end(PrefsPaneWindow%,23)
 ENDCASE
 ENDCASE
 WHEN &18F
@@ -862,12 +862,12 @@ WHEN 1 :PROCicon_put_caret_at_end(printset%,17)
 WHEN 12 :PROCicon_put_caret_at_end(printset%,1)
 WHEN 13,14,15,16,17 :PROCicon_put_caret_at_end(printset%,icon%-1)
 ENDCASE
-WHEN prefspane%
+WHEN PrefsPaneWindow%
 CASE icon% OF
-WHEN 23 :PROCicon_put_caret_at_end(prefspane%,29)
-WHEN 25 :PROCicon_put_caret_at_end(prefspane%,23)
-WHEN 27 :PROCicon_put_caret_at_end(prefspane%,25)
-WHEN 29 :PROCicon_put_caret_at_end(prefspane%,27)
+WHEN 23 :PROCicon_put_caret_at_end(PrefsPaneWindow%,29)
+WHEN 25 :PROCicon_put_caret_at_end(PrefsPaneWindow%,23)
+WHEN 27 :PROCicon_put_caret_at_end(PrefsPaneWindow%,25)
+WHEN 29 :PROCicon_put_caret_at_end(PrefsPaneWindow%,27)
 ENDCASE
 ENDCASE
 WHEN &19E :PROCpage_down
@@ -2270,70 +2270,70 @@ DEF PROCsave_prefs(save_prefs%)
 LOCAL open%,oj%
 oj%=join_main%
 IF save_prefs% THENout%=OPENOUT("<Account$Dir>.Choices")
-IF FNicon_selected(prefspane%,2) THEN
+IF FNicon_selected(PrefsPaneWindow%,2) THEN
 return_caret%=TRUE
 IF save_prefs% THENPRINT#out%,TRUE
 ELSE
 return_caret%=FALSE
 IF save_prefs% THENPRINT#out%,FALSE
 ENDIF
-IF FNicon_selected(prefspane%,3) THEN
+IF FNicon_selected(PrefsPaneWindow%,3) THEN
 set_clip%=TRUE
 IF save_prefs% THENPRINT#out%,TRUE
 ELSE
 set_clip%=FALSE
 IF save_prefs% THENPRINT#out%,FALSE
 ENDIF
-IF FNicon_selected(prefspane%,4) THEN
+IF FNicon_selected(PrefsPaneWindow%,4) THEN
 join_main%=TRUE
 IF save_prefs% THENPRINT#out%,TRUE
 ELSE
 join_main%=FALSE
 IF save_prefs% THENPRINT#out%,FALSE
 ENDIF
-IF FNicon_selected(prefspane%,7) THEN
+IF FNicon_selected(PrefsPaneWindow%,7) THEN
 open_tools%=TRUE
 IF save_prefs% THENPRINT#out%,TRUE
 ELSE
 open_tools%=FALSE
 IF save_prefs% THENPRINT#out%,FALSE
 ENDIF
-IF FNicon_selected(prefspane%,8) THEN
+IF FNicon_selected(PrefsPaneWindow%,8) THEN
 open_enter%=TRUE
 IF save_prefs% THENPRINT#out%,TRUE
 ELSE
 open_enter%=FALSE
 IF save_prefs% THENPRINT#out%,FALSE
 ENDIF
-IF FNicon_selected(prefspane%,12) THEN
+IF FNicon_selected(PrefsPaneWindow%,12) THEN
 date_format%=1
 IF save_prefs% THENPRINT#out%,1
 ENDIF
-IF FNicon_selected(prefspane%,13) THEN
+IF FNicon_selected(PrefsPaneWindow%,13) THEN
 date_format%=2
 IF save_prefs% THENPRINT#out%,2
 ENDIF
-IF FNicon_selected(prefspane%,14) THEN
+IF FNicon_selected(PrefsPaneWindow%,14) THEN
 date_format%=3
 IF save_prefs% THENPRINT#out%,3
 ENDIF
-IF FNicon_selected(prefspane%,16) THEN
+IF FNicon_selected(PrefsPaneWindow%,16) THEN
 date_option%=1
 IF save_prefs% THENPRINT#out%,1
 ENDIF
-IF FNicon_selected(prefspane%,17) THEN
+IF FNicon_selected(PrefsPaneWindow%,17) THEN
 date_option%=2
 IF save_prefs% THENPRINT#out%,2
 ENDIF
-IF FNicon_selected(prefspane%,18) THEN
+IF FNicon_selected(PrefsPaneWindow%,18) THEN
 date_option%=3
 IF save_prefs% THENPRINT#out%,3
 ENDIF
-IF FNicon_selected(prefspane%,19) THEN
+IF FNicon_selected(PrefsPaneWindow%,19) THEN
 date_option%=4
 IF save_prefs% THENPRINT#out%,4
 ENDIF
-IF FNicon_selected(prefspane%,20) THEN
+IF FNicon_selected(PrefsPaneWindow%,20) THEN
 date_fit%=TRUE
 IF save_prefs% THENPRINT#out%,TRUE
 ELSE
@@ -2370,36 +2370,36 @@ IF save_prefs% THENPRINT#out%,colour_overdrawn%
 ELSE
 IF save_prefs% THENPRINT#out%,colour_overdrawn%
 ENDIF
-IF FNicon_selected(prefspane%,33) THEN
+IF FNicon_selected(PrefsPaneWindow%,33) THEN
 F3_qsave%=TRUE
 IF save_prefs% THENPRINT#out%,TRUE
 ELSE
 F3_qsave%=FALSE
 IF save_prefs% THENPRINT#out%,FALSE
 ENDIF
-IF FNicon_selected(prefspane%,43) THEN
+IF FNicon_selected(PrefsPaneWindow%,43) THEN
 IF save_prefs% THENPRINT#out%,TRUE
 open_toolbar%=TRUE
 ELSE
 open_toolbar%=FALSE
 IF save_prefs% THENPRINT#out%,FALSE
 ENDIF
-IF FNicon_selected(prefspane%,53) THEN
+IF FNicon_selected(PrefsPaneWindow%,53) THEN
 IF save_prefs% THENPRINT#out%,TRUE
 use_font%=TRUE
 ELSE
 use_font%=FALSE
 IF save_prefs% THENPRINT#out%,FALSE
 ENDIF
-IF FNicon_selected(prefspane%,47) THEN
+IF FNicon_selected(PrefsPaneWindow%,47) THEN
 home_key%=1
 IF save_prefs% THENPRINT#out%,1
 ENDIF
-IF FNicon_selected(prefspane%,48) THEN
+IF FNicon_selected(PrefsPaneWindow%,48) THEN
 home_key%=2
 IF save_prefs% THENPRINT#out%,2
 ENDIF
-IF FNicon_selected(prefspane%,49) THEN
+IF FNicon_selected(PrefsPaneWindow%,49) THEN
 home_key%=3
 IF save_prefs% THENPRINT#out%,3
 ENDIF
@@ -2457,8 +2457,8 @@ ELSE
 PROCmenu_set_state(MainMenu%,8,0,0)
 ENDIF
 IF open% THENPROCopen_window(MainWindow%) :PROCopen_window(enter%)
-PROCwindow_close(prefspane%)
-PROCwindow_close(prefs%)
+PROCwindow_close(PrefsPaneWindow%)
+PROCwindow_close(PrefsWindow%)
 PROCredraw_main
 ENDPROC
 :
@@ -2468,58 +2468,58 @@ oj%=join_main%
 IF load% THENin%=OPENIN("<Account$Dir>.Choices")
 IF load% THENINPUT#in%,return_caret%
 IF return_caret% THEN
-PROCicon_set_state(prefspane%,2,1,0,0)
+PROCicon_set_state(PrefsPaneWindow%,2,1,0,0)
 ELSE
-PROCicon_set_state(prefspane%,2,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,2,0,0,0)
 ENDIF
 IF load% THENINPUT#in%,set_clip%
 IF set_clip% THEN
-PROCicon_set_state(prefspane%,3,1,0,0)
+PROCicon_set_state(PrefsPaneWindow%,3,1,0,0)
 ELSE
-PROCicon_set_state(prefspane%,3,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,3,0,0,0)
 ENDIF
 IF load% THENINPUT#in%,join_main%
 IF join_main% THEN
-PROCicon_set_state(prefspane%,4,1,0,0)
+PROCicon_set_state(PrefsPaneWindow%,4,1,0,0)
 ELSE
-PROCicon_set_state(prefspane%,4,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,4,0,0,0)
 ENDIF
 IF load% THENINPUT#in%,open_tools%
 IF open_tools% THEN
-PROCicon_set_state(prefspane%,7,1,0,0)
+PROCicon_set_state(PrefsPaneWindow%,7,1,0,0)
 ELSE
-PROCicon_set_state(prefspane%,7,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,7,0,0,0)
 ENDIF
 IF load% THENINPUT#in%,open_enter%
 IF open_enter% THEN
-PROCicon_set_state(prefspane%,8,1,0,0)
+PROCicon_set_state(PrefsPaneWindow%,8,1,0,0)
 ELSE
-PROCicon_set_state(prefspane%,8,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,8,0,0,0)
 ENDIF
 FOR loop%=12 TO 14
-PROCicon_set_state(prefspane%,loop%,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,loop%,0,0,0)
 NEXT loop%
 IF load% THENINPUT#in%,date_format%
 CASE date_format% OF
-WHEN 1 :PROCicon_set_state(prefspane%,12,1,0,0)
-WHEN 2 :PROCicon_set_state(prefspane%,13,1,0,0)
-WHEN 3 :PROCicon_set_state(prefspane%,14,1,0,0)
+WHEN 1 :PROCicon_set_state(PrefsPaneWindow%,12,1,0,0)
+WHEN 2 :PROCicon_set_state(PrefsPaneWindow%,13,1,0,0)
+WHEN 3 :PROCicon_set_state(PrefsPaneWindow%,14,1,0,0)
 ENDCASE
 FOR loop%=16 TO 19
-PROCicon_set_state(prefspane%,loop%,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,loop%,0,0,0)
 NEXT loop%
 IF load% THENINPUT#in%,date_option%
 CASE date_option% OF
-WHEN 1 :PROCicon_set_state(prefspane%,16,1,0,0)
-WHEN 2 :PROCicon_set_state(prefspane%,17,1,0,0)
-WHEN 3 :PROCicon_set_state(prefspane%,18,1,0,0)
-WHEN 4 :PROCicon_set_state(prefspane%,19,1,0,0)
+WHEN 1 :PROCicon_set_state(PrefsPaneWindow%,16,1,0,0)
+WHEN 2 :PROCicon_set_state(PrefsPaneWindow%,17,1,0,0)
+WHEN 3 :PROCicon_set_state(PrefsPaneWindow%,18,1,0,0)
+WHEN 4 :PROCicon_set_state(PrefsPaneWindow%,19,1,0,0)
 ENDCASE
 IF load% THENINPUT#in%,date_fit%
 IF date_fit% THEN
-PROCicon_set_state(prefspane%,20,1,0,0)
+PROCicon_set_state(PrefsPaneWindow%,20,1,0,0)
 ELSE
-PROCicon_set_state(prefspane%,20,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,20,0,0,0)
 ENDIF
 IF load% THENINPUT#in%,colour_entries%
 IF load% THENINPUT#in%,colour_numbers%
@@ -2533,30 +2533,30 @@ $unused_c%=STR$(colour_unused%)
 $overdrawn_c%=STR$(colour_overdrawn%)
 IF load% THENINPUT#in%,F3_qsave%
 IF F3_qsave% THEN
-PROCicon_set_state(prefspane%,33,1,0,0)
+PROCicon_set_state(PrefsPaneWindow%,33,1,0,0)
 ELSE
-PROCicon_set_state(prefspane%,33,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,33,0,0,0)
 ENDIF
 IF load% THENINPUT#in%,open_toolbar%
 IF open_toolbar% THEN
-PROCicon_set_state(prefspane%,43,1,0,0)
+PROCicon_set_state(PrefsPaneWindow%,43,1,0,0)
 ELSE
-PROCicon_set_state(prefspane%,43,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,43,0,0,0)
 ENDIF
 IF load% THENINPUT#in%,use_font%
 IF use_font% THEN
-PROCicon_set_state(prefspane%,53,1,0,0)
+PROCicon_set_state(PrefsPaneWindow%,53,1,0,0)
 ELSE
-PROCicon_set_state(prefspane%,53,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,53,0,0,0)
 ENDIF
 FOR loop%=47 TO 49
-PROCicon_set_state(prefspane%,loop%,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,loop%,0,0,0)
 NEXT loop%
 IF load% THENINPUT#in%,home_key%
 CASE home_key% OF
-WHEN 1 :PROCicon_set_state(prefspane%,47,1,0,0)
-WHEN 2 :PROCicon_set_state(prefspane%,48,1,0,0)
-WHEN 3 :PROCicon_set_state(prefspane%,49,1,0,0)
+WHEN 1 :PROCicon_set_state(PrefsPaneWindow%,47,1,0,0)
+WHEN 2 :PROCicon_set_state(PrefsPaneWindow%,48,1,0,0)
+WHEN 3 :PROCicon_set_state(PrefsPaneWindow%,49,1,0,0)
 ENDCASE
 IF load% THENCLOSE#in%
 !b%=MainWindow%
@@ -2624,58 +2624,58 @@ in%=OPENIN("<Account$Dir>.Choices")
 ENDIF
 INPUT#in%,data%
 IF data% THEN
-PROCicon_set_state(prefspane%,2,1,0,0)
+PROCicon_set_state(PrefsPaneWindow%,2,1,0,0)
 ELSE
-PROCicon_set_state(prefspane%,2,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,2,0,0,0)
 ENDIF
 INPUT#in%,data%
 IF data% THEN
-PROCicon_set_state(prefspane%,3,1,0,0)
+PROCicon_set_state(PrefsPaneWindow%,3,1,0,0)
 ELSE
-PROCicon_set_state(prefspane%,3,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,3,0,0,0)
 ENDIF
 INPUT#in%,data%
 IF data% THEN
-PROCicon_set_state(prefspane%,4,1,0,0)
+PROCicon_set_state(PrefsPaneWindow%,4,1,0,0)
 ELSE
-PROCicon_set_state(prefspane%,4,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,4,0,0,0)
 ENDIF
 INPUT#in%,data%
 IF data% THEN
-PROCicon_set_state(prefspane%,7,1,0,0)
+PROCicon_set_state(PrefsPaneWindow%,7,1,0,0)
 ELSE
-PROCicon_set_state(prefspane%,7,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,7,0,0,0)
 ENDIF
 INPUT#in%,data%
 IF data% THEN
-PROCicon_set_state(prefspane%,8,1,0,0)
+PROCicon_set_state(PrefsPaneWindow%,8,1,0,0)
 ELSE
-PROCicon_set_state(prefspane%,8,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,8,0,0,0)
 ENDIF
 FOR loop%=12 TO 14
-PROCicon_set_state(prefspane%,loop%,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,loop%,0,0,0)
 NEXT loop%
 INPUT#in%,data%
 CASE data% OF
-WHEN 1 :PROCicon_set_state(prefspane%,12,1,0,0)
-WHEN 2 :PROCicon_set_state(prefspane%,13,1,0,0)
-WHEN 3 :PROCicon_set_state(prefspane%,14,1,0,0)
+WHEN 1 :PROCicon_set_state(PrefsPaneWindow%,12,1,0,0)
+WHEN 2 :PROCicon_set_state(PrefsPaneWindow%,13,1,0,0)
+WHEN 3 :PROCicon_set_state(PrefsPaneWindow%,14,1,0,0)
 ENDCASE
 FOR loop%=16 TO 19
-PROCicon_set_state(prefspane%,loop%,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,loop%,0,0,0)
 NEXT loop%
 INPUT#in%,data%
 CASE data% OF
-WHEN 1 :PROCicon_set_state(prefspane%,16,1,0,0)
-WHEN 2 :PROCicon_set_state(prefspane%,17,1,0,0)
-WHEN 3 :PROCicon_set_state(prefspane%,18,1,0,0)
-WHEN 4 :PROCicon_set_state(prefspane%,19,1,0,0)
+WHEN 1 :PROCicon_set_state(PrefsPaneWindow%,16,1,0,0)
+WHEN 2 :PROCicon_set_state(PrefsPaneWindow%,17,1,0,0)
+WHEN 3 :PROCicon_set_state(PrefsPaneWindow%,18,1,0,0)
+WHEN 4 :PROCicon_set_state(PrefsPaneWindow%,19,1,0,0)
 ENDCASE
 INPUT#in%,data%
 IF data% THEN
-PROCicon_set_state(prefspane%,20,1,0,0)
+PROCicon_set_state(PrefsPaneWindow%,20,1,0,0)
 ELSE
-PROCicon_set_state(prefspane%,20,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,20,0,0,0)
 ENDIF
 INPUT#in%,data%
 $entry_c%=STR$(data%)
@@ -2688,35 +2688,35 @@ $unused_c%=STR$(data%)
 INPUT#in%,data%
 $overdrawn_c%=STR$(data%)
 INPUT#in%,data%
-PROCredraw_part(prefspane%,42,-1352,50,48)
-PROCredraw_part(prefspane%,42,-1428,50,48)
-PROCredraw_part(prefspane%,42,-1508,50,48)
-PROCredraw_part(prefspane%,42,-1588,50,48)
+PROCredraw_part(PrefsPaneWindow%,42,-1352,50,48)
+PROCredraw_part(PrefsPaneWindow%,42,-1428,50,48)
+PROCredraw_part(PrefsPaneWindow%,42,-1508,50,48)
+PROCredraw_part(PrefsPaneWindow%,42,-1588,50,48)
 IF data% THEN
-PROCicon_set_state(prefspane%,33,1,0,0)
+PROCicon_set_state(PrefsPaneWindow%,33,1,0,0)
 ELSE
-PROCicon_set_state(prefspane%,33,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,33,0,0,0)
 ENDIF
 INPUT#in%,data%
 IF data% THEN
-PROCicon_set_state(prefspane%,43,1,0,0)
+PROCicon_set_state(PrefsPaneWindow%,43,1,0,0)
 ELSE
-PROCicon_set_state(prefspane%,43,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,43,0,0,0)
 ENDIF
 INPUT#in%,data%
 IF data% THEN
-PROCicon_set_state(prefspane%,53,1,0,0)
+PROCicon_set_state(PrefsPaneWindow%,53,1,0,0)
 ELSE
-PROCicon_set_state(prefspane%,53,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,53,0,0,0)
 ENDIF
 FOR loop%=47 TO 49
-PROCicon_set_state(prefspane%,loop%,0,0,0)
+PROCicon_set_state(PrefsPaneWindow%,loop%,0,0,0)
 NEXT loop%
 INPUT#in%,data%
 CASE data% OF
-WHEN 1 :PROCicon_set_state(prefspane%,47,1,0,0)
-WHEN 2 :PROCicon_set_state(prefspane%,48,1,0,0)
-WHEN 3 :PROCicon_set_state(prefspane%,49,1,0,0)
+WHEN 1 :PROCicon_set_state(PrefsPaneWindow%,47,1,0,0)
+WHEN 2 :PROCicon_set_state(PrefsPaneWindow%,48,1,0,0)
+WHEN 3 :PROCicon_set_state(PrefsPaneWindow%,49,1,0,0)
 ENDCASE
 CLOSE#in%
 ENDPROC
@@ -3067,10 +3067,10 @@ PROCtemplate_load("PrintSetUp", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO printset%
 PROCtemplate_load("Prefs", b%, ind_data%, ind_size%, -1)
-SYS "Wimp_CreateWindow",,b% TO prefs%
+SYS "Wimp_CreateWindow",,b% TO PrefsWindow%
 PROCtemplate_load("PrefsPane", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
-SYS "Wimp_CreateWindow",,b% TO prefspane%
+SYS "Wimp_CreateWindow",,b% TO PrefsPaneWindow%
 PROCtemplate_load("FileInfo", b%, ind_data%, ind_size%, -1)
 SYS "Wimp_CreateWindow",,b% TO fileinf%
 PROCtemplate_load("LoadCSV", b%, ind_data%, ind_size%, -1)
@@ -3173,11 +3173,11 @@ uline_on%=FNicon_indirection(printset%,16)
 uline_off%=FNicon_indirection(printset%,17)
 :
 REM Preferences
-entry_c%=FNicon_indirection(prefspane%,23)
-numb_c%=FNicon_indirection(prefspane%,25)
-sel_c%=FNicon_indirection(prefspane%,27)
-unused_c%=FNicon_indirection(prefspane%,29)
-overdrawn_c%=FNicon_indirection(prefspane%,50)
+entry_c%=FNicon_indirection(PrefsPaneWindow%,23)
+numb_c%=FNicon_indirection(PrefsPaneWindow%,25)
+sel_c%=FNicon_indirection(PrefsPaneWindow%,27)
+unused_c%=FNicon_indirection(PrefsPaneWindow%,29)
+overdrawn_c%=FNicon_indirection(PrefsPaneWindow%,50)
 $entry_c%="7"
 $numb_c%="11"
 $sel_c%="7"
@@ -3208,6 +3208,8 @@ CASE message%!32 OF
 	WHEN HeadWindow%	: root$ = "Head"
 	WHEN MainWindow%	: root$ = "Main"
 	WHEN InfoWindow%	: root$ = "Info"
+	WHEN PrefsWindow%	: root$ = "Prefs"
+	WHEN PrefsPaneWindow%	: root$ = "PrefsPane"
 	WHEN SLineWindow%	: root$ = "SLine"
 	WHEN TBoxWindow%	: root$ = "TBox"
 	WHEN TBarWindow%	: root$ = "TBar"
@@ -3546,82 +3548,6 @@ PROCsend_help(FNmessage_lookup("Hlp142"))
 OTHERWISE
 PROCsend_help(FNmessage_lookup("Hlp143"))
 ENDCASE
-WHEN prefs%
-CASE icon% OF
-WHEN 0
-PROCsend_help(FNmessage_lookup("Hlp144"))
-WHEN 1
-PROCsend_help(FNmessage_lookup("Hlp145"))
-WHEN 2
-PROCsend_help(FNmessage_lookup("Hlp146"))
-OTHERWISE
-PROCsend_help(FNmessage_lookup("Hlp147"))
-ENDCASE
-WHEN prefspane%
-CASE icon% OF
-WHEN 0,1
-PROCsend_help(FNmessage_lookup("Hlp148"))
-WHEN 2
-PROCsend_help(FNmessage_lookup("Hlp149"))
-WHEN 3
-PROCsend_help(FNmessage_lookup("Hlp150"))
-WHEN 4
-PROCsend_help(FNmessage_lookup("Hlp151"))
-WHEN 5,6
-PROCsend_help(FNmessage_lookup("Hlp152"))
-WHEN 7
-PROCsend_help(FNmessage_lookup("Hlp153"))
-WHEN 8
-PROCsend_help(FNmessage_lookup("Hlp154"))
-WHEN 9,10
-PROCsend_help(FNmessage_lookup("Hlp155"))
-WHEN 11
-PROCsend_help(FNmessage_lookup("Hlp156"))
-WHEN 12
-PROCsend_help(FNmessage_lookup("Hlp157"))
-WHEN 13
-PROCsend_help(FNmessage_lookup("Hlp158"))
-WHEN 14
-PROCsend_help(FNmessage_lookup("Hlp159"))
-WHEN 15
-PROCsend_help(FNmessage_lookup("Hlp160"))
-WHEN 16
-PROCsend_help(FNmessage_lookup("Hlp161"))
-WHEN 17
-PROCsend_help(FNmessage_lookup("Hlp162"))
-WHEN 18
-PROCsend_help(FNmessage_lookup("Hlp163"))
-WHEN 19
-PROCsend_help(FNmessage_lookup("Hlp164"))
-WHEN 20
-PROCsend_help(FNmessage_lookup("Hlp165"))
-WHEN 21,22
-PROCsend_help(FNmessage_lookup("Hlp166"))
-WHEN 23,24
-PROCsend_help(FNmessage_lookup("Hlp167"))
-WHEN 25,26
-PROCsend_help(FNmessage_lookup("Hlp168"))
-WHEN 27,28
-PROCsend_help(FNmessage_lookup("Hlp169"))
-WHEN 29,30
-PROCsend_help(FNmessage_lookup("Hlp170"))
-WHEN 31,32
-PROCsend_help(FNmessage_lookup("Hlp171"))
-WHEN 33
-PROCsend_help(FNmessage_lookup("Hlp172"))
-WHEN 34
-PROCsend_help(FNmessage_lookup("Hlp184"))
-WHEN 35
-PROCsend_help(FNmessage_lookup("Hlp185"))
-WHEN 36
-PROCsend_help(FNmessage_lookup("Hlp186"))
-WHEN 37
-PROCsend_help(FNmessage_lookup("Hlp187"))
-WHEN 43
-PROCsend_help(FNmessage_lookup("Hlp189"))
-OTHERWISE
-PROCsend_help(FNmessage_lookup("Hlp173"))
-ENDCASE
 OTHERWISE
 PROCsend_help(FNmessage_lookup("Hlp188"))
 ENDCASE
@@ -3696,7 +3622,7 @@ ENDPROC
 DEF PROCopen_window(whan%)
 !b%=whan%
 SYS "Wimp_GetWindowState",,b%
-IF !b%=MainWindow% OR !b%=prefs% THEN
+IF !b%=MainWindow% OR !b%=PrefsWindow% THEN
 IF !b%=MainWindow% THEN
 !q%=TBarWindow%
 SYS "Wimp_GetWindowState",,q%
@@ -3728,7 +3654,7 @@ b%!28=TBarWindow%
 ENDIF
 SYS "Wimp_OpenWindow",,b%
 ELSE
-!q%=prefspane%
+!q%=PrefsPaneWindow%
 SYS "Wimp_GetWindowState",,q%
 q%!4=b%!4+22
 q%!16=b%!8+402
@@ -3738,7 +3664,7 @@ q%!20=0
 q%!24=0
 q%!28=b%!28
 SYS "Wimp_OpenWindow",,q%
-b%!28=prefspane%
+b%!28=PrefsPaneWindow%
 SYS "Wimp_OpenWindow",,b%
 ENDIF
 ELSE

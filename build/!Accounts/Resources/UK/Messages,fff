@@ -207,6 +207,11 @@ Help.PrefsPane.Home:\TPreferences \w.|MThis section controls the way that the Ho
 Help.PrefsPane.HomeWind:\TPreferences \w.|M\Smake the Home hey return the main \w to the top.
 Help.PrefsPane.HomeCaret:\TPreferences \w.|M\Smake the Home key return the caret to the start of the current field.
 Help.PrefsPane.HomeBoth:\TPreferences \w.|M\Smake the Home key return the main \w to the top and the caret to the start of the current field.
+Help.FileInfo:\TFile Info \w.|MIt shows inforamtion about the current account.
+Help.FileInfo.Modified:\TFile Info \w.|MThis icon shows you if your account has been modified.
+Help.FileInfo.Entries:\TFile Info \w.|MThis icon shows you how many entries there are in the current account.
+Help.FileInfo.Size:\TFile Info \w.|MThis icon shows you the current file size.
+Help.FileInfo.Name:\TFile Info \w.|MThis icon shows you the current file name.
 
 
 
@@ -285,12 +290,6 @@ Hlp85:This is the Print window.|MClick here to toggle the column headings on and
 Hlp86:This is the Print window.|MClick here to start the printer.
 Hlp87:This is the Print window.|MClick here to cancel.
 Hlp88:This is the Print window.|MIt allows you to print your accounts out|Mon a standard Dot-Matrix printer.
-Hlp90:This is the File Info window.|MThis icon shows you if your account has been modified.
-Hlp91:This is the File Info window.|MThis icon shows you how many entries there are in the current account.
-Hlp92:This is the File Info window.|MThis icon shows you the current file size.
-Hlp93:This is the File Info window.|MThis icon shows you the current file name.
-Hlp94:This is the File Info window.|MIt shows inforamtion about the current account.
-Hlp95:This is the Accounts Error Window.|MIt is warning you of a mistake that you have made.|MMake your choice from the icons on the right.|MThe pointer cannot leave the window.
 Hlp96:This is the Printer Set Up window.|MThis section allows you to specify the number of lines that your printer|Mcan use on a page.
 Hlp97:This is the Printer Set Up window.|MThis section allows you to specify the number of lines that your printer|Mcan use on a page.|MType the number into this box.
 Hlp98:This is the Printer Set Up window.|MThis section allows you to specify the number of lines that your printer|Mcan use on a page.

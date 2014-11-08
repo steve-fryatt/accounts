@@ -522,7 +522,7 @@ WHEN MainMenu%
 	WHEN 0
 		CASE b%!4 OF
 			WHEN 0 :PROCwindow_open_as_menu_at(InfoWindow%,!b%,b%!4) : reopen% = FALSE
-			WHEN 1 :PROCwindow_open_as_menu_at(fileinf%,!b%,b%!4) : reopen% = FALSE
+			WHEN 1 :PROCwindow_open_as_menu_at(FileInfoWindow%,!b%,b%!4) : reopen% = FALSE
 			WHEN 2 :PROCwindow_open_as_menu_at(find%,!b%,b%!4) : reopen% = FALSE
 			WHEN 3 :PROCwindow_open_as_menu_at(GotoWindow%,!b%,b%!4) : reopen% = FALSE
 			WHEN 4 :PROCwindow_open_as_menu_at(HeadWindow%,!b%,b%!4) : reopen% = FALSE
@@ -2918,7 +2918,7 @@ PROCmenu_initialise
 
 b%!0 = InfoWindow%
 b%!4 = InfoWindow%
-b%!8 = fileinf%
+b%!8 = FileInfoWindow%
 b%!12 = find%
 b%!16 = GotoWindow%
 b%!20 = HeadWindow%
@@ -3076,7 +3076,7 @@ PROCtemplate_load("PrefsPane", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO PrefsPaneWindow%
 PROCtemplate_load("FileInfo", b%, ind_data%, ind_size%, -1)
-SYS "Wimp_CreateWindow",,b% TO fileinf%
+SYS "Wimp_CreateWindow",,b% TO FileInfoWindow%
 PROCtemplate_load("LoadCSV", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
 SYS "Wimp_CreateWindow",,b% TO loadcsv%
@@ -3119,11 +3119,11 @@ clip_cred2%=FNicon_indirection(enter2%,12)
 clip_pay2%=FNicon_indirection(enter2%,13)
 :
 REM File Info
-fileinf_name%=FNicon_indirection(fileinf%,5)
-safe%=FNicon_indirection(fileinf%,6)
-filesize%=FNicon_indirection(fileinf%,7)
-bfilesize%=FNicon_indirection(fileinf%,8)
-units%=FNicon_indirection(fileinf%,4)
+fileinf_name%=FNicon_indirection(FileInfoWindow%,5)
+safe%=FNicon_indirection(FileInfoWindow%,6)
+filesize%=FNicon_indirection(FileInfoWindow%,7)
+bfilesize%=FNicon_indirection(FileInfoWindow%,8)
+units%=FNicon_indirection(FileInfoWindow%,4)
 :
 REM Goto
 gotoline%=FNicon_indirection(GotoWindow%,0)
@@ -3208,6 +3208,7 @@ REM relevant token name.
 
 CASE message%!32 OF
 	WHEN -2			: root$ = "IconBar"
+	WHEN FileInfoWindow%	: root$ = "FileInfo"
 	WHEN GotoWindow%	: root$ = "Goto"
 	WHEN HeadWindow%	: root$ = "Head"
 	WHEN MainWindow%	: root$ = "Main"
@@ -3217,7 +3218,6 @@ CASE message%!32 OF
 	WHEN SLineWindow%	: root$ = "SLine"
 	WHEN TBoxWindow%	: root$ = "TBox"
 	WHEN TBarWindow%	: root$ = "TBar"
-REM	WHEN ChoicesWindow%	: root$ = "Choices"
 	OTHERWISE		: root$ = ""
 ENDCASE
 
@@ -3441,19 +3441,6 @@ WHEN 12
 PROCsend_help(FNmessage_lookup("Hlp87"))
 OTHERWISE
 PROCsend_help(FNmessage_lookup("Hlp88"))
-ENDCASE
-WHEN fileinf%
-CASE icon% OF
-WHEN 1,6
-PROCsend_help(FNmessage_lookup("Hlp90"))
-WHEN 2,7
-PROCsend_help(FNmessage_lookup("Hlp91"))
-WHEN 3,4,8
-PROCsend_help(FNmessage_lookup("Hlp92"))
-WHEN 5
-PROCsend_help(FNmessage_lookup("Hlp93"))
-OTHERWISE
-PROCsend_help(FNmessage_lookup("Hlp94"))
 ENDCASE
 WHEN printset%
 CASE icon% OF

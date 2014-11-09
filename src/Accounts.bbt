@@ -43,7 +43,7 @@ SYS "XOS_GetEnv" TO CommandLine$
 
 PROCinitialise
 
-ON ERROR IF NOT FNcheck_error(ERR) THEN Quit% = NOT FNwimperror_program
+ON ERROR IF NOT FNcheck_error(ERR) THEN Quit% = FNwimperror_program
 
 WHILE NOT Quit%
 	PROCpoll

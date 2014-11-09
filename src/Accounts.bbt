@@ -43,7 +43,7 @@ SYS "XOS_GetEnv" TO CommandLine$
 
 PROCinitialise
 
-ON ERROR IF NOT FNcheck_error(ERR) THEN Quit% = FNwimperror_program
+ON ERROR IF NOT FNcheck_error(ERR) THEN Quit% = NOT FNwimperror_program
 
 WHILE NOT Quit%
 	PROCpoll
@@ -88,7 +88,7 @@ WHEN 2
 			q%!28 = b%!28
 			SYS "Wimp_OpenWindow",,q%
 			IF FNmenu_state(MainMenu%, 7) AND join_main% THEN
-				!q% = enter%
+				!q% = EnterWindow%
 				SYS "Wimp_GetWindowState",,q%
 				q%!4 = b%!4 + 40
 				IF b%!8 > 236 THEN over% = 0
@@ -101,7 +101,7 @@ WHEN 2
 				q%!24 = 0
 				q%!28 = TBarWindow%
 				SYS "Wimp_OpenWindow",,q%
-				b%!28 = enter%
+				b%!28 = EnterWindow%
 			ELSE
 				b%!28 = TBarWindow%
 			ENDIF
@@ -124,7 +124,7 @@ WHEN 2
 WHEN 3
 	SYS "Wimp_CloseWindow",,b%
 	IF !b% = MainWindow% THEN
-		PROCwindow_close(enter%)
+		PROCwindow_close(EnterWindow%)
 		PROCwindow_close(TBoxWindow%)
 		PROCwindow_close(TBarWindow%)
 	ENDIF
@@ -173,8 +173,8 @@ WHEN -2
 		PROCopen_window(MainWindow%)
 		PROCset_extent(TRUE)
 		IF FNmenu_state(MainMenu%, 7) THEN
-			PROCopen_window(enter%)
-			PROCicon_put_caret_at_end(enter%, 6)
+			PROCopen_window(EnterWindow%)
+			PROCicon_put_caret_at_end(EnterWindow%, 6)
 		ENDIF
 		IF FNmenu_state(MainMenu%, 6) THEN PROCopen_window(TBoxWindow%)
 	ENDCASE
@@ -204,17 +204,17 @@ WHEN 5       :PROCdelete
 WHEN 6       :PROCcut
 WHEN 7       :PROCcopy
 WHEN 8       :PROCclear_select
-WHEN 9       :PROCwindow_open_as_menu_at(csv%,!b%,b%!4)
-WHEN 10      :PROCwindow_open_as_menu_at(find%,!b%,b%!4)
+WHEN 9       :PROCwindow_open_as_menu_at(ExpCSVWindow%,!b%,b%!4)
+WHEN 10      :PROCwindow_open_as_menu_at(FindWindow%,!b%,b%!4)
 WHEN 11      :PROCwindow_open_as_menu_at(GotoWindow%,!b%,b%!4)
 WHEN 12      :PROCgoto_selection
 WHEN 13      :PROCwindow_open_as_menu_at(HeadWindow%,!b%,b%!4)
-WHEN 14      :PROCwindow_open_as_menu_at(printset%,!b%,b%!4)
+WHEN 14      :PROCwindow_open_as_menu_at(PrintSetupWindow%,!b%,b%!4)
 ENDCASE
 WHEN 256,1024
 CASE icon% OF
-WHEN 9       :PROCwindow_open_as_menu_at(save%,!b%,b%!4)
-WHEN 14      :PROCwindow_open_as_menu_at(print%,!b%,b%!4)
+WHEN 9       :PROCwindow_open_as_menu_at(SaveWindow%,!b%,b%!4)
+WHEN 14      :PROCwindow_open_as_menu_at(PrintWindow%,!b%,b%!4)
 ENDCASE
 WHEN 2 :PROCupdate_menu
 PROCmenu_create(MainMenu%,!b%,b%!4)
@@ -222,13 +222,13 @@ ENDCASE
 WHEN MainWindow%
 CASE button% OF
 WHEN 4 :IF icon%=-1 PROCselect(b%!4)
-!q%=enter%
+!q%=EnterWindow%
 SYS "Wimp_GetWindowState",,q%
-IF (q%!32 AND (1<<16)) THENPROCicon_put_caret_at_end(enter%,6)
+IF (q%!32 AND (1<<16)) THENPROCicon_put_caret_at_end(EnterWindow%,6)
 WHEN 2 :PROCupdate_menu
 PROCmenu_create(MainMenu%,!b%,b%!4)
 ENDCASE
-WHEN enter%
+WHEN EnterWindow%
 CASE button% OF
 WHEN 1,4
 CASE icon% OF
@@ -237,129 +237,129 @@ ENDCASE
 WHEN 2 :PROCupdate_menu
 PROCmenu_create(MainMenu%,!b%,b%!4)
 ENDCASE
-WHEN save%
+WHEN SaveWindow%
 savetype%=account_file%
 savesize%=((entries%*15)+(entries%*22))
 savepoint%=file%
 CASE icon% OF
-WHEN 0 :IF (button% AND 64) PROCdrag_box(save%)
+WHEN 0 :IF (button% AND 64) PROCdrag_box(SaveWindow%)
 WHEN 2 :IF (button% AND 5 ) PROCquick_save(file%)
 ENDCASE
-WHEN text%
+WHEN ExpTextWindow%
 savetype%=text_file%
 size%=VAL($text2%)-VAL($text1%)
 savesize%=size%*80
 savepoint%=tfile%
 CASE icon% OF
-WHEN 0 :IF (button% AND 64) PROCdrag_box(text%)
+WHEN 0 :IF (button% AND 64) PROCdrag_box(ExpTextWindow%)
 WHEN 2 :IF (button% AND 5 ) PROCquick_save(tfile%)
 WHEN 6
 IF button%=4 THEN
 IF VAL($text1%)<(entries%-1) $text1%=STR$(VAL($text1%)+1)
-PROCredraw_part(text%,148,-216,88,48)
+PROCredraw_part(ExpTextWindow%,148,-216,88,48)
 ELSE
 IF VAL($text1%)>1            $text1%=STR$(VAL($text1%)-1)
-PROCredraw_part(text%,148,-216,88,48)
+PROCredraw_part(ExpTextWindow%,148,-216,88,48)
 ENDIF
 WHEN 4
 IF button%=4 THEN
 IF VAL($text1%)>1            $text1%=STR$(VAL($text1%)-1)
-PROCredraw_part(text%,148,-216,88,48)
+PROCredraw_part(ExpTextWindow%,148,-216,88,48)
 ELSE
 IF VAL($text1%)<(entries%-1) $text1%=STR$(VAL($text1%)+1)
-PROCredraw_part(text%,148,-216,88,48)
+PROCredraw_part(ExpTextWindow%,148,-216,88,48)
 ENDIF
 WHEN 7
 IF button%=4 THEN
 IF VAL($text2%)<(entries%-1) $text2%=STR$(VAL($text2%)+1)
-PROCredraw_part(text%,148,-288,88,48)
+PROCredraw_part(ExpTextWindow%,148,-288,88,48)
 ELSE
 IF VAL($text2%)>1            $text2%=STR$(VAL($text2%)-1)
-PROCredraw_part(text%,148,-288,88,48)
+PROCredraw_part(ExpTextWindow%,148,-288,88,48)
 ENDIF
 WHEN 5
 IF button%=4 THEN
 IF VAL($text2%)>1            $text2%=STR$(VAL($text2%)-1)
-PROCredraw_part(text%,148,-288,88,48)
+PROCredraw_part(ExpTextWindow%,148,-288,88,48)
 ELSE
 IF VAL($text2%)<(entries%-1) $text2%=STR$(VAL($text2%)+1)
-PROCredraw_part(text%,148,-288,88,48)
+PROCredraw_part(ExpTextWindow%,148,-288,88,48)
 ENDIF
 ENDCASE
-WHEN csv%
+WHEN ExpCSVWindow%
 savetype%=csv_file%
 size%=VAL($csv2%)-VAL($csv1%)
 savesize%=(size%*SUMLEN(text$()))+(size%*18)
 savepoint%=cfile%
 CASE icon% OF
-WHEN 0 :IF (button% AND 64) PROCdrag_box(csv%)
+WHEN 0 :IF (button% AND 64) PROCdrag_box(ExpCSVWindow%)
 WHEN 2 :IF (button% AND 5 ) PROCquick_save(cfile%)
 WHEN 6
 IF button%=4 THEN
 IF VAL($csv1%)<(entries%-1) $csv1%=STR$(VAL($csv1%)+1)
-PROCredraw_part(csv%,148,-216,88,48)
+PROCredraw_part(ExpCSVWindow%,148,-216,88,48)
 ELSE
 IF VAL($csv1%)>1            $csv1%=STR$(VAL($csv1%)-1)
-PROCredraw_part(csv%,148,-216,88,48)
+PROCredraw_part(ExpCSVWindow%,148,-216,88,48)
 ENDIF
 WHEN 4
 IF button%=4 THEN
 IF VAL($csv1%)>1            $csv1%=STR$(VAL($csv1%)-1)
-PROCredraw_part(csv%,148,-216,88,48)
+PROCredraw_part(ExpCSVWindow%,148,-216,88,48)
 ELSE
 IF VAL($csv1%)<(entries%-1) $csv1%=STR$(VAL($csv1%)+1)
-PROCredraw_part(csv%,148,-216,88,48)
+PROCredraw_part(ExpCSVWindow%,148,-216,88,48)
 ENDIF
 WHEN 7
 IF button%=4 THEN
 IF VAL($csv2%)<(entries%-1) $csv2%=STR$(VAL($csv2%)+1)
-PROCredraw_part(csv%,148,-288,88,48)
+PROCredraw_part(ExpCSVWindow%,148,-288,88,48)
 ELSE
 IF VAL($csv2%)>1            $csv2%=STR$(VAL($csv2%)-1)
-PROCredraw_part(csv%,148,-288,88,48)
+PROCredraw_part(ExpCSVWindow%,148,-288,88,48)
 ENDIF
 WHEN 5
 IF button%=4 THEN
 IF VAL($csv2%)>1            $csv2%=STR$(VAL($csv2%)-1)
-PROCredraw_part(csv%,148,-288,88,48)
+PROCredraw_part(ExpCSVWindow%,148,-288,88,48)
 ELSE
 IF VAL($csv2%)<(entries%-1) $csv2%=STR$(VAL($csv2%)+1)
-PROCredraw_part(csv%,148,-288,88,48)
+PROCredraw_part(ExpCSVWindow%,148,-288,88,48)
 ENDIF
 ENDCASE
-WHEN print%
+WHEN PrintWindow%
 CASE icon% OF
 WHEN 3
 IF button%=4 THEN
 IF VAL($print1%)<(entries%-1) $print1%=STR$(VAL($print1%)+1)
-PROCredraw_part(print%,150,-108,88,48)
+PROCredraw_part(PrintWindow%,150,-108,88,48)
 ELSE
 IF VAL($print1%)>1            $print1%=STR$(VAL($print1%)-1)
-PROCredraw_part(print%,150,-108,88,48)
+PROCredraw_part(PrintWindow%,150,-108,88,48)
 ENDIF
 WHEN 1
 IF button%=4 THEN
 IF VAL($print1%)>1            $print1%=STR$(VAL($print1%)-1)
-PROCredraw_part(print%,150,-108,88,48)
+PROCredraw_part(PrintWindow%,150,-108,88,48)
 ELSE
 IF VAL($print1%)<(entries%-1) $print1%=STR$(VAL($print1%)+1)
-PROCredraw_part(print%,150,-108,88,48)
+PROCredraw_part(PrintWindow%,150,-108,88,48)
 ENDIF
 WHEN 4
 IF button%=4 THEN
 IF VAL($print2%)<(entries%-1) $print2%=STR$(VAL($print2%)+1)
-PROCredraw_part(print%,150,-180,88,48)
+PROCredraw_part(PrintWindow%,150,-180,88,48)
 ELSE
 IF VAL($print2%)>1            $print2%=STR$(VAL($print2%)-1)
-PROCredraw_part(print%,150,-180,88,48)
+PROCredraw_part(PrintWindow%,150,-180,88,48)
 ENDIF
 WHEN 2
 IF button%=4 THEN
 IF VAL($print2%)>1            $print2%=STR$(VAL($print2%)-1)
-PROCredraw_part(print%,150,-180,88,48)
+PROCredraw_part(PrintWindow%,150,-180,88,48)
 ELSE
 IF VAL($print2%)<(entries%-1) $print2%=STR$(VAL($print2%)+1)
-PROCredraw_part(print%,150,-180,88,48)
+PROCredraw_part(PrintWindow%,150,-180,88,48)
 ENDIF
 WHEN 11
 PROCprint
@@ -371,23 +371,23 @@ WHEN GotoWindow%
 IF icon%=1 PROCgoto
 WHEN SLineWindow%
 IF icon%=1 PROCkey_select
-WHEN find%
+WHEN FindWindow%
 CASE icon% OF
 WHEN 3,4 :PROCcheck_select(window%,icon%)
 WHEN 5 :PROCfind(TRUE,FALSE,FALSE)
 WHEN 6 :PROCmenu_create(-1,0,0)
 WHEN 7 :PROCfind(TRUE,TRUE,FALSE)
 ENDCASE
-WHEN foundw%
+WHEN FoundWindow%
 CASE icon% OF
 WHEN 4 :IF button%=4 OR button%=1 PROCfind(FALSE,FALSE,FALSE)
 WHEN 6 :IF button%=4 OR button%=1 PROCfind(FALSE,FALSE,TRUE)
 WHEN 7 :IF button%=4 OR button%=1 PROCfind(FALSE,TRUE,FALSE)
 WHEN 5
-PROCwindow_close(foundw%)
-PROCclear_button(foundw%,4)
-PROCclear_button(foundw%,6)
-PROCclear_button(foundw%,7)
+PROCwindow_close(FoundWindow%)
+PROCclear_button(FoundWindow%,4)
+PROCclear_button(FoundWindow%,6)
+PROCclear_button(FoundWindow%,7)
 $foundtext%=""
 ENDCASE
 WHEN HeadWindow%
@@ -395,7 +395,7 @@ CASE icon% OF
 WHEN 2 :PROCnew_header
 WHEN 3 :PROCmenu_create(-1,0,0)
 ENDCASE
-WHEN printset%
+WHEN PrintSetupWindow%
 CASE icon% OF
 WHEN 18 :PROCcancel_printcodes
 WHEN 19 :PROCsave_printcodes
@@ -403,17 +403,17 @@ WHEN 20 :PROCset_printcodes
 WHEN 21
 IF button%=4 THEN
 IF VAL($page_length%)<999 $page_length%=STR$(VAL($page_length%)+1)
-PROCredraw_part(printset%,220,-68,80,48)
+PROCredraw_part(PrintSetupWindow%,220,-68,80,48)
 ELSE
 IF VAL($page_length%)>1   $page_length%=STR$(VAL($page_length%)-1)
-PROCredraw_part(printset%,220,-68,80,48)
+PROCredraw_part(PrintSetupWindow%,220,-68,80,48)
 WHEN 22
 IF button%=4 THEN
 IF VAL($page_length%)>1   $page_length%=STR$(VAL($page_length%)-1)
-PROCredraw_part(printset%,220,-68,80,48)
+PROCredraw_part(PrintSetupWindow%,220,-68,80,48)
 ELSE
 IF VAL($page_length%)<999 $page_length%=STR$(VAL($page_length%)+1)
-PROCredraw_part(printset%,220,-68,80,48)
+PROCredraw_part(PrintSetupWindow%,220,-68,80,48)
 ENDCASE
 WHEN PrefsWindow%
 CASE icon% OF
@@ -444,14 +444,14 @@ ENDCASE
 PROCmenu_create(ColourMenu%,!b%,b%!4)
 prefs_menu%=icon%
 ENDCASE
-WHEN merge%
+WHEN MergeWindow%
 CASE icon% OF
 WHEN 0 :PROCmerge_files(0)
 WHEN 1 :PROCmenu_create(-1,0,0)
 WHEN 2 :IF button%<>2 PROCmerge_files(1)
 WHEN 3 :IF button%<>2 PROCmerge_files(2)
 ENDCASE
-WHEN loadcsv%
+WHEN LoadCSVWindow%
 CASE icon% OF
 WHEN 3  :IF button%=4 PROCcsv_columns(0,-1) ELSEPROCcsv_columns(0,1)
 WHEN 4  :IF button%=4 PROCcsv_columns(0,1) ELSEPROCcsv_columns(0,-1)
@@ -523,7 +523,7 @@ WHEN MainMenu%
 		CASE b%!4 OF
 			WHEN 0 :PROCwindow_open_as_menu_at(InfoWindow%,!b%,b%!4) : reopen% = FALSE
 			WHEN 1 :PROCwindow_open_as_menu_at(FileInfoWindow%,!b%,b%!4) : reopen% = FALSE
-			WHEN 2 :PROCwindow_open_as_menu_at(find%,!b%,b%!4) : reopen% = FALSE
+			WHEN 2 :PROCwindow_open_as_menu_at(FindWindow%,!b%,b%!4) : reopen% = FALSE
 			WHEN 3 :PROCwindow_open_as_menu_at(GotoWindow%,!b%,b%!4) : reopen% = FALSE
 			WHEN 4 :PROCwindow_open_as_menu_at(HeadWindow%,!b%,b%!4) : reopen% = FALSE
 			WHEN 5 :PROCclear
@@ -531,8 +531,8 @@ WHEN MainMenu%
 	WHEN 1
 		CASE b%!4 OF
 			WHEN -1,0 :PROCquick_save(file%)
-			WHEN 1 :PROCwindow_open_as_menu_at(text%,!b%,b%!4) : reopen% = FALSE
-			WHEN 2 :PROCwindow_open_as_menu_at(csv%,!b%,b%!4) : reopen% = FALSE
+			WHEN 1 :PROCwindow_open_as_menu_at(ExpTextWindow%,!b%,b%!4) : reopen% = FALSE
+			WHEN 2 :PROCwindow_open_as_menu_at(ExpCSVWindow%,!b%,b%!4) : reopen% = FALSE
 		ENDCASE
 	WHEN 2
 		IF b%!4 > -1 THEN PROCaddval(b%!4)
@@ -553,8 +553,8 @@ WHEN MainMenu%
 		ENDCASE
 	WHEN 5
 		CASE b%!4 OF
-			WHEN -1,0 :PROCwindow_open_as_menu_at(print%,!b%,b%!4) : reopen% = FALSE
-			WHEN 1 :PROCwindow_open_as_menu_at(printset%,!b%,b%!4) : reopen% = FALSE
+			WHEN -1,0 :PROCwindow_open_as_menu_at(PrintWindow%,!b%,b%!4) : reopen% = FALSE
+			WHEN 1 :PROCwindow_open_as_menu_at(PrintSetupWindow%,!b%,b%!4) : reopen% = FALSE
 		ENDCASE
 	WHEN 6
 		!b%=TBoxWindow%
@@ -567,13 +567,13 @@ WHEN MainMenu%
 			PROCmenu_set_state(MainMenu%,6,1,0)
 		ENDIF
 	WHEN 7
-		!b%=enter%
+		!b%=EnterWindow%
 		SYS "Wimp_GetWindowState",,b%
 		IF b%!32 AND 1<<16 THEN
-			PROCwindow_close(enter%)
+			PROCwindow_close(EnterWindow%)
 			PROCmenu_set_state(MainMenu%,7,0,0)
 		ELSE
-			!b%=enter%
+			!b%=EnterWindow%
 			SYS "Wimp_GetWindowState",,b%
 			!q%=MainWindow%
 			SYS "Wimp_GetWindowState",,q%
@@ -585,7 +585,7 @@ WHEN MainMenu%
 			b%!24=0
 			b%!28=TBarWindow%
 			SYS "Wimp_OpenWindow",,b%
-			PROCicon_put_caret_at_end(enter%,6)
+			PROCicon_put_caret_at_end(EnterWindow%,6)
 			PROCmenu_set_state(MainMenu%,7,1,0)
 		ENDIF
 	WHEN 8
@@ -634,32 +634,32 @@ CASE key% OF
 WHEN 4  :PROCdate(whan%,icon%,b%!20)
 WHEN 13 :
 CASE whan% OF
-WHEN save%      :PROCquick_save(file%)
-WHEN text%      :PROCquick_save(tfile%)
-WHEN csv%       :PROCquick_save(cfile%)
-WHEN find%      :PROCfind(TRUE,FALSE,FALSE)
+WHEN SaveWindow%      :PROCquick_save(file%)
+WHEN ExpTextWindow%      :PROCquick_save(tfile%)
+WHEN ExpCSVWindow%       :PROCquick_save(cfile%)
+WHEN FindWindow%      :PROCfind(TRUE,FALSE,FALSE)
 WHEN HeadWindow%   :PROCnew_header
 WHEN GotoWindow%      :PROCgoto
 WHEN SLineWindow%   :PROCkey_select
-WHEN print%     :PROCprint
-WHEN printset%  :PROCset_printcodes
+WHEN PrintWindow%     :PROCprint
+WHEN PrintSetupWindow%  :PROCset_printcodes
 WHEN PrefsPaneWindow% :PROCsave_prefs(FALSE)
-WHEN enter%
+WHEN EnterWindow%
 CASE icon% OF
-WHEN 6  :PROCicon_put_caret_at_end(enter%,7)
-WHEN 7  :PROCicon_put_caret_at_end(enter%,8)
+WHEN 6  :PROCicon_put_caret_at_end(EnterWindow%,7)
+WHEN 7  :PROCicon_put_caret_at_end(EnterWindow%,8)
 WHEN 8
-PROCicon_set_state(enter%,0,1,0,0)
-PROCicon_set_state(enter%,1,0,0,0)
+PROCicon_set_state(EnterWindow%,0,1,0,0)
+PROCicon_set_state(EnterWindow%,1,0,0,0)
 PROCaddval(0)
-IF return_caret% THENPROCicon_put_caret_at_end(enter%,6)
-WHEN 11 :PROCicon_put_caret_at_end(enter%,12)
-WHEN 12 :PROCicon_put_caret_at_end(enter%,13)
+IF return_caret% THENPROCicon_put_caret_at_end(EnterWindow%,6)
+WHEN 11 :PROCicon_put_caret_at_end(EnterWindow%,12)
+WHEN 12 :PROCicon_put_caret_at_end(EnterWindow%,13)
 WHEN 13
-PROCicon_set_state(enter%,0,0,0,0)
-PROCicon_set_state(enter%,1,1,0,0)
+PROCicon_set_state(EnterWindow%,0,0,0,0)
+PROCicon_set_state(EnterWindow%,1,1,0,0)
 PROCaddval(0)
-IF return_caret% THENPROCicon_put_caret_at_end(enter%,6)
+IF return_caret% THENPROCicon_put_caret_at_end(EnterWindow%,6)
 ENDCASE
 ENDCASE
 WHEN 19 :PROCswap(whan%,icon%,b%!20)
@@ -668,11 +668,11 @@ WHEN 26 :PROCclear_select
 WHEN 30
 CASE home_key% OF
 WHEN 1 :PROCpage_home
-WHEN 2 :PROCicon_put_caret_at_end(enter%,6)
-WHEN 3 :PROCpage_home :PROCicon_put_caret_at_end(enter%,6)
+WHEN 2 :PROCicon_put_caret_at_end(EnterWindow%,6)
+WHEN 3 :PROCpage_home :PROCicon_put_caret_at_end(EnterWindow%,6)
 ENDCASE
-WHEN &180 :PROCwindow_open_as_menu_at(print%,!b%,b%!4)
-WHEN &190 :PROCwindow_open_as_menu_at(printset%,!b%,b%!4)
+WHEN &180 :PROCwindow_open_as_menu_at(PrintWindow%,!b%,b%!4)
+WHEN &190 :PROCwindow_open_as_menu_at(PrintSetupWindow%,!b%,b%!4)
 WHEN &181 :PROCaddval(0)
 WHEN &191
 !b%=TBoxWindow%
@@ -685,13 +685,13 @@ PROCopen_window(TBoxWindow%)
 PROCmenu_set_state(MainMenu%,6,1,0)
 ENDIF
 WHEN &1A1
-!b%=enter%
+!b%=EnterWindow%
 SYS "Wimp_GetWindowState",,b%
 IF b%!32 AND 1<<16 THEN
-PROCwindow_close(enter%)
+PROCwindow_close(EnterWindow%)
 PROCmenu_set_state(MainMenu%,7,0,0)
 ELSE
-!b%=enter%
+!b%=EnterWindow%
 SYS "Wimp_GetWindowState",,b%
 !q%=MainWindow%
 SYS "Wimp_GetWindowState",,q%
@@ -706,7 +706,7 @@ b%!20=0
 b%!24=0
 b%!28=TBarWindow%
 SYS "Wimp_OpenWindow",,b%
-PROCicon_put_caret_at_end(enter%,6)
+PROCicon_put_caret_at_end(EnterWindow%,6)
 PROCmenu_set_state(MainMenu%,7,1,0)
 ENDIF
 WHEN &1A2
@@ -744,11 +744,11 @@ WHEN &192,&1DD :PROCaddval(1)
 WHEN &183      :IF F3_qsave% THEN
 PROCquick_save(file%)
 ELSE
-PROCwindow_open_as_menu_at(save%,!b%,b%!4)
+PROCwindow_open_as_menu_at(SaveWindow%,!b%,b%!4)
 ENDIF
-WHEN &193      :PROCwindow_open_as_menu_at(text%,!b%,b%!4)
-WHEN &1A3      :PROCwindow_open_as_menu_at(csv%,!b%,b%!4)
-WHEN &184      :PROCwindow_open_as_menu_at(find%,!b%,b%!4)
+WHEN &193      :PROCwindow_open_as_menu_at(ExpTextWindow%,!b%,b%!4)
+WHEN &1A3      :PROCwindow_open_as_menu_at(ExpCSVWindow%,!b%,b%!4)
+WHEN &184      :PROCwindow_open_as_menu_at(FindWindow%,!b%,b%!4)
 WHEN &194      :PROCwindow_open_as_menu_at(SLineWindow%,!b%,b%!4)
 WHEN &185,24   :PROCdelete
 WHEN &195      :PROCremove
@@ -758,35 +758,35 @@ WHEN &197      :PROCcurrent
 WHEN &188,22   :PROCcut
 WHEN &189      :PROCclip_clear
 WHEN &18C,&19C
-IF whan%=enter%
+IF whan%=EnterWindow%
 CASE icon% OF
-WHEN 7  :PROCicon_put_caret_at_end(enter%,6)
-WHEN 8  :PROCicon_put_caret_at_end(enter%,7)
-WHEN 12 :PROCicon_put_caret_at_end(enter%,11)
-WHEN 13 :PROCicon_put_caret_at_end(enter%,12)
+WHEN 7  :PROCicon_put_caret_at_end(EnterWindow%,6)
+WHEN 8  :PROCicon_put_caret_at_end(EnterWindow%,7)
+WHEN 12 :PROCicon_put_caret_at_end(EnterWindow%,11)
+WHEN 13 :PROCicon_put_caret_at_end(EnterWindow%,12)
 ENDCASE
 ENDIF
 WHEN &18D,&19D
-IF whan%=enter%
+IF whan%=EnterWindow%
 CASE icon% OF
-WHEN 6  :PROCicon_put_caret_at_end(enter%,7)
-WHEN 7  :PROCicon_put_caret_at_end(enter%,8)
-WHEN 11 :PROCicon_put_caret_at_end(enter%,12)
-WHEN 12 :PROCicon_put_caret_at_end(enter%,13)
+WHEN 6  :PROCicon_put_caret_at_end(EnterWindow%,7)
+WHEN 7  :PROCicon_put_caret_at_end(EnterWindow%,8)
+WHEN 11 :PROCicon_put_caret_at_end(EnterWindow%,12)
+WHEN 12 :PROCicon_put_caret_at_end(EnterWindow%,13)
 ENDCASE
 ENDIF
 WHEN &1AC,&1BC :
-IF whan%=enter%
+IF whan%=EnterWindow%
 CASE icon% OF
-WHEN 7,8   :PROCicon_put_caret_at_end(enter%,6)
-WHEN 12,13 :PROCicon_put_caret_at_end(enter%,11)
+WHEN 7,8   :PROCicon_put_caret_at_end(EnterWindow%,6)
+WHEN 12,13 :PROCicon_put_caret_at_end(EnterWindow%,11)
 ENDCASE
 ENDIF
 WHEN &1AD,&1BD :
-IF whan%=enter%
+IF whan%=EnterWindow%
 CASE icon% OF
-WHEN 6,7   :PROCicon_put_caret_at_end(enter%,8)
-WHEN 11,12 :PROCicon_put_caret_at_end(enter%,13)
+WHEN 6,7   :PROCicon_put_caret_at_end(EnterWindow%,8)
+WHEN 11,12 :PROCicon_put_caret_at_end(EnterWindow%,13)
 ENDCASE
 ENDIF
 WHEN &1A9 :PROCclear
@@ -794,34 +794,34 @@ WHEN &1CA :PROCwindow_open_as_menu_at(GotoWindow%,!b%,b%!4)
 WHEN &1CB :PROCwindow_open_as_menu_at(HeadWindow%,!b%,b%!4)
 WHEN &18E
 CASE whan% OF
-WHEN enter% :PROCline_down
-WHEN find%
+WHEN EnterWindow% :PROCline_down
+WHEN FindWindow%
 CASE icon% OF
-WHEN 1 :PROCicon_put_caret_at_end(find%,9)
-WHEN 9 :PROCicon_put_caret_at_end(find%,1)
+WHEN 1 :PROCicon_put_caret_at_end(FindWindow%,9)
+WHEN 9 :PROCicon_put_caret_at_end(FindWindow%,1)
 ENDCASE
-WHEN text%
+WHEN ExpTextWindow%
 CASE icon% OF
-WHEN 1  :PROCicon_put_caret_at_end(text%,10)
-WHEN 10 :PROCicon_put_caret_at_end(text%,11)
-WHEN 11 :PROCicon_put_caret_at_end(text%,1)
+WHEN 1  :PROCicon_put_caret_at_end(ExpTextWindow%,10)
+WHEN 10 :PROCicon_put_caret_at_end(ExpTextWindow%,11)
+WHEN 11 :PROCicon_put_caret_at_end(ExpTextWindow%,1)
 ENDCASE
-WHEN csv%
+WHEN ExpCSVWindow%
 CASE icon% OF
-WHEN 1  :PROCicon_put_caret_at_end(csv%,10)
-WHEN 10 :PROCicon_put_caret_at_end(csv%,11)
-WHEN 11 :PROCicon_put_caret_at_end(csv%,1)
+WHEN 1  :PROCicon_put_caret_at_end(ExpCSVWindow%,10)
+WHEN 10 :PROCicon_put_caret_at_end(ExpCSVWindow%,11)
+WHEN 11 :PROCicon_put_caret_at_end(ExpCSVWindow%,1)
 ENDCASE
-WHEN print%
+WHEN PrintWindow%
 CASE icon% OF
-WHEN 7 :PROCicon_put_caret_at_end(print%,8)
-WHEN 8 :PROCicon_put_caret_at_end(print%,7)
+WHEN 7 :PROCicon_put_caret_at_end(PrintWindow%,8)
+WHEN 8 :PROCicon_put_caret_at_end(PrintWindow%,7)
 ENDCASE
-WHEN printset%
+WHEN PrintSetupWindow%
 CASE icon% OF
-WHEN 1 :PROCicon_put_caret_at_end(printset%,12)
-WHEN 12,13,14,15,16 :PROCicon_put_caret_at_end(printset%,icon%+1)
-WHEN 17 :PROCicon_put_caret_at_end(printset%,1)
+WHEN 1 :PROCicon_put_caret_at_end(PrintSetupWindow%,12)
+WHEN 12,13,14,15,16 :PROCicon_put_caret_at_end(PrintSetupWindow%,icon%+1)
+WHEN 17 :PROCicon_put_caret_at_end(PrintSetupWindow%,1)
 ENDCASE
 WHEN PrefsPaneWindow%
 CASE icon% OF
@@ -833,34 +833,34 @@ ENDCASE
 ENDCASE
 WHEN &18F
 CASE whan% OF
-WHEN enter% :PROCline_up
-WHEN find%
+WHEN EnterWindow% :PROCline_up
+WHEN FindWindow%
 CASE icon% OF
-WHEN 1 :PROCicon_put_caret_at_end(find%,9)
-WHEN 9 :PROCicon_put_caret_at_end(find%,1)
+WHEN 1 :PROCicon_put_caret_at_end(FindWindow%,9)
+WHEN 9 :PROCicon_put_caret_at_end(FindWindow%,1)
 ENDCASE
-WHEN text%
+WHEN ExpTextWindow%
 CASE icon% OF
-WHEN 1  :PROCicon_put_caret_at_end(text%,11)
-WHEN 10 :PROCicon_put_caret_at_end(text%,1)
-WHEN 11 :PROCicon_put_caret_at_end(text%,10)
+WHEN 1  :PROCicon_put_caret_at_end(ExpTextWindow%,11)
+WHEN 10 :PROCicon_put_caret_at_end(ExpTextWindow%,1)
+WHEN 11 :PROCicon_put_caret_at_end(ExpTextWindow%,10)
 ENDCASE
-WHEN csv%
+WHEN ExpCSVWindow%
 CASE icon% OF
-WHEN 1  :PROCicon_put_caret_at_end(csv%,11)
-WHEN 10 :PROCicon_put_caret_at_end(csv%,1)
-WHEN 11 :PROCicon_put_caret_at_end(csv%,10)
+WHEN 1  :PROCicon_put_caret_at_end(ExpCSVWindow%,11)
+WHEN 10 :PROCicon_put_caret_at_end(ExpCSVWindow%,1)
+WHEN 11 :PROCicon_put_caret_at_end(ExpCSVWindow%,10)
 ENDCASE
-WHEN print%
+WHEN PrintWindow%
 CASE icon% OF
-WHEN 7 :PROCicon_put_caret_at_end(print%,8)
-WHEN 8 :PROCicon_put_caret_at_end(print%,7)
+WHEN 7 :PROCicon_put_caret_at_end(PrintWindow%,8)
+WHEN 8 :PROCicon_put_caret_at_end(PrintWindow%,7)
 ENDCASE
-WHEN printset%
+WHEN PrintSetupWindow%
 CASE icon% OF
-WHEN 1 :PROCicon_put_caret_at_end(printset%,17)
-WHEN 12 :PROCicon_put_caret_at_end(printset%,1)
-WHEN 13,14,15,16,17 :PROCicon_put_caret_at_end(printset%,icon%-1)
+WHEN 1 :PROCicon_put_caret_at_end(PrintSetupWindow%,17)
+WHEN 12 :PROCicon_put_caret_at_end(PrintSetupWindow%,1)
+WHEN 13,14,15,16,17 :PROCicon_put_caret_at_end(PrintSetupWindow%,icon%-1)
 ENDCASE
 WHEN PrefsPaneWindow%
 CASE icon% OF
@@ -902,7 +902,7 @@ DEF PROCaddval(opp%)
 IF opp%<>0 AND select%=0 THEN PROCwimperror_report(FNmessage_lookup("Sel4"), 1, 1, ""):ENDPROC
 LOCAL push%,text$,credit%,payment%
 IF opp%<>3 AND entries%>1000 THEN PROCwimperror_report(FNmessage_lookup("Val2"), 1, 1, ""):ENDPROC
-IF FNicon_selected(enter%,0) THEN
+IF FNicon_selected(EnterWindow%,0) THEN
 text$=$string%
 credit%=FNval($cred%)
 payment%=FNval($pay%)
@@ -1055,8 +1055,8 @@ IF select%=entries% select%-=1
 modified%=TRUE
 PROCrecalc
 IF set_clip% THEN
-PROCicon_set_state(enter%,0,0,0,0)
-PROCicon_set_state(enter%,1,1,0,0)
+PROCicon_set_state(EnterWindow%,0,0,0,0)
+PROCicon_set_state(EnterWindow%,1,1,0,0)
 ENDIF
 PROCupdate_tools(select%)
 PROCupdate_title
@@ -1074,8 +1074,8 @@ $clip_string%=text$(select%)
 $clip_cred%=FNpoint(credit%(select%))
 $clip_pay%=FNpoint(payment%(select%))
 IF set_clip% THEN
-PROCicon_set_state(enter%,0,0,0,0)
-PROCicon_set_state(enter%,1,1,0,0)
+PROCicon_set_state(EnterWindow%,0,0,0,0)
+PROCicon_set_state(EnterWindow%,1,1,0,0)
 ENDIF
 PROCredraw_enter
 ENDPROC
@@ -1145,8 +1145,8 @@ $clip_cred%="0.00"
 $clip_pay%="0.00"
 PROCupdate_tools(select%)
 PROCredraw_enter
-PROCicon_set_state(enter%,0,1,0,0)
-PROCicon_set_state(enter%,1,0,0,0)
+PROCicon_set_state(EnterWindow%,0,1,0,0)
+PROCicon_set_state(EnterWindow%,1,0,0,0)
 ENDPROC
 :
 DEF PROCclear
@@ -1376,14 +1376,14 @@ SYS "Wimp_ForceRedraw",MainWindow%,b%!20,b%!24-hht%,b%!20+wth%,b%!24
 ENDPROC
 :
 DEF PROCredraw_enter
-SYS "Wimp_ForceRedraw",enter%,234,-100,624,-52
-SYS "Wimp_ForceRedraw",enter%,234,-172,624,-124
-SYS "Wimp_ForceRedraw",enter%,652,-100,862,-52
-SYS "Wimp_ForceRedraw",enter%,652,-172,862,-124
-SYS "Wimp_ForceRedraw",enter%,890,-100,1100,-52
-SYS "Wimp_ForceRedraw",enter%,890,-172,1100,-124
-SYS "Wimp_ForceRedraw",enter%,1118,-100,1180,-52
-SYS "Wimp_ForceRedraw",enter%,1118,-172,1180,-124
+SYS "Wimp_ForceRedraw",EnterWindow%,234,-100,624,-52
+SYS "Wimp_ForceRedraw",EnterWindow%,234,-172,624,-124
+SYS "Wimp_ForceRedraw",EnterWindow%,652,-100,862,-52
+SYS "Wimp_ForceRedraw",EnterWindow%,652,-172,862,-124
+SYS "Wimp_ForceRedraw",EnterWindow%,890,-100,1100,-52
+SYS "Wimp_ForceRedraw",EnterWindow%,890,-172,1100,-124
+SYS "Wimp_ForceRedraw",EnterWindow%,1118,-100,1180,-52
+SYS "Wimp_ForceRedraw",EnterWindow%,1118,-172,1180,-124
 ENDPROC
 :
 DEF PROCredraw_from(line%)
@@ -1441,7 +1441,7 @@ ELSE
 $safe%="No"
 ENDIF
 SYS "Wimp_GetCaretPosition",,b%
-IF !b%=enter% THENPROCicon_put_caret(!b%,b%!4,b%!20)
+IF !b%=EnterWindow% THENPROCicon_put_caret(!b%,b%!4,b%!20)
 ENDPROC
 :
 DEF PROCupdate_menu
@@ -1527,7 +1527,7 @@ ENDIF
 DEF PROCfind(opt%,all%,rep%)
 LOCAL search$,text$,done%,found%,flag%,o%
 PROCmenu_create(-1,0,0)
-PROCwindow_close(foundw%)
+PROCwindow_close(FoundWindow%)
 done%=FALSE :flag%=FALSE
 IF entries%=1 THEN PROCwimperror_report(FNmessage_lookup("Fin1"), 1, 1, "") :ENDPROC
 IF rep% THEN
@@ -1541,27 +1541,27 @@ PROCupdate_title
 ENDIF
 IF all% THENfindno%-=1
 search$=$findtext%
-IF FNicon_selected(find%,2)=0 search$=FNstring_to_upper(search$)
+IF FNicon_selected(FindWindow%,2)=0 search$=FNstring_to_upper(search$)
 found%=FALSE
 IF opt% THENfindno%=0
 IF findno%>=entries%-1 THEN
 $foundtext%=FNmessage_lookup("Fin2")
 $foundline%="-"
-PROCshade_button(foundw%,4)
-PROCshade_button(foundw%,6)
-PROCshade_button(foundw%,7)
-PROCwindow_open_centred_at(foundw%,(width%/2)-334,456)
+PROCshade_button(FoundWindow%,4)
+PROCshade_button(FoundWindow%,6)
+PROCshade_button(FoundWindow%,7)
+PROCwindow_open_centred_at(FoundWindow%,(width%/2)-334,456)
 o%=select%
 select%=0
 PROCredraw_line(o%)
 ENDIF
 IF findno%>=entries%-1 ENDPROC
 SYS "Hourglass_On"
-IF FNicon_selected(find%,3) THEN
+IF FNicon_selected(FindWindow%,3) THEN
 REPEAT
 findno%+=1
 text$=text$(findno%)
-IF FNicon_selected(find%,2)=0 text$=FNstring_to_upper(text$)
+IF FNicon_selected(FindWindow%,2)=0 text$=FNstring_to_upper(text$)
 IF INSTR(text$,search$) THEN
 IF NOT all% THENfound%=TRUE
 replace_pos%=INSTR(text$,search$)
@@ -1582,7 +1582,7 @@ ELSE
 REPEAT
 findno%+=1
 text$=text$(findno%)
-IF FNicon_selected(find%,2)=0 text$=FNstring_to_upper(text$)
+IF FNicon_selected(FindWindow%,2)=0 text$=FNstring_to_upper(text$)
 IF text$=search$ THEN
 IF NOT all% THENfound%=TRUE
 insert_replace%=FALSE
@@ -1609,7 +1609,7 @@ $gotoline%=STR$(findno%)
 PROCgoto
 $foundtext%=text$(findno%)
 $foundline%=STR$(findno%)
-PROCwindow_open_centred_at(foundw%,(width%/2)-334,456)
+PROCwindow_open_centred_at(FoundWindow%,(width%/2)-334,456)
 PROCredraw_line(select%)
 ELSE
 IF NOT all% THEN
@@ -1619,10 +1619,10 @@ IF opt% THEN
 ELSE
 $foundtext%=FNmessage_lookup("Fin2")
 $foundline%="-"
-PROCshade_button(foundw%,4)
-PROCshade_button(foundw%,6)
-PROCshade_button(foundw%,7)
-PROCwindow_open_centred_at(foundw%,(width%/2)-334,456)
+PROCshade_button(FoundWindow%,4)
+PROCshade_button(FoundWindow%,6)
+PROCshade_button(FoundWindow%,7)
+PROCwindow_open_centred_at(FoundWindow%,(width%/2)-334,456)
 o%=select%
 select%=0
 PROCredraw_line(o%)
@@ -1776,7 +1776,7 @@ ENDIF
 PROCredraw_enter
 IF csv% THEN
 	SYS "Wimp_GetPointerInfo",,q%
-	PROCwindow_open_as_menu_at(loadcsv%, !q%, q%!4)
+	PROCwindow_open_as_menu_at(LoadCSVWindow%, !q%, q%!4)
 	csvf$=tf$
 	ENDPROC
 ENDIF
@@ -1803,27 +1803,27 @@ SYS "Wimp_GetWindowState",,b%
 PROCopen_window(MainWindow%)
 PROCset_extent(TRUE)
 PROCredraw_main
-!b%=enter%
+!b%=EnterWindow%
 SYS "Wimp_GetWindowState",,b%
 IF FNmenu_state(MainMenu%,7) THEN
-PROCopen_window(enter%)
-PROCicon_put_caret_at_end(enter%,6)
+PROCopen_window(EnterWindow%)
+PROCicon_put_caret_at_end(EnterWindow%,6)
 ENDIF
 IF FNmenu_state(MainMenu%,6) PROCopen_window(TBoxWindow%)
-PROCicon_set_state(enter%,0,1,0,0)
-PROCicon_set_state(enter%,1,0,0,0)
+PROCicon_set_state(EnterWindow%,0,1,0,0)
+PROCicon_set_state(EnterWindow%,1,0,0,0)
 ENDPROC
 :
 DEF PROCopen_merge_window
 IF select%<>0 THEN
-PROCclear_button(merge%,2)
-PROCclear_button(merge%,3)
+PROCclear_button(MergeWindow%,2)
+PROCclear_button(MergeWindow%,3)
 ELSE
-PROCshade_button(merge%,2)
-PROCshade_button(merge%,3)
+PROCshade_button(MergeWindow%,2)
+PROCshade_button(MergeWindow%,3)
 ENDIF
 SYS "Wimp_GetPointerInfo",,q%
-PROCwindow_open_as_menu_at(merge%, !q%, q%!4)
+PROCwindow_open_as_menu_at(MergeWindow%, !q%, q%!4)
 ENDPROC
 :
 DEF PROCmerge_files(method%)
@@ -1886,11 +1886,11 @@ IF val%=0 THENval%=1
 IF val%=100 THENval%=100
 CASE icon% OF
 WHEN 0 :$cl_desc%="Column "+STR$(val%)
-PROCredraw_part(loadcsv%,282,-108,170,48)
+PROCredraw_part(LoadCSVWindow%,282,-108,170,48)
 WHEN 1 :$cl_cred%="Column "+STR$(val%)
-PROCredraw_part(loadcsv%,282,-168,170,48)
+PROCredraw_part(LoadCSVWindow%,282,-168,170,48)
 WHEN 2 :$cl_pay%="Column "+STR$(val%)
-PROCredraw_part(loadcsv%,282,-228,170,48)
+PROCredraw_part(LoadCSVWindow%,282,-228,170,48)
 ENDCASE
 ENDPROC
 :
@@ -1927,11 +1927,11 @@ SYS "Wimp_GetWindowState",,b%
 PROCopen_window(MainWindow%)
 PROCredraw_main
 PROCset_extent(TRUE)
-!b%=enter%
+!b%=EnterWindow%
 SYS "Wimp_GetWindowState",,b%
 IF FNmenu_state(MainMenu%,7) THEN
-PROCopen_window(enter%)
-PROCicon_put_caret_at_end(enter%,6)
+PROCopen_window(EnterWindow%)
+PROCicon_put_caret_at_end(EnterWindow%,6)
 ENDIF
 IF FNmenu_state(MainMenu%,6) PROCopen_window(TBoxWindow%)
 PROCmenu_create(-1,0,0)
@@ -1994,9 +1994,9 @@ oy%=q%!16-q%!24
 q%!4=0
 SYS "Wimp_GetIconState",,q%
 CASE whan% OF
-WHEN save% :spr$="file_1ac"
-WHEN text% :spr$="file_fff"
-WHEN csv% :spr$="file_dfe"
+WHEN SaveWindow% :spr$="file_1ac"
+WHEN ExpTextWindow% :spr$="file_fff"
+WHEN ExpCSVWindow% :spr$="file_dfe"
 ENDCASE
 q%!4=5
 q%!8=ox%+q%!8
@@ -2052,12 +2052,12 @@ IF VAL($text1%)>=entries% OR VAL($text2%)>=entries% PROCmenu_create(-1,0,0):PROC
 IF VAL($text1%)<=0 OR VAL($text2%)<=0 PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Exp3"), 0, 1, ""):ENDPROC
 SYS "Hourglass_On"
 o%=OPENOUT($tfile%)
-IF FNicon_selected(text%,12) THEN
+IF FNicon_selected(ExpTextWindow%,12) THEN
 BPUT#o%,"      "+FNtext("Date: "+LEFT$(TIME$,15),34,TRUE);
 BPUT#o%,FNtext("File: "+LEFT$(FNstring_leafname($file%),LEN(FNstring_leafname($file%))-1),32,FALSE)
 BPUT#o%," "
 ENDIF
-IF FNicon_selected(text%,13) THEN
+IF FNicon_selected(ExpTextWindow%,13) THEN
 BPUT#o%,FNtext("No.",4,FALSE)+"  ";
 BPUT#o%,FNtext("Description",20,TRUE)+"  ";
 BPUT#o%,FNtext("Credits",15,FALSE)+"  ";
@@ -2088,7 +2088,7 @@ IF VAL($csv1%)>=entries% OR VAL($csv2%)>=entries% PROCmenu_create(-1,0,0):PROCwi
 IF VAL($csv1%)<=0 OR VAL($csv2%)<=0 PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Exp3"), 0, 1, ""):ENDPROC
 SYS "Hourglass_On"
 o%=OPENOUT($cfile%)
-IF FNicon_selected(csv%,12) THEN
+IF FNicon_selected(ExpCSVWindow%,12) THEN
 BPUT#o%,"No.,";
 BPUT#o%,"Description,";
 BPUT#o%,"Credits,";
@@ -2116,7 +2116,7 @@ IF modified% = FALSE THEN =TRUE
 oktoquit% = FNwimperror_report(FNmessage_lookup("OK5"), 4, 0, FNmessage_lookup("OK5B"))
 IF oktoquit% = 2 THEN
 	SYS "Wimp_GetPointerInfo",,q%
-	PROCwindow_open_as_menu_at(save%, !q%, q%!4)
+	PROCwindow_open_as_menu_at(SaveWindow%, !q%, q%!4)
 ENDIF
 =(oktoquit% = 3)
 :
@@ -2132,7 +2132,7 @@ o%=OPENOUT("<Account$PrintFile>")
 current_line%=pagelength%
 top_of_form%=TRUE
 FOR c%=VAL($print1%) TO VAL($print2%)
-IF top_of_form% AND FNicon_selected(print%,9) THEN
+IF top_of_form% AND FNicon_selected(PrintWindow%,9) THEN
 BPUT#o%,"      "+FNtext("Date: "+LEFT$(TIME$,15),34,TRUE);
 BPUT#o%,FNtext("File: "+LEFT$(FNstring_leafname($file%),LEN(FNstring_leafname($file%))-1),32,FALSE)+CHR$(13)
 current_line%-=1
@@ -2143,7 +2143,7 @@ BPUT#o%,STRING$(79," ");
 BPUT#o%,uline_off$+bold_off$+line_feed$
 current_line%-=1
 ENDIF
-IF top_of_form% AND FNicon_selected(print%,10) THEN
+IF top_of_form% AND FNicon_selected(PrintWindow%,10) THEN
 BPUT#o%,uline_on$+bold_on$;
 BPUT#o%,FNtext("No.",4,FALSE)+" | ";
 BPUT#o%,FNtext("Description",20,TRUE)+"  ";
@@ -2173,7 +2173,7 @@ NEXT
 IF form_feeds% AND top_of_form%=FALSE THENBPUT#o%,form_feed$
 CLOSE#o%
 SYS "Hourglass_Off"
-PROCwindow_close(print%)
+PROCwindow_close(PrintWindow%)
 PROCmenu_create(-1,0,0)
 ENDPROC
 :
@@ -2188,7 +2188,7 @@ $bold_off%=GET$#in%
 $uline_on%=GET$#in%
 $uline_off%=GET$#in%
 CLOSE#in%
-PROCicon_set_state(printset%,3,form_feeds%,0,0)
+PROCicon_set_state(PrintSetupWindow%,3,form_feeds%,0,0)
 pagelength%=VAL($page_length%)
 line_feed$=FNtrans_string($line_feed%)
 form_feed$=FNtrans_string($form_feed%)
@@ -2199,7 +2199,7 @@ uline_off$=FNtrans_string($uline_off%)
 ENDPROC
 :
 DEF PROCset_printcodes
-IF FNicon_selected(printset%,3) THENform_feeds%=1 ELSEform_feeds%=0
+IF FNicon_selected(PrintSetupWindow%,3) THENform_feeds%=1 ELSEform_feeds%=0
 pagelength%=VAL($page_length%)
 line_feed$=FNtrans_string($line_feed%)
 form_feed$=FNtrans_string($form_feed%)
@@ -2211,7 +2211,7 @@ PROCmenu_create(-1,0,0)
 ENDPROC
 :
 DEF PROCsave_printcodes
-IF FNicon_selected(printset%,3) THENform_feeds%=1 ELSEform_feeds%=0
+IF FNicon_selected(PrintSetupWindow%,3) THENform_feeds%=1 ELSEform_feeds%=0
 pagelength%=VAL($page_length%)
 line_feed$=FNtrans_string($line_feed%)
 form_feed$=FNtrans_string($form_feed%)
@@ -2233,7 +2233,7 @@ PROCmenu_create(-1,0,0)
 ENDPROC
 :
 DEF PROCcancel_printcodes
-PROCicon_set_state(printset%,3,form_feeds%,0,0)
+PROCicon_set_state(PrintSetupWindow%,3,form_feeds%,0,0)
 $page_length%=STR$(pagelength%)
 $line_feed%=FNtrans_codes(line_feed$)
 $form_feed%=FNtrans_codes(form_feed$)
@@ -2407,10 +2407,10 @@ IF save_prefs% THENCLOSE#out%
 !b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 IF (b%!32 AND (1<<16)) THENopen%=TRUE ELSEopen%=FALSE
-IF open% THENPROCwindow_close(enter%)
+IF open% THENPROCwindow_close(EnterWindow%)
 IF oj%<>join_main% THEN
 IF join_main% THEN
-enter%=enter1%
+EnterWindow%=enter1%
 string%=string1%
 cred%=cred1%
 pay%=pay1%
@@ -2425,7 +2425,7 @@ $clip_string1%=$clip_string2%
 $clip_cred1%=$clip_cred2%
 $clip_pay1%=$clip_pay2%
 ELSE
-enter%=enter2%
+EnterWindow%=enter2%
 string%=string2%
 cred%=cred2%
 pay%=pay2%
@@ -2456,7 +2456,7 @@ PROCmenu_set_state(MainMenu%,8,1,0)
 ELSE
 PROCmenu_set_state(MainMenu%,8,0,0)
 ENDIF
-IF open% THENPROCopen_window(MainWindow%) :PROCopen_window(enter%)
+IF open% THENPROCopen_window(MainWindow%) :PROCopen_window(EnterWindow%)
 PROCwindow_close(PrefsPaneWindow%)
 PROCwindow_close(PrefsWindow%)
 PROCredraw_main
@@ -2562,10 +2562,10 @@ IF load% THENCLOSE#in%
 !b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 IF (b%!32 AND (1<<16)) THENopen%=TRUE ELSEopen%=FALSE
-IF open% THENPROCwindow_close(enter%)
+IF open% THENPROCwindow_close(EnterWindow%)
 IF oj%<>join_main% THEN
 IF join_main% THEN
-enter%=enter1%
+EnterWindow%=enter1%
 string%=string1%
 cred%=cred1%
 pay%=pay1%
@@ -2580,7 +2580,7 @@ $clip_string1%=$clip_string2%
 $clip_cred1%=$clip_cred2%
 $clip_pay1%=$clip_pay2%
 ELSE
-enter%=enter2%
+EnterWindow%=enter2%
 string%=string2%
 cred%=cred2%
 pay%=pay2%
@@ -2611,7 +2611,7 @@ PROCmenu_set_state(MainMenu%,8,1,0)
 ELSE
 PROCmenu_set_state(MainMenu%,8,0,0)
 ENDIF
-IF open% THENPROCopen_window(MainWindow%) :PROCopen_window(enter%)
+IF open% THENPROCopen_window(MainWindow%) :PROCopen_window(EnterWindow%)
 PROCredraw_main
 ENDPROC
 :
@@ -2744,7 +2744,7 @@ ENDPROC
 :
 DEF PROCdate(window%,icon%,caret%)
 LOCAL text$,length%
-IF window%<>enter% THENENDPROC
+IF window%<>EnterWindow% THENENDPROC
 IF icon%<>6 AND icon%<>11 THENENDPROC
 !b%=window%
 b%!4=icon%
@@ -2759,7 +2759,7 @@ ENDPROC
 DEF PROCnew_date(window%,icon%)
 LOCAL text$,length%,type%,flag%,pos%
 flag%=TRUE
-IF window%<>enter% THENENDPROC
+IF window%<>EnterWindow% THENENDPROC
 IF icon%<>6 AND icon%<>11 THENENDPROC
 !b%=window%
 b%!4=icon%
@@ -2919,15 +2919,15 @@ PROCmenu_initialise
 b%!0 = InfoWindow%
 b%!4 = InfoWindow%
 b%!8 = FileInfoWindow%
-b%!12 = find%
+b%!12 = FindWindow%
 b%!16 = GotoWindow%
 b%!20 = HeadWindow%
-b%!24 = save%
-b%!28 = text%
-b%!32 = csv%
+b%!24 = SaveWindow%
+b%!28 = ExpTextWindow%
+b%!32 = ExpCSVWindow%
 b%!36 = SLineWindow%
-b%!40 = print%
-b%!44 = printset%
+b%!40 = PrintWindow%
+b%!44 = PrintSetupWindow%
 PROCmenu_load_templates(resources$ + "Menus", b%)
 IconbarMenu% = b%!0
 MainMenu% = b%!4
@@ -2998,7 +2998,7 @@ WHEN 3
 
 WHEN 2
 	SYS "Wimp_GetPointerInfo",,q%
-	PROCwindow_open_as_menu_at(save%, !q%, q%!4)
+	PROCwindow_open_as_menu_at(SaveWindow%, !q%, q%!4)
 ENDCASE
 ENDPROC
 :
@@ -3020,7 +3020,7 @@ ENDPROC
 DEF PROCdefine_windows(resources$)
 LOCAL sprite_area%, ind_data%, ind_size%
 
-ind_size% = 7000
+ind_size% = 7200
 DIM ind_data% ind_size%
 
 sprite_area% = FNwimpsprite_load_user_sprites("<Account$Dir>.Sprites")
@@ -3051,25 +3051,25 @@ PROCtemplate_load("Header", b%, ind_data%, ind_size%, -1)
 SYS "Wimp_CreateWindow",,b% TO HeadWindow%
 PROCtemplate_load("Print", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
-SYS "Wimp_CreateWindow",,b% TO print%
+SYS "Wimp_CreateWindow",,b% TO PrintWindow%
 PROCtemplate_load("ExpText", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
-SYS "Wimp_CreateWindow",,b% TO text%
+SYS "Wimp_CreateWindow",,b% TO ExpTextWindow%
 PROCtemplate_load("ExpCSV", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
-SYS "Wimp_CreateWindow",,b% TO csv%
+SYS "Wimp_CreateWindow",,b% TO ExpCSVWindow%
 PROCtemplate_load("Save", b%, ind_data%, ind_size%, -1)
-SYS "Wimp_CreateWindow",,b% TO save%
+SYS "Wimp_CreateWindow",,b% TO SaveWindow%
 PROCtemplate_load("ProgInfo", b%, ind_data%, ind_size%, -1)
 SYS "Wimp_CreateWindow",,b% TO InfoWindow%
 PROCtemplate_load("Find", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
-SYS "Wimp_CreateWindow",,b% TO find%
+SYS "Wimp_CreateWindow",,b% TO FindWindow%
 PROCtemplate_load("Found", b%, ind_data%, ind_size%, -1)
-SYS "Wimp_CreateWindow",,b% TO foundw%
+SYS "Wimp_CreateWindow",,b% TO FoundWindow%
 PROCtemplate_load("PrintSetUp", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
-SYS "Wimp_CreateWindow",,b% TO printset%
+SYS "Wimp_CreateWindow",,b% TO PrintSetupWindow%
 PROCtemplate_load("Prefs", b%, ind_data%, ind_size%, -1)
 SYS "Wimp_CreateWindow",,b% TO PrefsWindow%
 PROCtemplate_load("PrefsPane", b%, ind_data%, ind_size%, -1)
@@ -3079,9 +3079,9 @@ PROCtemplate_load("FileInfo", b%, ind_data%, ind_size%, -1)
 SYS "Wimp_CreateWindow",,b% TO FileInfoWindow%
 PROCtemplate_load("LoadCSV", b%, ind_data%, ind_size%, -1)
 b%!64=sprite_area%
-SYS "Wimp_CreateWindow",,b% TO loadcsv%
+SYS "Wimp_CreateWindow",,b% TO LoadCSVWindow%
 PROCtemplate_load("Merge", b%, ind_data%, ind_size%, -1)
-SYS "Wimp_CreateWindow",,b% TO merge%
+SYS "Wimp_CreateWindow",,b% TO MergeWindow%
 PROCtemplate_load("Announce", b%, ind_data%, ind_size%, -1)
 b%!168+=(1<<6)+(font1%<<24)
 b%!200+=(1<<6)+(font2%<<24)
@@ -3130,51 +3130,51 @@ gotoline%=FNicon_indirection(GotoWindow%,0)
 selctline%=FNicon_indirection(SLineWindow%,0)
 :
 REM Find
-findtext%=FNicon_indirection(find%,1)
-replacetext%=FNicon_indirection(find%,9)
+findtext%=FNicon_indirection(FindWindow%,1)
+replacetext%=FNicon_indirection(FindWindow%,9)
 :
 REM Found
-foundtext%=FNicon_indirection(foundw%,2)
-foundline%=FNicon_indirection(foundw%,3)
+foundtext%=FNicon_indirection(FoundWindow%,2)
+foundline%=FNicon_indirection(FoundWindow%,3)
 :
 REM New Header
 header%=FNicon_indirection(HeadWindow%,1)
 :
 REM Save
-file%=FNicon_indirection(save%,1)
+file%=FNicon_indirection(SaveWindow%,1)
 $file%=FNmessage_lookup("FileName")
 :
 REM Export Text
-tfile%=FNicon_indirection(text%,1)
+tfile%=FNicon_indirection(ExpTextWindow%,1)
 $tfile%=FNmessage_lookup("TextName")
-text1%=FNicon_indirection(text%,10)
-text2%=FNicon_indirection(text%,11)
+text1%=FNicon_indirection(ExpTextWindow%,10)
+text2%=FNicon_indirection(ExpTextWindow%,11)
 $text1%="1"
 $text2%="1"
 :
 REM Export CSV
-cfile%=FNicon_indirection(csv%,1)
+cfile%=FNicon_indirection(ExpCSVWindow%,1)
 $cfile%=FNmessage_lookup("CsvName")
-csv1%=FNicon_indirection(csv%,10)
-csv2%=FNicon_indirection(csv%,11)
+csv1%=FNicon_indirection(ExpCSVWindow%,10)
+csv2%=FNicon_indirection(ExpCSVWindow%,11)
 $csv1%="1"
 $csv2%="1"
 :
 REM Print
-print1%=FNicon_indirection(print%,7)
-print2%=FNicon_indirection(print%,8)
+print1%=FNicon_indirection(PrintWindow%,7)
+print2%=FNicon_indirection(PrintWindow%,8)
 $print1%="1"
 $print2%="1"
 :
 REM Print Set Up
-page_length%=FNicon_indirection(printset%,1)
+page_length%=FNicon_indirection(PrintSetupWindow%,1)
 $page_length%="62"
-form_feed%=FNicon_indirection(printset%,13)
-line_feed%=FNicon_indirection(printset%,12)
-bold_on%=FNicon_indirection(printset%,14)
-bold_off%=FNicon_indirection(printset%,15)
-uline_on%=FNicon_indirection(printset%,16)
-uline_off%=FNicon_indirection(printset%,17)
+form_feed%=FNicon_indirection(PrintSetupWindow%,13)
+line_feed%=FNicon_indirection(PrintSetupWindow%,12)
+bold_on%=FNicon_indirection(PrintSetupWindow%,14)
+bold_off%=FNicon_indirection(PrintSetupWindow%,15)
+uline_on%=FNicon_indirection(PrintSetupWindow%,16)
+uline_off%=FNicon_indirection(PrintSetupWindow%,17)
 :
 REM Preferences
 entry_c%=FNicon_indirection(PrefsPaneWindow%,23)
@@ -3189,9 +3189,9 @@ $unused_c%="2"
 $overdrawn_c%="11"
 :
 REM Load CSV
-cl_desc%=FNicon_indirection(loadcsv%,0)
-cl_cred%=FNicon_indirection(loadcsv%,1)
-cl_pay%=FNicon_indirection(loadcsv%,2)
+cl_desc%=FNicon_indirection(LoadCSVWindow%,0)
+cl_cred%=FNicon_indirection(LoadCSVWindow%,1)
+cl_pay%=FNicon_indirection(LoadCSVWindow%,2)
 ENDPROC
 
 
@@ -3208,13 +3208,23 @@ REM relevant token name.
 
 CASE message%!32 OF
 	WHEN -2			: root$ = "IconBar"
+	WHEN ExpCSVWindow%	: root$ = "ExpCSV"
+	WHEN ExpTextWindow%	: root$ = "ExpText"
+	WHEN EnterWindow%	: root$ = "Enter"
 	WHEN FileInfoWindow%	: root$ = "FileInfo"
+	WHEN FindWindow%	: root$ = "Find"
+	WHEN FoundWindow%	: root$ = "Found"
 	WHEN GotoWindow%	: root$ = "Goto"
 	WHEN HeadWindow%	: root$ = "Head"
+	WHEN LoadCSVWindow%	: root$ = "ImpCSV"
 	WHEN MainWindow%	: root$ = "Main"
+	WHEN MergeWindow%	: root$ = "Merge"
 	WHEN InfoWindow%	: root$ = "Info"
 	WHEN PrefsWindow%	: root$ = "Prefs"
 	WHEN PrefsPaneWindow%	: root$ = "PrefsPane"
+	WHEN PrintWindow%	: root$ = "Print"
+	WHEN PrintSetupWindow%	: root$ = "PrintSet"
+	WHEN SaveWindow%	: root$ = "Save"
 	WHEN SLineWindow%	: root$ = "SLine"
 	WHEN TBoxWindow%	: root$ = "TBox"
 	WHEN TBarWindow%	: root$ = "TBar"
@@ -3233,7 +3243,39 @@ IF root$ <> "" THEN
 	IF suffix$ <> "" THEN
 		root$ += "." + suffix$
 	ELSE
-REM		IF message%!32 = MainWindow% AND message%!36 >= 0 AND message%!36 <= 26 THEN root$ += ".Grid"
+		CASE message%!32 OF
+		WHEN ExpCSVWindow%, ExpTextWindow%
+			CASE message%!36 OF
+				WHEN 0	: root$ += ".Icon"
+				WHEN 4	: root$ += ".FromDn"
+				WHEN 5	: root$ += ".ToDn"
+				WHEN 6	: root$ += ".FromUp"
+				WHEN 7	: root$ += ".ToUp"
+			ENDCASE
+		WHEN LoadCSVWindow%
+			CASE message%!36 OF
+				WHEN 3	: root$ += ".DescriptDn"
+				WHEN 4	: root$ += ".DescriptUp"
+				WHEN 5	: root$ += ".CreditDn"
+				WHEN 6	: root$ += ".CreditUp"
+				WHEN 7	: root$ += ".PaymentDn"
+				WHEN 8	: root$ += ".PaymentUp"
+			ENDCASE
+		WHEN PrintWindow%
+			CASE message%!36 OF
+				WHEN 1	: root$ += ".FromDn"
+				WHEN 2	: root$ += ".ToDn"
+				WHEN 3	: root$ += ".FromUp"
+				WHEN 4	: root$ += ".ToUp"
+			ENDCASE
+		WHEN PrintSetupWindow%
+			CASE message%!36 OF
+				WHEN 21	: root$ += ".LinesUp"
+				WHEN 22	: root$ += ".LinesDn"
+			ENDCASE
+		WHEN SaveWindow%
+			IF message%!36 = 0 THEN root$ += ".Icon"
+		ENDCASE
 	ENDIF
 	found% = FNmessage_lookup_result("Help." + root$, message$)
 ELSE
@@ -3247,10 +3289,8 @@ ELSE
 ENDIF
 
 REM If no message was found, give up now.
-REM
-REM \TODO -- Remove call to PROChelp once all help is handled via the new code.
 
-IF NOT found% THEN PROChelp(message%!32, message%!36) : ENDPROC
+IF NOT found% THEN ENDPROC
 
 REM If a message was found, send it back to the requestor.
 
@@ -3259,289 +3299,6 @@ message%!16 = &503
 $(message% + 20) = message$ + CHR$(0)
 !message% = 24+(LEN(message$) AND &FFFFFC)
 SYS "Wimp_SendMessage", 17, message%, message%!4
-ENDPROC
-
-DEF PROChelp(window%, icon%)
-CASE window% OF
-WHEN enter%
-CASE icon% OF
-WHEN 0
-PROCsend_help(FNmessage_lookup("Hlp8"))
-WHEN 1
-PROCsend_help(FNmessage_lookup("Hlp9"))
-WHEN 2
-PROCsend_help(FNmessage_lookup("Hlp10"))
-WHEN 3
-PROCsend_help(FNmessage_lookup("Hlp11"))
-WHEN 4
-PROCsend_help(FNmessage_lookup("Hlp12"))
-WHEN 5
-PROCsend_help(FNmessage_lookup("Hlp13"))
-WHEN 6
-PROCsend_help(FNmessage_lookup("Hlp14"))
-WHEN 7
-PROCsend_help(FNmessage_lookup("Hlp15"))
-WHEN 8
-PROCsend_help(FNmessage_lookup("Hlp16"))
-WHEN 9
-PROCsend_help(FNmessage_lookup("Hlp17"))
-WHEN 10
-PROCsend_help(FNmessage_lookup("Hlp18"))
-WHEN 11
-PROCsend_help(FNmessage_lookup("Hlp19"))
-WHEN 12
-PROCsend_help(FNmessage_lookup("Hlp20"))
-WHEN 13
-PROCsend_help(FNmessage_lookup("Hlp21"))
-OTHERWISE
-PROCsend_help(FNmessage_lookup("Hlp22"))
-ENDCASE
-WHEN find%
-CASE icon% OF
-WHEN 0
-PROCsend_help(FNmessage_lookup("Hlp183"))
-WHEN 1,10
-PROCsend_help(FNmessage_lookup("Hlp26"))
-WHEN 2
-PROCsend_help(FNmessage_lookup("Hlp27"))
-WHEN 3
-PROCsend_help(FNmessage_lookup("Hlp28"))
-WHEN 4
-PROCsend_help(FNmessage_lookup("Hlp29"))
-WHEN 5
-PROCsend_help(FNmessage_lookup("Hlp30"))
-WHEN 6
-PROCsend_help(FNmessage_lookup("Hlp31"))
-WHEN 7
-PROCsend_help(FNmessage_lookup("Hlp120"))
-WHEN 8,9
-PROCsend_help(FNmessage_lookup("Hlp121"))
-OTHERWISE
-PROCsend_help(FNmessage_lookup("Hlp32"))
-ENDCASE
-WHEN foundw%
-CASE icon% OF
-WHEN 2
-PROCsend_help(FNmessage_lookup("Hlp33"))
-WHEN 3
-PROCsend_help(FNmessage_lookup("Hlp34"))
-WHEN 4
-PROCsend_help(FNmessage_lookup("Hlp35"))
-WHEN 5
-PROCsend_help(FNmessage_lookup("Hlp36"))
-WHEN 6
-PROCsend_help(FNmessage_lookup("Hlp122"))
-WHEN 7
-PROCsend_help(FNmessage_lookup("Hlp123"))
-OTHERWISE
-PROCsend_help(FNmessage_lookup("Hlp37"))
-ENDCASE
-WHEN save%
-CASE icon% OF
-WHEN 0
-PROCsend_help(FNmessage_lookup("Hlp42"))
-WHEN 1
-PROCsend_help(FNmessage_lookup("Hlp43"))
-WHEN 2
-PROCsend_help(FNmessage_lookup("Hlp44"))
-OTHERWISE
-PROCsend_help(FNmessage_lookup("Hlp45"))
-ENDCASE
-WHEN text%
-CASE icon% OF
-WHEN 0
-PROCsend_help(FNmessage_lookup("Hlp46"))
-WHEN 1
-PROCsend_help(FNmessage_lookup("Hlp47"))
-WHEN 2
-PROCsend_help(FNmessage_lookup("Hlp48"))
-WHEN 3
-PROCsend_help(FNmessage_lookup("Hlp49"))
-WHEN 4
-PROCsend_help(FNmessage_lookup("Hlp50"))
-WHEN 5
-PROCsend_help(FNmessage_lookup("Hlp51"))
-WHEN 6
-PROCsend_help(FNmessage_lookup("Hlp52"))
-WHEN 7
-PROCsend_help(FNmessage_lookup("Hlp53"))
-WHEN 8
-PROCsend_help(FNmessage_lookup("Hlp54"))
-WHEN 9
-PROCsend_help(FNmessage_lookup("Hlp55"))
-WHEN 10
-PROCsend_help(FNmessage_lookup("Hlp56"))
-WHEN 11
-PROCsend_help(FNmessage_lookup("Hlp57"))
-WHEN 12
-PROCsend_help(FNmessage_lookup("Hlp58"))
-WHEN 13
-PROCsend_help(FNmessage_lookup("Hlp59"))
-OTHERWISE
-PROCsend_help(FNmessage_lookup("Hlp60"))
-ENDCASE
-WHEN csv%
-CASE icon% OF
-WHEN 0
-PROCsend_help(FNmessage_lookup("Hlp61"))
-WHEN 1
-PROCsend_help(FNmessage_lookup("Hlp62"))
-WHEN 2
-PROCsend_help(FNmessage_lookup("Hlp63"))
-WHEN 3
-PROCsend_help(FNmessage_lookup("Hlp64"))
-WHEN 4
-PROCsend_help(FNmessage_lookup("Hlp65"))
-WHEN 5
-PROCsend_help(FNmessage_lookup("Hlp66"))
-WHEN 6
-PROCsend_help(FNmessage_lookup("Hlp67"))
-WHEN 7
-PROCsend_help(FNmessage_lookup("Hlp68"))
-WHEN 8
-PROCsend_help(FNmessage_lookup("Hlp69"))
-WHEN 9
-PROCsend_help(FNmessage_lookup("Hlp70"))
-WHEN 10
-PROCsend_help(FNmessage_lookup("Hlp71"))
-WHEN 11
-PROCsend_help(FNmessage_lookup("Hlp72"))
-WHEN 12
-PROCsend_help(FNmessage_lookup("Hlp73"))
-OTHERWISE
-PROCsend_help(FNmessage_lookup("Hlp74"))
-ENDCASE
-WHEN print%
-CASE icon% OF
-WHEN 0
-PROCsend_help(FNmessage_lookup("Hlp75"))
-WHEN 1
-PROCsend_help(FNmessage_lookup("Hlp76"))
-WHEN 2
-PROCsend_help(FNmessage_lookup("Hlp77"))
-WHEN 3
-PROCsend_help(FNmessage_lookup("Hlp78"))
-WHEN 4
-PROCsend_help(FNmessage_lookup("Hlp79"))
-WHEN 5
-PROCsend_help(FNmessage_lookup("Hlp80"))
-WHEN 6
-PROCsend_help(FNmessage_lookup("Hlp81"))
-WHEN 7
-PROCsend_help(FNmessage_lookup("Hlp82"))
-WHEN 8
-PROCsend_help(FNmessage_lookup("Hlp83"))
-WHEN 9
-PROCsend_help(FNmessage_lookup("Hlp84"))
-WHEN 10
-PROCsend_help(FNmessage_lookup("Hlp85"))
-WHEN 11
-PROCsend_help(FNmessage_lookup("Hlp86"))
-WHEN 12
-PROCsend_help(FNmessage_lookup("Hlp87"))
-OTHERWISE
-PROCsend_help(FNmessage_lookup("Hlp88"))
-ENDCASE
-WHEN printset%
-CASE icon% OF
-WHEN 0
-PROCsend_help(FNmessage_lookup("Hlp96"))
-WHEN 1
-PROCsend_help(FNmessage_lookup("Hlp97"))
-WHEN 2
-PROCsend_help(FNmessage_lookup("Hlp98"))
-WHEN 3
-PROCsend_help(FNmessage_lookup("Hlp99"))
-WHEN 4
-PROCsend_help(FNmessage_lookup("Hlp100"))
-WHEN 5
-PROCsend_help(FNmessage_lookup("Hlp101"))
-WHEN 6
-PROCsend_help(FNmessage_lookup("Hlp102"))
-WHEN 7
-PROCsend_help(FNmessage_lookup("Hlp103"))
-WHEN 8
-PROCsend_help(FNmessage_lookup("Hlp104"))
-WHEN 9
-PROCsend_help(FNmessage_lookup("Hlp105"))
-WHEN 10
-PROCsend_help(FNmessage_lookup("Hlp106"))
-WHEN 11
-PROCsend_help(FNmessage_lookup("Hlp107"))
-WHEN 12
-PROCsend_help(FNmessage_lookup("Hlp108"))
-WHEN 13
-PROCsend_help(FNmessage_lookup("Hlp109"))
-WHEN 14
-PROCsend_help(FNmessage_lookup("Hlp110"))
-WHEN 15
-PROCsend_help(FNmessage_lookup("Hlp111"))
-WHEN 16
-PROCsend_help(FNmessage_lookup("Hlp112"))
-WHEN 17
-PROCsend_help(FNmessage_lookup("Hlp113"))
-WHEN 18
-PROCsend_help(FNmessage_lookup("Hlp114"))
-WHEN 19
-PROCsend_help(FNmessage_lookup("Hlp115"))
-WHEN 20
-PROCsend_help(FNmessage_lookup("Hlp116"))
-WHEN 21
-PROCsend_help(FNmessage_lookup("Hlp118"))
-WHEN 22
-PROCsend_help(FNmessage_lookup("Hlp119"))
-OTHERWISE
-PROCsend_help(FNmessage_lookup("Hlp117"))
-ENDCASE
-WHEN merge%
-CASE icon% OF
-WHEN 0
-PROCsend_help(FNmessage_lookup("Hlp124"))
-WHEN 1
-PROCsend_help(FNmessage_lookup("Hlp125"))
-WHEN 2
-PROCsend_help(FNmessage_lookup("Hlp126"))
-WHEN 3
-PROCsend_help(FNmessage_lookup("Hlp127"))
-OTHERWISE
-PROCsend_help(FNmessage_lookup("Hlp128"))
-ENDCASE
-WHEN loadcsv%
-CASE icon% OF
-WHEN 0
-PROCsend_help(FNmessage_lookup("Hlp129"))
-WHEN 1
-PROCsend_help(FNmessage_lookup("Hlp130"))
-WHEN 2
-PROCsend_help(FNmessage_lookup("Hlp131"))
-WHEN 3
-PROCsend_help(FNmessage_lookup("Hlp132"))
-WHEN 4
-PROCsend_help(FNmessage_lookup("Hlp133"))
-WHEN 5
-PROCsend_help(FNmessage_lookup("Hlp134"))
-WHEN 6
-PROCsend_help(FNmessage_lookup("Hlp135"))
-WHEN 7
-PROCsend_help(FNmessage_lookup("Hlp136"))
-WHEN 8
-PROCsend_help(FNmessage_lookup("Hlp137"))
-WHEN 9
-PROCsend_help(FNmessage_lookup("Hlp138"))
-WHEN 10
-PROCsend_help(FNmessage_lookup("Hlp139"))
-WHEN 11
-PROCsend_help(FNmessage_lookup("Hlp140"))
-WHEN 12
-PROCsend_help(FNmessage_lookup("Hlp141"))
-WHEN 13
-PROCsend_help(FNmessage_lookup("Hlp142"))
-OTHERWISE
-PROCsend_help(FNmessage_lookup("Hlp143"))
-ENDCASE
-OTHERWISE
-PROCsend_help(FNmessage_lookup("Hlp188"))
-ENDCASE
 ENDPROC
 :
 DEF PROCsend_help(help$)
@@ -3626,7 +3383,7 @@ IF FNmenu_state(MainMenu%,8) THENq%!24=0 ELSEq%!24=-96
 q%!28=b%!28
 SYS "Wimp_OpenWindow",,q%
 IF FNmenu_state(MainMenu%,7) AND join_main% THEN
-!q%=enter%
+!q%=EnterWindow%
 SYS "Wimp_GetWindowState",,q%
 q%!4=b%!4+40
 IF b%!8>236 THENover%=0
@@ -3639,7 +3396,7 @@ q%!20=0
 q%!24=0
 q%!28=TBarWindow%
 SYS "Wimp_OpenWindow",,q%
-b%!28=enter%
+b%!28=EnterWindow%
 ELSE
 b%!28=TBarWindow%
 ENDIF

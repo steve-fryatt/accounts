@@ -212,139 +212,111 @@ Help.FileInfo.Modified:\TFile Info \w.|MThis icon shows you if your account has 
 Help.FileInfo.Entries:\TFile Info \w.|MThis icon shows you how many entries there are in the current account.
 Help.FileInfo.Size:\TFile Info \w.|MThis icon shows you the current file size.
 Help.FileInfo.Name:\TFile Info \w.|MThis icon shows you the current file name.
-
-
-
-
-Hlp8:This is the Accounts Enter window.|MThis icon selects the current line for all input functions.
-Hlp9:This is the Accounts Enter window.|MThis icon selects the Clip-Board for all input functions.
-Hlp10:This is the Accounts Enter window.|MThis column allows you to enter new descriptions.|MClick in any of the white boxes to give Accounts input-focus.
-Hlp11:This is the Accounts Enter window.|MThis column allows you to enter new credits.|MClick in any of the white boxes to give Accounts input-focus.
-Hlp12:This is the Accounts Enter window.|MThis column allows you to enter new payments.|MClick in any of the white boxes to give Accounts input-focus.
-Hlp13:This is the Accounts Enter window.|MThis column lets you choose the current line or the clip-board for input.|MClick in any of the white boxes to give Accounts input-focus.
-Hlp14:This is the Accounts Enter window.|MThis icon lets you enter a new description.|MClick here to gain the caret.|MPressing RETURN moves to the next field.
-Hlp15:This is the Accounts Enter window.|MThis icon lets you enter a new credit.|MClick here to gain the caret.|MPressing RETURN moves to the next field.
-Hlp16:This is the Accounts Enter window.|MThis icon lets you enter a new payment.|MClick here to gain the caret.|MPressing RETURN adds this line to the end of the account.
-Hlp17:This is the Accounts Enter window.|MThis line shows the currently selected entry.
-Hlp18:This is the Accounts Enter window.|MThis line is the clip-board
-Hlp19:This is the Accounts Enter window.|MThis icon lets you enter a new description on the clip_board.|MClick here to gain the caret.|MPressing RETURN moves to the next field.
-Hlp20:This is the Accounts Enter window.|MThis icon lets you enter a new credit on the clip_board.|MClick here to gain the caret.|MPressing RETURN moves to the next field.
-Hlp21:This is the Accounts Enter window.|MThis icon lets you enter a new payment on the clip_board.|MClick here to gain the caret.|MPressing RETURN adds this line to the end of the account.
-Hlp22:This is the Accounts Enter window.|MIt allows you to add new entries to the current account.|MIt also contains the clip-board.|MClick in any of the white boxes to give Accounts input-focus.
-Hlp26:This is the Find window.|MType in the string that you wish to search for.|MClick here to get the caret.
-Hlp27:This is the Find window.|MThis icon toggles case sensitivity on and off.
-Hlp28:This is the Find window.|MThis icon sets find to search for a sub-string within a description.
-Hlp29:This is the Find window.|MThis icon sets find to search for a complete match.
-Hlp30:This is the Find window.|MClick here to start the search.
-Hlp31:This is the Find window.|MClick here to cancel the search before it starts.
-Hlp32:This is the Find window.|MIt can be used to search for a particular description within an account.
-Hlp33:This is the Found window.|MThis icon displays the match found.
-Hlp34:This is the Found window.|MThis icon displays the line at wich the match was found.
-Hlp35:This is the Found window.|MClick here to continue the search.
-Hlp36:This is the Found window.|MClick here to end the search.
-Hlp37:This is the Found window.|MIt shows information about the match found.
-Hlp42:This is the Save window.|MDrag this icon to a director viewer to save the account.
-Hlp43:This is the Save window.|MType the file-name in here.
-Hlp44:This is the Save window.|MClick here if the file-name has a full path-name to save.
-Hlp45:This is the Save window.|MIt allows you to save your account to disc.
-Hlp46:This is the Export Text window.|MDrag this icon to a director viewer to save the text.
-Hlp47:This is the Export Text window.|MType the file-name in here.
-Hlp48:This is the Export Text window.|MClick here if the file-name has a full path-name to save.
-Hlp49:This is the Export Text window.|MThis section selects the lines to be exported.
-Hlp50:This is the Export Text window.|MThis sets the first line to be exported.|MClick here to lower the limit.
-Hlp51:This is the Export Text window.|MThis sets the last line to be exported.|MClick here to lower the limit.
-Hlp52:This is the Export Text window.|MThis sets the first line to be exported.|MClick here to raise the limit.
-Hlp53:This is the Export Text window.|MThis sets the last line to be exported.|MClick here to raise the limit.
-Hlp54:This is the Export Text window.|MThis line sets the first line to be exported.
-Hlp55:This is the Export Text window.|MThis sets the last line to be exported.
-Hlp56:This is the Export Text window.|MThis shows the first line to be exported.
-Hlp57:This is the Export Text window.|MThis shows the last line to be exported.
-Hlp58:This is the Export Text window.|MClick here to toggle the date and file name on and off|Mat the top of the file.
-Hlp59:This is the Export Text window.|MClick here to toggle the column headings on and off.
-Hlp60:This is the Export Text window.|MIt allows you to export text from an account as a text file.
-Hlp61:This is the Export CSV window.|MDrag this icon to a director viewer to save the CSV file.
-Hlp62:This is the Export CSV window.|MType the file-name in here.
-Hlp63:This is the Export CSV window.|MClick here if the file-name has a full path-name to save.
-Hlp64:This is the Export CSV window.|MThis section selects the lines to be exported.
-Hlp65:This is the Export CSV window.|MThis sets the first line to be exported.|MClick here to lower the limit.
-Hlp66:This is the Export CSV window.|MThis sets the last line to be exported.|MClick here to lower the limit.
-Hlp67:This is the Export CSV window.|MThis sets the first line to be exported.|MClick here to raise the limit.
-Hlp68:This is the Export CSV window.|MThis sets the last line to be exported.|MClick here to raise the limit.
-Hlp69:This is the Export CSV window.|MThis line sets the first line to be exported.
-Hlp70:This is the Export CSV window.|MThis sets the last line to be exported.
-Hli71:This is the Export CSV window.|MThis shows the first line to be exported.
-Hlp72:This is the Export CSV window.|MThis shows the last line to be exported.
-Hlp73:This is the Export CSV window.|MClick here to toggle the column headings on and off.
-Hlp74:This is the Export CSV window.|MIt allows you to export entries from an account as a|MComma Separated Values File, for use in spreadsheets.
-Hlp75:This is the Print window.|MThis section selects the lines to be printed.
-Hlp76:This is the Print window.|MThis sets the first line to be printed.|MClick here to lower the limit.
-Hlp77:This is the Print window.|MThis sets the last line to be printed.|MClick here to lower the limit.
-Hlp78:This is the Print window.|MThis sets the first line to be printed.|MClick here to raise the limit.
-Hlp79:This is the Print window.|MThis sets the last line to be printed.|MClick here to raise the limit.
-Hlp80:This is the Print window.|MThis line sets the first line to be printed.
-Hlp81:This is the Print window.|MThis sets the last line to be printed.
-Hlp82:This is the Print window.|MThis shows the first line to be printed.
-Hlp83:This is the Print window.|MThis shows the last line to be printed.
-Hlp84:This is the Print window.|MClick here to toggle the date and file name on and off|Mat the top of the page.
-Hlp85:This is the Print window.|MClick here to toggle the column headings on and off.
-Hlp86:This is the Print window.|MClick here to start the printer.
-Hlp87:This is the Print window.|MClick here to cancel.
-Hlp88:This is the Print window.|MIt allows you to print your accounts out|Mon a standard Dot-Matrix printer.
-Hlp96:This is the Printer Set Up window.|MThis section allows you to specify the number of lines that your printer|Mcan use on a page.
-Hlp97:This is the Printer Set Up window.|MThis section allows you to specify the number of lines that your printer|Mcan use on a page.|MType the number into this box.
-Hlp98:This is the Printer Set Up window.|MThis section allows you to specify the number of lines that your printer|Mcan use on a page.
-Hlp99:This is the Printer Set Up window.|MThis switch toggles Form Feed on and off.|MWhen on the paper is moved on to the next sheet between pages,|Mbut when off, this does not happen.
-Hlp100:This is the Printer Set Up window.|MThis section sets the contol codes that Accounts sends to your printer,|Mto control things like bold and underline.
-Hlp101:This is the Printer Set Up window.|MThis section sets the contol codes that Accounts sends to your printer,|Mto control things like bold and underline.
-Hlp102:This is the Printer Set Up window.|MThis line sets the code for a line feed.
-Hlp103:This is the Printer Set Up window.|MThis line sets the code for a form feed.
-Hlp104:This is the Printer Set Up window.|MThis line sets the code for turning bold on.
-Hlp105:This is the Printer Set Up window.|MThis line sets the code for turning bold off.
-Hlp106:This is the Printer Set Up window.|MThis line sets the code for turning underline on.
-Hlp107:This is the Printer Set Up window.|MThis line sets the code for turning underline off.
-Hlp108:This is the Printer Set Up window.|MThis line sets the code for a line feed.|MType the codes into this box, with the numbers separated by commas.
-Hlp109:This is the Printer Set Up window.|MThis line sets the code for a form feed.|MType the codes into this box, with the numbers separated by commas.
-Hlp110:This is the Printer Set Up window.|MThis line sets the code for turning bold on.|MType the codes into this box, with the numbers separated by commas.
-Hlp111:This is the Printer Set Up window.|MThis line sets the code for turning bold off.|MType the codes into this box, with the numbers separated by commas.
-Hlp112:This is the Printer Set Up window.|MThis line sets the code for turning underline on.|MType the codes into this box, with the numbers separated by commas.
-Hlp113:This is the Printer Set Up window.|MThis line sets the code for turning underline off.|MType the codes into this box, with the numbers separated by commas.
-Hlp114:This is the Printer Set Up window.|MClick here to forget any changes made.
-Hlp115:This is the Printer Set Up window.|MClick here to use the changes made and save them to disk for future use.
-Hlp116:This is the Printer Set Up window.|MClick here to use the changes made.
-Hlp117:This is the Printer Set Up window.|MIt allows you to set up Acounts' internal printer driver to suit your|Mprinter.
-Hlp118:This is the Printer Set Up window.|MThis section allows you to specify the number of lines that your printer|Mcan use on a page.|MClick here to raise the number.
-Hlp119:This is the Printer Set Up window.|MThis section allows you to specify the number of lines that your printer|Mcan use on a page.|MClick here to lower the number.
-Hlp120:This is the Find window.|MClick here to replace all the ocurrences of the string in the account.
-Hlp121:This is the Find window.|MType in the string that you wish to replace with.|MClick here to get the caret.
-Hlp122:This is the Found window.|MClick here to replace the match and continue the search.
-Hlp123:This is the Found window.|MClick here to replace all the remaining ocurrences of the string in the account.
-Hlp124:This is the Merge Files window.|MClick here to add the new file to the end.
-Hlp125:This is the Merge Files window.|MClick here to cancel the operation.
-Hlp126:This is the Merge Files window.|MClick here to insert the new file above the selected line.
-Hlp127:This is the Merge Files window.|MClick here to insert the new file below the selected line.
-Hlp128:This is the Merge Files window.|MIt allows you to merge two account files together.
-Hlp129:This is the Inport CSV File window.|MThis shows the column used for the descriptions.
-Hlp130:This is the Inport CSV File window.|MThis shows the column used for the credits.
-Hlp131:This is the Inport CSV File window.|MThis shows the column used for the payments.
-Hlp132:This is the Inport CSV File window.|MClick here to reduce the column number for the descriptions by one.
-Hlp133:This is the Inport CSV File window.|MClick here to increase the column number for the descriptions by one.
-Hlp134:This is the Inport CSV File window.|MClick here to reduce the column number for the credits by one.
-Hlp135:This is the Inport CSV File window.|MClick here to increase the column number for the credits by one.
-Hlp136:This is the Inport CSV File window.|MClick here to reduce the column number for the payments by one.
-Hlp137:This is the Inport CSV File window.|MClick here to increase the column number for the payments by one.
-Hlp138:This is the Inport CSV File window.|MThis shows the column used for the descriptions.
-Hlp139:This is the Inport CSV File window.|MThis shows the column used for the credits.
-Hlp140:This is the Inport CSV File window.|MThis shows the column used for the payments.
-Hlp141:This is the Inport CSV File window.|MClick here to cancel the load.
-Hlp142:This is the Inport CSV File window.|MClick here to load the CSV file.
-Hlp143:This is the Inport CSV File window.|MIt allows you to load CSV files into Accounts.
+Help.Save:\TSave \w.|MIt allows you to save your account to disc.
+Help.Save.Icon:\TSave \w.|MDrag this icon to a director viewer to save the account.
+Help.Save.Name:\TSave \w.|MType the file-name in here.
+Help.Save.OK:\TSave \w.|MClick here if the file-name has a full path-name to save.
+Help.Find:\TFind \w.|MIt can be used to search for a particular description within an account.
+Help.Find.Find:\TFind \window.|MType in the string that you wish to search for.|M\Sget the caret.
+Help.Find.Replace:\TFind \window.|MType in the string that you wish to replace with.|M\Sget the caret.
+Help.Find.Case:\TFind \window.|MThis icon toggles case sensitivity on and off.
+Help.Find.Sub:\TFind \window.|MThis icon sets find to search for a sub-string within a description.
+Help.Find.Whole:\TFind \window.|MThis icon sets find to search for a complete match.
+Help.Find.Find:\TFind \window.|M\Sstart the search.
+Help.Find.Cancel:\TFind \window.|M\Scancel the search before it starts.
+Help.Find.All:\TFind \window.|M\Sreplace all the ocurrences of the string in the account.
+Help.Found:\TFound \window.|MIt shows information about the match found.
+Help.Found.Match:\TFound \window.|MThis icon displays the match found.
+Help.Found.Line:\TFound \window.|MThis icon displays the line at wich the match was found.
+Help.Found.Next:\TFound \window.|M\Scontinue the search.
+Help.Found.Stop:\TFound \window.|M\Send the search.
+Help.Found.Replace:\TFound \window.|M\Sreplace the match and continue the search.
+Help.Found.All:\TFound \window.|M\Sreplace all the remaining ocurrences of the string in the account.
+Help.Merge:\TMerge Files \window.|MIt allows you to merge two account files together.
+Help.Merge.End:\TMerge Files \window.|M\Sadd the new file to the end.
+Help.Merge.Cancel:\TMerge Files \window.|M\Scancel the operation.
+Help.Merge.Above:\TMerge Files \window.|M\Sinsert the new file above the selected line.
+Help.Merge.Below:\TMerge Files \window.|M\Sinsert the new file below the selected line.
+Help.ImpCSV:\TImport CSV File \window.|MIt allows you to load CSV files into Accounts.
+Help.ImpCSV.DescriptDn:\TImport CSV File \window.|M\Sreduce the column number for the descriptions by one.
+Help.ImpCSV.DescriptUp:\TImport CSV File \window.|M\Sincrease the column number for the descriptions by one.
+Help.ImpCSV.CreditDn:\TImport CSV File \window.|M\Sreduce the column number for the credits by one.
+Help.ImpCSV.CreditUp:\TImport CSV File \window.|M\Sincrease the column number for the credits by one.
+Help.ImpCSV.PaymentDn:\TImport CSV File \window.|M\Sreduce the column number for the payments by one.
+Help.ImpCSV.PaymentUp:\TImport CSV File \window.|M\Sincrease the column number for the payments by one.
+Help.ImpCSV.Descript:\TImport CSV File \window.|MThis shows the column used for the descriptions.
+Help.ImpCSV.Credit:\TImport CSV File \window.|MThis shows the column used for the credits.
+Help.ImpCSV.Payment:\TImport CSV File \window.|MThis shows the column used for the payments.
+Help.ImpCSV.Cancel:\TImport CSV File \window.|M\Scancel the load.
+Help.ImpCSV.Load:\TImport CSV File \window.|M\Sload the CSV file.
+Help.PrintSet:\TPrinter Set Up \w.|MIt allows you to set up Acounts' internal printer driver to suit your printer.
+Help.PrintSet.PageLen:\TPrinter Set Up \w.|MThis section allows you to specify the number of lines that your printer can use on a page.|MType the number into this box.
+Help.PrintSet.LinesUp:\TPrinter Set Up \w.|MThis section allows you to specify the number of lines that your printer can use on a page.|M\Sraise the number.
+Help.PrintSet.LinesDn:\TPrinter Set Up \w.|MThis section allows you to specify the number of lines that your printer can use on a page.|M\Slower the number.
+Help.PrintSet.FeedAfter:\TPrinter Set Up \w.|MThis switch toggles Form Feed on and off.|MWhen on the paper is moved on to the next sheet between pages,|Mbut when off, this does not happen.
+Help.PrintSet.Codes:\TPrinter Set Up \w.|MThis section sets the contol codes that Accounts sends to your printer,|Mto control things like bold and underline.
+Help.PrintSet.LineFeed:\TPrinter Set Up \w.|MThis line sets the code for a line feed.|MType the codes into this box, with the numbers separated by commas.
+Help.PrintSet.FormFeed:\TPrinter Set Up \w.|MThis line sets the code for a form feed.|MType the codes into this box, with the numbers separated by commas.
+Help.PrintSet.BoldOn:\TPrinter Set Up \w.|MThis line sets the code for turning bold on.|MType the codes into this box, with the numbers separated by commas.
+Help.PrintSet.BoldOff:\TPrinter Set Up \w.|MThis line sets the code for turning bold off.|MType the codes into this box, with the numbers separated by commas.
+Help.PrintSet.UnderOn:\TPrinter Set Up \w.|MThis line sets the code for turning underline on.|MType the codes into this box, with the numbers separated by commas.
+Help.PrintSet.UnderOff:\TPrinter Set Up \w.|MThis line sets the code for turning underline off.|MType the codes into this box, with the numbers separated by commas.
+Help.PrintSet.Cancel:\TPrinter Set Up \w.|M\Sforget any changes made.
+Help.PrintSet.Save:\TPrinter Set Up \w.|M\Suse the changes made and save them to disk for future use.
+Help.PrintSet.OK:\TPrinter Set Up \w.|M\Suse the changes made.
+Help.Print:\TPrint \w.|MIt allows you to print your accounts out on a standard Dot-Matrix printer.
+Help.Print.FromDn:\TPrint \w.|MThis sets the first line to be printed.|M\Slower the limit.
+Help.Print.ToDn:\TPrint \w.|MThis sets the last line to be printed.|M\Slower the limit.
+Help.Print.FromUp:\TPrint \w.|MThis sets the first line to be printed.|M\Sraise the limit.
+Help.Print.ToUp:\TPrint \w.|MThis sets the last line to be printed.|M\Sraise the limit.
+Help.Print.From:\TPrint \w.|MThis shows the first line to be printed.
+Help.Print.To:\TPrint \w.|MThis shows the last line to be printed.
+Help.Print.Header:\TPrint \w.|M\Stoggle the date and file name on and off at the top of the page.
+Help.Print.ColHead:\TPrint \w.|M\Stoggle the column headings on and off.
+Help.Print.Print:\TPrint \w.|M\Sstart the printer.
+Help.Print.Cancel:\TPrint \w.|M\Scancel.
+Help.ExpText:\TExport Text \w.|MIt allows you to export text from an account as a text file.
+Help.ExpText.Icon:\TExport Text \w.|MDrag this icon to a director viewer to save the text.
+Help.ExpText.Name:\TExport Text \w.|MType the file-name in here.
+Help.ExpText.OK:\TExport Text \w.|MClick here if the file-name has a full path-name to save.
+Help.ExpText.FromDn:\TExport Text \w.|MThis sets the first line to be exported.|M\Slower the limit.
+Help.ExpText.ToDn:\TExport Text \w.|MThis sets the last line to be exported.|M\Slower the limit.
+Help.ExpText.FromUp:\TExport Text \w.|MThis sets the first line to be exported.|M\Sraise the limit.
+Help.ExpText.ToUp:\TExport Text \w.|MThis sets the last line to be exported.|M\Sraise the limit.
+Help.ExpText.From:\TExport Text \w.|MThis shows the first line to be exported.
+Help.ExpText.To:\TExport Text \w.|MThis shows the last line to be exported.
+Help.ExpText.Header:\TExport Text \w.|M\Stoggle the date and file name on and off|Mat the top of the file.
+Help.ExpText.ColHead:\TExport Text \w.|M\Stoggle the column headings on and off.
+Help.ExpCSV:\TExport CSV \w.|MIt allows you to export entries from an account as a Comma Separated Values File, for use in spreadsheets.
+Help.ExpCSV.Icon:\TExport CSV \w.|MDrag this icon to a director viewer to save the CSV file.
+Help.ExpCSV.Name:\TExport CSV \w.|MType the file-name in here.
+Help.ExpCSV.OK:\TExport CSV \w.|MClick here if the file-name has a full path-name to save.
+Help.ExpCSV.FromDn:\TExport CSV \w.|MThis sets the first line to be exported.|M\Slower the limit.
+Help.ExpCSV.ToDn:\TExport CSV \w.|MThis sets the last line to be exported.|M\Slower the limit.
+Help.ExpCSV.FromUp:\TExport CSV \w.|MThis sets the first line to be exported.|M\Sraise the limit.
+Help.ExpCSV.ToUp:\TExport CSV \w.|MThis sets the last line to be exported.|M\Sraise the limit.
+Help.ExpCSV.From:\TExport CSV \w.|MThis shows the first line to be exported.
+Help.ExpCSV.To:\TExport CSV \w.|MThis shows the last line to be exported.
+Help.ExpCSV.ColHead:\TExport CSV \w.|M\Stoggle the column headings on and off.
+Help.Enter:\TAccounts Enter \w.|MIt allows you to add new entries to the current account.|MIt also contains the clip-board.|MClick in any of the white boxes to give Accounts input-focus.
+Help.Enter.NRSel:\TAccounts Enter \w.|MThis icon selects the current line for all input functions.
+Help.Enter.NRClip:\TAccounts Enter \w.|MThis icon selects the Clip-Board for all input functions.
+Help.Enter.Desc:\TAccounts Enter \w.|MThis column allows you to enter new descriptions.|MClick in any of the white boxes to give Accounts input-focus.
+Help.Enter.Credit:\TAccounts Enter \w.|MThis column allows you to enter new credits.|MClick in any of the white boxes to give Accounts input-focus.
+Help.Enter.Payment:\TAccounts Enter \w.|MThis column allows you to enter new payments.|MClick in any of the white boxes to give Accounts input-focus.
+Help.Enter.DescSel:\TAccounts Enter \w.|MThis icon lets you enter a new description.|M\Sgain the caret.|MPressing RETURN moves to the next field.
+Help.Enter.CredSel:\TAccounts Enter \w.|MThis icon lets you enter a new credit.|M\Sgain the caret.|MPressing RETURN moves to the next field.
+Help.Enter.PaySel:\TAccounts Enter \w.|MThis icon lets you enter a new payment.|M\Sgain the caret.|MPressing RETURN adds this line to the end of the account.
+Help.Enter.Select:\TAccounts Enter \w.|MThis line shows the currently selected entry.
+Help.Enter.Clipbrd:\TAccounts Enter \w.|MThis line is the clip-board
+Help.Enter.DescClip:\TAccounts Enter \w.|MThis icon lets you enter a new description on the clip_board.|M\Sgain the caret.|MPressing RETURN moves to the next field.
+Help.Enter.CredClip:\TAccounts Enter \w.|MThis icon lets you enter a new credit on the clip_board.|M\Sgain the caret.|MPressing RETURN moves to the next field.
+Help.Enter.PayClip:\TAccounts Enter \w.|MThis icon lets you enter a new payment on the clip_board.|M\Sgain the caret.|MPressing RETURN adds this line to the end of the account.
 Hlp177:This is the main Accounts window.|MYou are now over the entry numbers.
 Hlp178:This is the main Accounts window.|MYou are now over the description column.
 Hlp179:This is the main Accounts window.|MYou are now over the credit column.
 Hlp180:This is the main Accounts window.|MYou are now over the payment column.
 Hlp181:This is the main Accounts window.|MYou are now over the balance column.
-Hlp183:This is the Find window.|MUse this section to set the search options.
-Hlp188:This is the Accounts application, a bank accounts manager.|MThere is no help avaliable for this window.
 Hlp204:This is the Tool-bar.|MIt contains icons to access many of the features of Accounts.|MOptions that are greyed out are only available when there is a selection.
 
 Help.IconBarMenu.00:\Rto see information about Accounts and visit its website.

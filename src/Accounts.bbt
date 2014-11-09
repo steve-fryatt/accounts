@@ -3472,7 +3472,7 @@ ENDCASE
 
 REM We don't recognise the error, so exit without claiming it.
 
-IF token$ == "" THEN =FALSE
+IF token$ = "" THEN =FALSE
 
 REM It's an error code we recognise, so report it and exit showing that
 REM we've claimed the error.

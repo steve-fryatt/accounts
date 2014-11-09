@@ -3301,14 +3301,6 @@ $(message% + 20) = message$ + CHR$(0)
 SYS "Wimp_SendMessage", 17, message%, message%!4
 ENDPROC
 :
-DEF PROCsend_help(help$)
-b%!12=b%!8
-b%!16=&503
-$(b%+20)=help$+STRING$(4,CHR$(0))
-!b%=24+(LEN(help$) AND &FFFFFC)
-SYS "Wimp_SendMessage",17,b%,b%!4
-ENDPROC
-:
 DEF FNmenu_state(handle%,item%)
 LOCAL a%
 a%=handle%+28+(item%*24)

@@ -73,53 +73,8 @@ CASE reason% OF
 WHEN 1
 	PROCredraw
 WHEN 2
+	PROCopen_window_panes(b%)
 	SYS "Wimp_OpenWindow",,b%
-	IF !b% = MainWindow% OR !b% = PrefsWindow% THEN
-		IF !b% = MainWindow% THEN
-			!q% = TBarWindow%
-			SYS "Wimp_GetWindowState",,q%
-			q%!4 = b%!4
-			q%!16 = b%!16
-			IF FNmenu_state(MainMenu%, 8) THEN q%!8 = b%!16 - 136 ELSE q%!8 = b%!16 - 36
-			q%!12 = b%!12
-			q%!20 = b%!20
-			IF FNmenu_state(MainMenu%, 8) q%!24 = 0 ELSE q%!24 = -96
-			q%!28 = b%!28
-			SYS "Wimp_OpenWindow",,q%
-			IF FNmenu_state(MainMenu%, 7) AND join_main% THEN
-				!q% = EnterWindow%
-				SYS "Wimp_GetWindowState",,q%
-				q%!4 = b%!4 + 40
-				IF b%!8 > 236 THEN over% = 0
-				IF b%!8 <= 236 AND b%!8 > 0 THEN over% = 236 - b%!8
-				IF b%!8 <= 0 THEN over% = 236
-				q%!16 = b%!8 -44 + over%
-				q%!8 = b%!8 - 236 + over%
-				q%!12 = b%!4 + 1236
-				q%!20 = 0
-				q%!24 = 0
-				q%!28 = TBarWindow%
-				SYS "Wimp_OpenWindow",,q%
-				b%!28 = EnterWindow%
-			ELSE
-				b%!28 = TBarWindow%
-			ENDIF
-			SYS "Wimp_OpenWindow",,b%
-		ELSE
-			!q% = PrefsPaneWindow%
-			SYS "Wimp_GetWindowState",,q%
-			q%!4 = b%!4 + 22
-			q%!16 = b%!8 + 402
-			q%!8 = b%!8 + 24
-			q%!12 = b%!4 + 502
-			q%!28 = b%!28
-			SYS "Wimp_OpenWindow",,q%
-			b%!28 = PrefsPaneWindow%
-			SYS "Wimp_OpenWindow",,b%
-		ENDIF
-	ELSE
-		SYS "Wimp_OpenWindow",,b%
-	ENDIF
 WHEN 3
 	SYS "Wimp_CloseWindow",,b%
 	IF !b% = MainWindow% THEN
@@ -3366,61 +3321,75 @@ ENDPROC
 DEF PROCcheck_select(w%,i%)
 IF NOT (FNicon_selected(w%,i%)<>0) THENPROCicon_set_state(w%,i%,1,0,0)
 ENDPROC
-:
-DEF PROCopen_window(whan%)
 
+
+
+REM Open a window, with handling for the panes on the main window or
+REM Preferences dialogue.
+REM
+REM \param whan%		The handle of the window to be opened.
+
+DEF PROCopen_window(whan%)
 !b% = whan%
 SYS "Wimp_GetWindowState",,b%
+PROCopen_window_panes(b%)
+SYS "Wimp_OpenWindow",,b%
+ENDPROC
 
-IF !b% = MainWindow% OR !b% = PrefsWindow% THEN
-	IF !b% = MainWindow% THEN
-		!q% = TBarWindow%
+
+REM Handle the panes on the main and preferences windows before calling
+REM Wimp_OpenWindow.
+REM
+REM \param block%		Pointer to the Wimp_OpenWindow block.
+:
+DEF PROCopen_window_panes(block%)
+LOCAL over%
+
+IF !block% <> MainWindow% AND !block% <> PrefsWindow% THEN ENDPROC
+
+CASE !block% OF
+WHEN MainWindow%
+	!q% = TBarWindow%
+	SYS "Wimp_GetWindowState",,q%
+	q%!4 = block%!4
+	q%!16 = block%!16
+	IF FNmenu_state(MainMenu%, 8) THEN q%!8 = block%!16 - 136 ELSE q%!8 = block%!16 - 36
+	q%!12 = block%!12
+	q%!20 = block%!20
+	IF FNmenu_state(MainMenu%, 8) THEN q%!24 = 0 ELSE q%!24 = -96
+	q%!28 = block%!28
+	SYS "Wimp_OpenWindow",,q%
+
+	IF FNmenu_state(MainMenu%, 7) AND join_main% THEN
+		!q% = EnterWindow%
 		SYS "Wimp_GetWindowState",,q%
-		q%!4 = b%!4
-		q%!16 = b%!16
-		IF FNmenu_state(MainMenu%,8) THEN q%!8 = b%!16-136 ELSE q%!8 = b%!16-36
-		q%!12=b%!12
-		q%!20=b%!20
-		IF FNmenu_state(MainMenu%,8) THENq%!24=0 ELSEq%!24=-96
-		q%!28=b%!28
+		q%!4 = block%!4+40
+		IF block%!8 > 236 THEN over% = 0
+		IF block%!8 <= 236 AND block%!8 > 0 THEN over% = 236 - block%!8
+		IF block%!8 <= 0 THEN over% = 236
+		q%!16 = block%!8 - 44 + over%
+		q%!8 = block%!8 - 236 + over%
+		q%!12 = block%!4 + 1236
+		q%!20 = 0
+		q%!24 = 0
+		q%!28 = TBarWindow%
 		SYS "Wimp_OpenWindow",,q%
-		IF FNmenu_state(MainMenu%,7) AND join_main% THEN
-			!q%=EnterWindow%
-			SYS "Wimp_GetWindowState",,q%
-			q%!4=b%!4+40
-			IF b%!8>236 THENover%=0
-			IF b%!8<=236 AND b%!8>0 THENover%=236-b%!8
-			IF b%!8<=0 THENover%=236
-			q%!16=b%!8-44+over%
-			q%!8=b%!8-236+over%
-			q%!12=b%!4+1236
-			q%!20=0
-			q%!24=0
-			q%!28=TBarWindow%
-			SYS "Wimp_OpenWindow",,q%
-			b%!28=EnterWindow%
-		ELSE
-			b%!28=TBarWindow%
-		ENDIF
-
-		SYS "Wimp_OpenWindow",,b%
+		block%!28 = EnterWindow%
 	ELSE
-		!q%=PrefsPaneWindow%
-		SYS "Wimp_GetWindowState",,q%
-		q%!4=b%!4+22
-		q%!16=b%!8+402
-		q%!8=b%!8+24
-		q%!12=b%!4+502
-		q%!20=0
-		q%!24=0
-		q%!28=b%!28
-		SYS "Wimp_OpenWindow",,q%
-		b%!28=PrefsPaneWindow%
-		SYS "Wimp_OpenWindow",,b%
+		block%!28 = TBarWindow%
 	ENDIF
-ELSE
-	SYS "Wimp_OpenWindow",,b%
-ENDIF
+
+WHEN PrefsWindow%
+	!q% = PrefsPaneWindow%
+	SYS "Wimp_GetWindowState",,q%
+	q%!4 = block%!4 + 22
+	q%!16 = block%!8 + 402
+	q%!8 = block%!8 + 24
+	q%!12 = block%!4 + 502
+	q%!28 = block%!28
+	SYS "Wimp_OpenWindow",,q%
+	block%!28 = PrefsPaneWindow%
+ENDCASE
 ENDPROC
 
 

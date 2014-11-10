@@ -152,7 +152,7 @@ REM				to leave open.
 DEF PROCclose_intro(force%)
 IF (IntroUpAt% = 0) OR ((TIME < IntroUpAt% + IntroDisplayTime%) AND (NOT force%)) THEN ENDPROC
 
-PROCwindow_close(SplashWindow%)
+PROCwindow_close(IntroWindow%)
 IntroUpAt%=0
 ENDPROC
 
@@ -2952,7 +2952,7 @@ state%=INSTR(CommandLine$,"!RunImage")+11
 CommandLine$=MID$(CommandLine$,state%)
 IF CommandLine$<>"" PROCinit_load(CommandLine$)
 IntroUpAt%=TIME
-PROCwindow_open_centred_at(SplashWindow%, ScreenWidth% / 2, ScreenHeight% / 2)
+PROCwindow_open_centred_at(IntroWindow%, ScreenWidth% / 2, ScreenHeight% / 2)
 ENDPROC
 :
 DEF PROCdrag_init
@@ -3094,7 +3094,7 @@ PROCtemplate_load("Announce", b%, ind_data%, ind_size%, -1)
 b%!168+=(1<<6)+(font1%<<24)
 b%!200+=(1<<6)+(font2%<<24)
 b%!232+=(1<<6)+(font3%<<24)
-SYS "Wimp_CreateWindow",,b% TO SplashWindow%
+SYS "Wimp_CreateWindow",,b% TO IntroWindow%
 
 PROCtemplate_close
 ENDPROC
@@ -3107,8 +3107,8 @@ $FNicon_indirection(InfoWindow%,4)=CHR$(169) + " Stephen Fryatt, 1992-" + MID$(b
 $FNicon_indirection(InfoWindow%,6)=build_version$+" ("+build_date$+")"
 :
 REM Intro
-$FNicon_indirection(SplashWindow%,2)=FNmessage_param_lookup("Int0", build_version$, "", "", "")
-$FNicon_indirection(SplashWindow%,3)=CHR$(169) + " Stephen Fryatt, 1992-" + MID$(build_date$, 8)
+$FNicon_indirection(IntroWindow%,2)=FNmessage_param_lookup("Int0", build_version$, "", "", "")
+$FNicon_indirection(IntroWindow%,3)=CHR$(169) + " Stephen Fryatt, 1992-" + MID$(build_date$, 8)
 :
 REM Enter1
 string1%=FNicon_indirection(enter1%,6)

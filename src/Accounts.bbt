@@ -129,11 +129,11 @@ WHEN -2
 	WHEN 4
 		PROCopen_window(MainWindow%)
 		PROCset_extent(TRUE)
-		IF FNmenu_state(MainMenu%, 7) THEN
+		IF FNmenu_ticked(MainMenu%, 7) THEN
 			PROCopen_window(EnterWindow%)
 			PROCicon_put_caret_at_end(EnterWindow%, 6)
 		ENDIF
-		IF FNmenu_state(MainMenu%, 6) THEN PROCopen_window(TBoxWindow%)
+		IF FNmenu_ticked(MainMenu%, 6) THEN PROCopen_window(TBoxWindow%)
 	ENDCASE
 
 WHEN InfoWindow%
@@ -189,7 +189,7 @@ WHEN EnterWindow%
 CASE button% OF
 WHEN 1,4
 CASE icon% OF
-WHEN 0,1 :PROCcheck_select(window%,icon%)
+WHEN 0,1 :PROCcheck_radio_icon_selection(window%,icon%)
 ENDCASE
 WHEN 2 :PROCupdate_menu
 PROCmenu_create(MainMenu%,!b%,b%!4)
@@ -330,7 +330,7 @@ WHEN SLineWindow%
 IF icon%=1 PROCkey_select
 WHEN FindWindow%
 CASE icon% OF
-WHEN 3,4 :PROCcheck_select(window%,icon%)
+WHEN 3,4 :PROCcheck_radio_icon_selection(window%,icon%)
 WHEN 5 :PROCfind(TRUE,FALSE,FALSE)
 WHEN 6 :PROCmenu_create(-1,0,0)
 WHEN 7 :PROCfind(TRUE,TRUE,FALSE)
@@ -384,9 +384,9 @@ WHEN 4 :PROCsave_prefs(FALSE)
 ENDCASE
 WHEN PrefsPaneWindow%
 CASE icon% OF
-WHEN 12,13,14 :PROCcheck_select(window%,icon%)
-WHEN 16,17,18,19 :PROCcheck_select(window%,icon%)
-WHEN 47,48,49 :PROCcheck_select(window%,icon%)
+WHEN 12,13,14 :PROCcheck_radio_icon_selection(window%,icon%)
+WHEN 16,17,18,19 :PROCcheck_radio_icon_selection(window%,icon%)
+WHEN 47,48,49 :PROCcheck_radio_icon_selection(window%,icon%)
 WHEN 34,35,36,37,52
 FOR loop%=0 TO 15
 PROCmenu_set_state(ColourMenu%,loop%,0,0)
@@ -546,7 +546,7 @@ WHEN MainMenu%
 			PROCmenu_set_state(MainMenu%,7,1,0)
 		ENDIF
 	WHEN 8
-		IF FNmenu_state(MainMenu%,8) THEN
+		IF FNmenu_ticked(MainMenu%,8) THEN
 			!b%=TBarWindow%
 			SYS "Wimp_GetWindowState",,b%
 			!q%=MainWindow%
@@ -667,7 +667,7 @@ PROCicon_put_caret_at_end(EnterWindow%,6)
 PROCmenu_set_state(MainMenu%,7,1,0)
 ENDIF
 WHEN &1A2
-IF FNmenu_state(MainMenu%,8) THEN
+IF FNmenu_ticked(MainMenu%,8) THEN
 !b%=TBarWindow%
 SYS "Wimp_GetWindowState",,b%
 !q%=MainWindow%
@@ -1059,7 +1059,7 @@ LOCAL into%,yoff%,row%,o%
 SYS "Wimp_GetWindowState",,b%
 yoff%=-b%!24
 into%=b%!16-my%
-IF FNmenu_state(MainMenu%,8) THENinto%-=100
+IF FNmenu_ticked(MainMenu%,8) THENinto%-=100
 row%=((yoff%+into%-12) DIV 32)
 IF row%>=entries% OR row%=0 ENDPROC
 o%=select%
@@ -1167,7 +1167,7 @@ ENDPROC
 :
 DEF PROCredraw
 LOCAL left%,lmargin%,right%,top%,base%,visible%,relleft%,tool%,ts%
-IF FNmenu_state(MainMenu%,8) tool%=4 :ts%=3 ELSEtool%=0 :ts%=0
+IF FNmenu_ticked(MainMenu%,8) tool%=4 :ts%=3 ELSEtool%=0 :ts%=0
 SYS "Hourglass_On"
 SYS "Wimp_RedrawWindow",,b% TO more%
 ox%=b%!4-b%!20
@@ -1291,7 +1291,7 @@ LOCAL size%
 size%=(entries%-1)*-32
 IF size%>=-480 THENsize%=-480
 size%-=40
-IF FNmenu_state(MainMenu%,8) size%-=100
+IF FNmenu_ticked(MainMenu%,8) size%-=100
 b%!4=size%
 b%!8=1234
 b%!12=0
@@ -1300,7 +1300,7 @@ SYS "Wimp_SetExtent",MainWindow%,b%
 SYS "Wimp_GetWindowState",,b%
 IF reset% THEN
 b%!8=b%!16-520
-IF FNmenu_state(MainMenu%,8) THENb%!8=b%!8-100
+IF FNmenu_ticked(MainMenu%,8) THENb%!8=b%!8-100
 ENDIF
 SYS "Wimp_OpenWindow",,b%
 PROCopen_window(MainWindow%)
@@ -1319,7 +1319,7 @@ SYS "Font_ConverttoOS",,xopt%,yopt% TO ,xo%
 DEF PROCredraw_line(line%)
 y1%=-((line%+1)<<5)-8
 y2%=-((line%)<<5)-8
-IF FNmenu_state(MainMenu%,8) THENy1%-=100 :y2%-=100
+IF FNmenu_ticked(MainMenu%,8) THENy1%-=100 :y2%-=100
 SYS "Wimp_ForceRedraw",MainWindow%,0,y1%,1236,y2%
 ENDPROC
 :
@@ -1349,7 +1349,7 @@ top%=-((line%)<<5)-8
 base%=-((entries%)<<5)-8
 !b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
-IF FNmenu_state(MainMenu%,8) THENtop%-=100 :base%-=100
+IF FNmenu_ticked(MainMenu%,8) THENtop%-=100 :base%-=100
 wth%=b%!12-b%!4
 SYS "Wimp_ForceRedraw",MainWindow%,b%!20,base%,b%!20+wth%,top%
 ENDPROC
@@ -1597,7 +1597,7 @@ LOCAL line%,offset%
 line%=VAL($gotoline%)
 IF line%>1000 line%=1000
 offset%=-32*(line%-1)
-IF FNmenu_state(MainMenu%,8) THENoffset%-=0
+IF FNmenu_ticked(MainMenu%,8) THENoffset%-=0
 !b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 b%!24=offset%
@@ -1611,7 +1611,7 @@ LOCAL line%,offset%
 line%=select%
 IF line%>1000 line%=1000
 offset%=-32*(line%-1)
-IF FNmenu_state(MainMenu%,8) THENoffset%-=0
+IF FNmenu_ticked(MainMenu%,8) THENoffset%-=0
 !b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 b%!24=offset%
@@ -1625,7 +1625,7 @@ LOCAL offset%,yh%
 !b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 yh%=(b%!16-b%!8)-40
-IF FNmenu_state(MainMenu%,8) THENyh%-=68
+IF FNmenu_ticked(MainMenu%,8) THENyh%-=68
 IF yh% MOD 32<>0 THENyh%-=(yh% MOD 32)
 offset%=b%!24
 offset%+=yh%
@@ -1639,7 +1639,7 @@ LOCAL offset%,yh%
 !b%=MainWindow%
 SYS "Wimp_GetWindowState",,b%
 yh%=(b%!16-b%!8)-40
-IF FNmenu_state(MainMenu%,8) THENyh%-=68
+IF FNmenu_ticked(MainMenu%,8) THENyh%-=68
 IF yh% MOD 32<>0 THENyh%-=(yh% MOD 32)
 offset%=b%!24
 offset%-=yh%
@@ -1762,11 +1762,11 @@ PROCset_extent(TRUE)
 PROCredraw_main
 !b%=EnterWindow%
 SYS "Wimp_GetWindowState",,b%
-IF FNmenu_state(MainMenu%,7) THEN
+IF FNmenu_ticked(MainMenu%,7) THEN
 PROCopen_window(EnterWindow%)
 PROCicon_put_caret_at_end(EnterWindow%,6)
 ENDIF
-IF FNmenu_state(MainMenu%,6) PROCopen_window(TBoxWindow%)
+IF FNmenu_ticked(MainMenu%,6) PROCopen_window(TBoxWindow%)
 PROCicon_set_state(EnterWindow%,0,1,0,0)
 PROCicon_set_state(EnterWindow%,1,0,0,0)
 ENDPROC
@@ -1886,11 +1886,11 @@ PROCredraw_main
 PROCset_extent(TRUE)
 !b%=EnterWindow%
 SYS "Wimp_GetWindowState",,b%
-IF FNmenu_state(MainMenu%,7) THEN
+IF FNmenu_ticked(MainMenu%,7) THEN
 PROCopen_window(EnterWindow%)
 PROCicon_put_caret_at_end(EnterWindow%,6)
 ENDIF
-IF FNmenu_state(MainMenu%,6) PROCopen_window(TBoxWindow%)
+IF FNmenu_ticked(MainMenu%,6) PROCopen_window(TBoxWindow%)
 PROCmenu_create(-1,0,0)
 ENDPROC
 :
@@ -3260,15 +3260,23 @@ REM If a message was found, send it back to the requestor.
 message%!12 = message%!8
 message%!16 = &503
 $(message% + 20) = message$ + CHR$(0)
-!message% = 24+(LEN(message$) AND &FFFFFC)
+!message% = 24 + (LEN(message$) AND &FFFFFC)
 SYS "Wimp_SendMessage", 17, message%, message%!4
 ENDPROC
+
+
+REM Test whether a menu item is ticked.
+REM
+REM \param menu%		The handle of the menu of interest.
+REM \param item%		The item to test (no bounds checking is performed).
+REM \return			TRUE if the item is ticked; FALSE if not.
 :
-DEF FNmenu_state(handle%,item%)
-LOCAL a%
-a%=handle%+28+(item%*24)
-=(?a% AND 1)
-:
+DEF FNmenu_ticked(menu%, item%)
+=((menu%?(28 + (item% + 24))) AND 1) = 1
+
+
+
+
 DEF PROCshade_button(whand%,ihand%)
 LOCAL eor%,clear%
 eor%=0
@@ -3306,31 +3314,31 @@ q%!8=eor%
 q%!12=clear%
 SYS "Wimp_SetIconState",,q%
 ENDPROC
-:
-DEF PROCredraw_window(whand%)
-!q%=whand%
-SYS "Wimp_GetWindowState",,q%
-SYS "Wimp_ForceRedraw",whand%,q%!20,(q%!24)-(q%!16-q%!8),(q%!20)+(q%!12-q%!4),q%!24
-SYS "Wimp_ForceRedraw",-1,q%!4,q%!16,q%!12+40,q%!16+40
-ENDPROC
+
+
 :
 DEF PROCredraw_part(h%,x%,y%,a%,b%)
 SYS "Wimp_ForceRedraw",h%,x%,y%,x%+a%,y%+b%
 ENDPROC
-:
-DEF PROCcheck_select(w%,i%)
-IF NOT (FNicon_selected(w%,i%)<>0) THENPROCicon_set_state(w%,i%,1,0,0)
-ENDPROC
 
+
+REM Check the state of a radio icon, and ensure that it is selected. This
+REM should be called on an Adjust click.
+REM
+REM \param window%		The handle of the window containing the icon.
+REM \param icon%		The handle of the icon to test.
+:
+DEF PROCcheck_radio_icon_selection(window%, icon%)
+IF NOT FNicon_selected(window%, icon%) THEN PROCicon_set_selected(window%, icon%, TRUE)
+ENDPROC
 
 
 REM Open a window, with handling for the panes on the main window or
 REM Preferences dialogue.
 REM
-REM \param whan%		The handle of the window to be opened.
-
-DEF PROCopen_window(whan%)
-!b% = whan%
+REM \param window%		The handle of the window to be opened.
+:
+DEF PROCopen_window(!b%)
 SYS "Wimp_GetWindowState",,b%
 PROCopen_window_panes(b%)
 SYS "Wimp_OpenWindow",,b%
@@ -3353,14 +3361,14 @@ WHEN MainWindow%
 	SYS "Wimp_GetWindowState",,q%
 	q%!4 = block%!4
 	q%!16 = block%!16
-	IF FNmenu_state(MainMenu%, 8) THEN q%!8 = block%!16 - 136 ELSE q%!8 = block%!16 - 36
+	IF FNmenu_ticked(MainMenu%, 8) THEN q%!8 = block%!16 - 136 ELSE q%!8 = block%!16 - 36
 	q%!12 = block%!12
 	q%!20 = block%!20
-	IF FNmenu_state(MainMenu%, 8) THEN q%!24 = 0 ELSE q%!24 = -96
+	IF FNmenu_ticked(MainMenu%, 8) THEN q%!24 = 0 ELSE q%!24 = -96
 	q%!28 = block%!28
 	SYS "Wimp_OpenWindow",,q%
 
-	IF FNmenu_state(MainMenu%, 7) AND join_main% THEN
+	IF FNmenu_ticked(MainMenu%, 7) AND join_main% THEN
 		!q% = EnterWindow%
 		SYS "Wimp_GetWindowState",,q%
 		q%!4 = block%!4+40

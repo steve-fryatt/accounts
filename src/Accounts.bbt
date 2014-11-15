@@ -143,186 +143,218 @@ WHEN InfoWindow%
 	ENDIF
 
 WHEN TBoxWindow%
-CASE button% OF
-WHEN 1,4
-CASE icon% OF
-WHEN 0,1,2,3 :PROCaddval(icon%)
-WHEN 4       :PROCdelete
-ENDCASE
-WHEN 2 :PROCupdate_menu
-PROCmenu_create(MainMenu%,!b%,b%!4)
-ENDCASE
+	CASE button% OF
+	WHEN 1, 4
+		CASE icon% OF
+			WHEN 0, 1, 2, 3	: PROCaddval(icon%)
+			WHEN 4		: PROCdelete
+		ENDCASE
+	WHEN 2
+		PROCupdate_menu
+		PROCmenu_create(MainMenu%, !b%, b%!4)
+	ENDCASE
+
 WHEN TBarWindow%
-CASE button% OF
-WHEN 1,4
-CASE icon% OF
-WHEN 1,2,3,4 :PROCaddval(icon%-1)
-WHEN 5       :PROCdelete
-WHEN 6       :PROCcut
-WHEN 7       :PROCcopy
-WHEN 8       :PROCclear_select
-WHEN 9       :PROCwindow_open_as_menu_at(ExpCSVWindow%,!b%,b%!4)
-WHEN 10      :PROCwindow_open_as_menu_at(FindWindow%,!b%,b%!4)
-WHEN 11      :PROCwindow_open_as_menu_at(GotoWindow%,!b%,b%!4)
-WHEN 12      :PROCgoto_selection
-WHEN 13      :PROCwindow_open_as_menu_at(HeadWindow%,!b%,b%!4)
-WHEN 14      :PROCwindow_open_as_menu_at(PrintSetupWindow%,!b%,b%!4)
-ENDCASE
-WHEN 256,1024
-CASE icon% OF
-WHEN 9       :PROCwindow_open_as_menu_at(SaveWindow%,!b%,b%!4)
-WHEN 14      :PROCwindow_open_as_menu_at(PrintWindow%,!b%,b%!4)
-ENDCASE
-WHEN 2 :PROCupdate_menu
-PROCmenu_create(MainMenu%,!b%,b%!4)
-ENDCASE
+	CASE button% OF
+	WHEN 1, 4
+		CASE icon% OF
+		WHEN 1, 2, 3, 4	: PROCaddval(icon% - 1)
+		WHEN 5		: PROCdelete
+		WHEN 6		: PROCcut
+		WHEN 7		: PROCcopy
+		WHEN 8		: PROCclear_select
+		WHEN 9		: PROCwindow_open_as_menu_at(ExpCSVWindow%, !b%, b%!4)
+		WHEN 10		: PROCwindow_open_as_menu_at(FindWindow%, !b%, b%!4)
+		WHEN 11		: PROCwindow_open_as_menu_at(GotoWindow%, !b%, b%!4)
+		WHEN 12		: PROCgoto_selection
+		WHEN 13		: PROCwindow_open_as_menu_at(HeadWindow%, !b%, b%!4)
+		WHEN 14		: PROCwindow_open_as_menu_at(PrintSetupWindow%, !b%, b%!4)
+		ENDCASE
+	WHEN 256, 1024
+		CASE icon% OF
+		WHEN 9		: PROCwindow_open_as_menu_at(SaveWindow%, !b%, b%!4)
+		WHEN 14		: PROCwindow_open_as_menu_at(PrintWindow%, !b%, b%!4)
+		ENDCASE
+	WHEN 2
+		PROCupdate_menu
+		PROCmenu_create(MainMenu%, !b%, b%!4)
+	ENDCASE
+
 WHEN MainWindow%
-CASE button% OF
-WHEN 4 :IF icon%=-1 PROCselect(b%!4)
-!q%=EnterWindow%
-SYS "Wimp_GetWindowState",,q%
-IF (q%!32 AND (1<<16)) THENPROCicon_put_caret_at_end(EnterWindow%,6)
-WHEN 2 :PROCupdate_menu
-PROCmenu_create(MainMenu%,!b%,b%!4)
-ENDCASE
+	CASE button% OF
+	WHEN 4
+		IF icon% = -1 THEN PROCselect(b%!4)
+		!q% = EnterWindow%
+		SYS "Wimp_GetWindowState",,q%
+		IF (q%!32 AND (1<<16)) THEN PROCicon_put_caret_at_end(EnterWindow%, 6)
+	WHEN 2
+		PROCupdate_menu
+		PROCmenu_create(MainMenu%, !b%, b%!4)
+	ENDCASE
+
 WHEN EnterWindow%
-CASE button% OF
-WHEN 1,4
-CASE icon% OF
-WHEN 0,1 :PROCcheck_radio_icon_selection(window%,icon%)
-ENDCASE
-WHEN 2 :PROCupdate_menu
-PROCmenu_create(MainMenu%,!b%,b%!4)
-ENDCASE
+	CASE button% OF
+	WHEN 1, 4
+		CASE icon% OF
+		WHEN 0, 1	: PROCcheck_radio_icon_selection(window%, icon%)
+		ENDCASE
+	WHEN 2
+		PROCupdate_menu
+		PROCmenu_create(MainMenu%, !b%, b%!4)
+	ENDCASE
+
 WHEN SaveWindow%
-savetype%=account_file%
-savesize%=((entries%*15)+(entries%*22))
-savepoint%=file%
-CASE icon% OF
-WHEN 0 :IF (button% AND 64) PROCdrag_box(SaveWindow%)
-WHEN 2 :IF (button% AND 5 ) PROCquick_save(file%)
-ENDCASE
+	savetype% = account_file%
+	savesize% = entries% * 37
+	savepoint% = file%
+	CASE icon% OF
+		WHEN 0		: IF (button% AND 64) THEN PROCdrag_box(SaveWindow%)
+		WHEN 2		: IF (button% AND 5) THEN PROCquick_save(file%)
+	ENDCASE
+
 WHEN ExpTextWindow%
-savetype%=text_file%
-size%=VAL($text2%)-VAL($text1%)
-savesize%=size%*80
-savepoint%=tfile%
-CASE icon% OF
-	WHEN 0	: IF (button% AND 64) THEN PROCdrag_box(ExpTextWindow%)
-	WHEN 2	: IF (button% AND 5) THEN PROCquick_save(tfile%)
-	WHEN 6	: PROCicon_bump_value(ExpTextWindow%, 10, button% = 4, 1, entries% - 1, 0)
-	WHEN 4	: PROCicon_bump_value(ExpTextWindow%, 10, button% = 1, 1, entries% - 1, 0)
-	WHEN 7	: PROCicon_bump_value(ExpTextWindow%, 11, button% = 4, 1, entries% - 1, 0)
-	WHEN 5	: PROCicon_bump_value(ExpTextWindow%, 11, button% = 4, 1, entries% - 1, 0)
-ENDCASE
+	savetype% = text_file%
+	size% = VAL($text2%) - VAL($text1%)
+	savesize% = size% * 80
+	savepoint% = tfile%
+	CASE icon% OF
+		WHEN 0		: IF (button% AND 64) THEN PROCdrag_box(ExpTextWindow%)
+		WHEN 2		: IF (button% AND 5) THEN PROCquick_save(tfile%)
+		WHEN 6		: PROCicon_bump_value(ExpTextWindow%, 10, button% = 4, 1, entries% - 1, 0)
+		WHEN 4		: PROCicon_bump_value(ExpTextWindow%, 10, button% = 1, 1, entries% - 1, 0)
+		WHEN 7		: PROCicon_bump_value(ExpTextWindow%, 11, button% = 4, 1, entries% - 1, 0)
+		WHEN 5		: PROCicon_bump_value(ExpTextWindow%, 11, button% = 4, 1, entries% - 1, 0)
+	ENDCASE
+
 WHEN ExpCSVWindow%
-savetype%=csv_file%
-size%=VAL($csv2%)-VAL($csv1%)
-savesize%=(size%*SUMLEN(text$()))+(size%*18)
-savepoint%=cfile%
-CASE icon% OF
-	WHEN 0	: IF (button% AND 64) THEN PROCdrag_box(ExpCSVWindow%)
-	WHEN 2	: IF (button% AND 5) THEN PROCquick_save(cfile%)
-	WHEN 6	: PROCicon_bump_value(ExpCSVWindow%, 10, button% = 4, 1, entries% - 1, 0)
-	WHEN 4	: PROCicon_bump_value(ExpCSVWindow%, 10, button% = 1, 1, entries% - 1, 0)
-	WHEN 7	: PROCicon_bump_value(ExpCSVWindow%, 11, button% = 4, 1, entries% - 1, 0)
-	WHEN 5	: PROCicon_bump_value(ExpCSVWindow%, 11, button% = 4, 1, entries% - 1, 0)
-ENDCASE
+	savetype% = csv_file%
+	size% = VAL($csv2%) - VAL($csv1%)
+	savesize% = (size% * SUMLEN(text$())) + (size% * 18)
+	savepoint% = cfile%
+	CASE icon% OF
+		WHEN 0		: IF (button% AND 64) THEN PROCdrag_box(ExpCSVWindow%)
+		WHEN 2		: IF (button% AND 5) THEN PROCquick_save(cfile%)
+		WHEN 6		: PROCicon_bump_value(ExpCSVWindow%, 10, button% = 4, 1, entries% - 1, 0)
+		WHEN 4		: PROCicon_bump_value(ExpCSVWindow%, 10, button% = 1, 1, entries% - 1, 0)
+		WHEN 7		: PROCicon_bump_value(ExpCSVWindow%, 11, button% = 4, 1, entries% - 1, 0)
+		WHEN 5		: PROCicon_bump_value(ExpCSVWindow%, 11, button% = 4, 1, entries% - 1, 0)
+	ENDCASE
+
 WHEN PrintWindow%
-CASE icon% OF
-	WHEN 3	: PROCicon_bump_value(PrintWindow%, 7, button% = 4, 1, entries% - 1, 0)
-	WHEN 1	: PROCicon_bump_value(PrintWindow%, 7, button% = 1, 1, entries% - 1, 0)
-	WHEN 4	: PROCicon_bump_value(PrintWindow%, 8, button% = 4, 1, entries% - 1, 0)
-	WHEN 2	: PROCicon_bump_value(PrintWindow%, 8, button% = 4, 1, entries% - 1, 0)
-	WHEN 11
-		PROCprint
-		PROCmenu_create(-1, 0, 0)
-	WHEN 12
-		PROCmenu_create(-1, 0, 0)
-ENDCASE
+	CASE icon% OF
+		WHEN 3		: PROCicon_bump_value(PrintWindow%, 7, button% = 4, 1, entries% - 1, 0)
+		WHEN 1		: PROCicon_bump_value(PrintWindow%, 7, button% = 1, 1, entries% - 1, 0)
+		WHEN 4		: PROCicon_bump_value(PrintWindow%, 8, button% = 4, 1, entries% - 1, 0)
+		WHEN 2		: PROCicon_bump_value(PrintWindow%, 8, button% = 4, 1, entries% - 1, 0)
+		WHEN 11
+			PROCprint
+			PROCmenu_create(-1, 0, 0)
+		WHEN 12
+			PROCmenu_create(-1, 0, 0)
+	ENDCASE
+
 WHEN GotoWindow%
-IF icon%=1 PROCgoto
+	IF icon% = 1 THEN PROCgoto
+
 WHEN SLineWindow%
-IF icon%=1 PROCkey_select
+	IF icon% = 1 THEN PROCkey_select
+
 WHEN FindWindow%
-CASE icon% OF
-WHEN 3,4 :PROCcheck_radio_icon_selection(window%,icon%)
-WHEN 5 :PROCfind(TRUE,FALSE,FALSE)
-WHEN 6 :PROCmenu_create(-1,0,0)
-WHEN 7 :PROCfind(TRUE,TRUE,FALSE)
-ENDCASE
+	CASE icon% OF
+		WHEN 3,4	: PROCcheck_radio_icon_selection(window%, icon%)
+		WHEN 5		: PROCfind(TRUE, FALSE, FALSE)
+		WHEN 6		: PROCmenu_create(-1, 0, 0)
+		WHEN 7		: PROCfind(TRUE, TRUE, FALSE)
+	ENDCASE
+
 WHEN FoundWindow%
-CASE icon% OF
-WHEN 4 :IF button%=4 OR button%=1 PROCfind(FALSE,FALSE,FALSE)
-WHEN 6 :IF button%=4 OR button%=1 PROCfind(FALSE,FALSE,TRUE)
-WHEN 7 :IF button%=4 OR button%=1 PROCfind(FALSE,TRUE,FALSE)
-WHEN 5
-PROCwindow_close(FoundWindow%)
-PROCclear_button(FoundWindow%,4)
-PROCclear_button(FoundWindow%,6)
-PROCclear_button(FoundWindow%,7)
-$foundtext%=""
-ENDCASE
+	CASE icon% OF
+		WHEN 4		: IF button% = 4 OR button% = 1 THEN PROCfind(FALSE, FALSE, FALSE)
+		WHEN 6		: IF button% = 4 OR button% = 1 THEN PROCfind(FALSE, FALSE, TRUE)
+		WHEN 7		: IF button% = 4 OR button% = 1 THEN PROCfind(FALSE, TRUE, FALSE)
+		WHEN 5
+			PROCwindow_close(FoundWindow%)
+			PROCclear_button(FoundWindow%, 4)
+			PROCclear_button(FoundWindow%, 6)
+			PROCclear_button(FoundWindow%, 7)
+			$foundtext% = ""
+	ENDCASE
+
 WHEN HeadWindow%
-CASE icon% OF
-WHEN 2 :PROCnew_header
-WHEN 3 :PROCmenu_create(-1,0,0)
-ENDCASE
+	CASE icon% OF
+		WHEN 2		: PROCnew_header
+		WHEN 3		: PROCmenu_create(-1, 0, 0)
+	ENDCASE
+
 WHEN PrintSetupWindow%
-CASE icon% OF
-	WHEN 18	: PROCcancel_printcodes
-	WHEN 19	: PROCsave_printcodes
-	WHEN 20	: PROCset_printcodes
-	WHEN 21	: PROCicon_bump_value(PrintSetupWindow%, 1, button% = 4, 1, 999, 0)
-	WHEN 22	: PROCicon_bump_value(PrintSetupWindow%, 1, button% = 1, 1, 999, 0)
-ENDCASE
+	CASE icon% OF
+		WHEN 18		: PROCcancel_printcodes
+		WHEN 19		: PROCsave_printcodes
+		WHEN 20		: PROCset_printcodes
+		WHEN 21		: PROCicon_bump_value(PrintSetupWindow%, 1, button% = 4, 1, 999, 0)
+		WHEN 22		: PROCicon_bump_value(PrintSetupWindow%, 1, button% = 1, 1, 999, 0)
+	ENDCASE
+
 WHEN PrefsWindow%
-CASE icon% OF
-WHEN 0 :PROCload_dft_prefs(FALSE)
-WHEN 1 :PROCsave_prefs(TRUE)
-WHEN 2 :PROCload_dft_prefs(TRUE)
-WHEN 3 :PROCload_prefs(FALSE)
-PROCwindow_close(PrefsWindow%)
-PROCwindow_close(PrefsPaneWindow%)
-WHEN 4 :PROCsave_prefs(FALSE)
-ENDCASE
+	CASE icon% OF
+	WHEN 0
+		PROCload_dft_prefs(FALSE)
+	WHEN 1
+		PROCsave_prefs(TRUE)
+	WHEN 2
+		PROCload_dft_prefs(TRUE)
+	WHEN 3
+		PROCload_prefs(FALSE)
+		PROCwindow_close(PrefsWindow%)
+		PROCwindow_close(PrefsPaneWindow%)
+	WHEN 4
+		PROCsave_prefs(FALSE)
+	ENDCASE
+
 WHEN PrefsPaneWindow%
-CASE icon% OF
-WHEN 12,13,14 :PROCcheck_radio_icon_selection(window%,icon%)
-WHEN 16,17,18,19 :PROCcheck_radio_icon_selection(window%,icon%)
-WHEN 47,48,49 :PROCcheck_radio_icon_selection(window%,icon%)
-WHEN 34,35,36,37,52
-FOR loop%=0 TO 15
-PROCmenu_set_state(ColourMenu%,loop%,0,0)
-NEXT loop%
-CASE icon% OF
-WHEN 34 :PROCmenu_set_state(ColourMenu%,VAL($entry_c%),1,0)
-WHEN 35 :PROCmenu_set_state(ColourMenu%,VAL($numb_c%),1,0)
-WHEN 36 :PROCmenu_set_state(ColourMenu%,VAL($sel_c%),1,0)
-WHEN 37 :PROCmenu_set_state(ColourMenu%,VAL($unused_c%),1,0)
-WHEN 52 :PROCmenu_set_state(ColourMenu%,VAL($overdrawn_c%),1,0)
-ENDCASE
-PROCmenu_create(ColourMenu%,!b%,b%!4)
-prefs_menu%=icon%
-ENDCASE
+	CASE icon% OF
+	WHEN 12, 13, 14
+		PROCcheck_radio_icon_selection(window%,icon%)
+	WHEN 16, 17, 18, 19
+		PROCcheck_radio_icon_selection(window%,icon%)
+	WHEN 47, 48, 49
+		PROCcheck_radio_icon_selection(window%,icon%)
+	WHEN 34, 35, 36, 37, 52
+		FOR loop% = 0 TO 15
+			PROCmenu_set_state(ColourMenu%, loop%, 0, 0)
+		NEXT loop%
+
+		CASE icon% OF
+			WHEN 34	: PROCmenu_set_state(ColourMenu%, VAL($entry_c%), 1, 0)
+			WHEN 35	: PROCmenu_set_state(ColourMenu%, VAL($numb_c%), 1, 0)
+			WHEN 36	: PROCmenu_set_state(ColourMenu%, VAL($sel_c%), 1, 0)
+			WHEN 37	: PROCmenu_set_state(ColourMenu%, VAL($unused_c%), 1, 0)
+			WHEN 52	: PROCmenu_set_state(ColourMenu%, VAL($overdrawn_c%), 1, 0)
+		ENDCASE
+
+		PROCmenu_create(ColourMenu%, !b%, b%!4)
+		prefs_menu% = icon%
+	ENDCASE
+
 WHEN MergeWindow%
-CASE icon% OF
-WHEN 0 :PROCmerge_files(0)
-WHEN 1 :PROCmenu_create(-1,0,0)
-WHEN 2 :IF button%<>2 PROCmerge_files(1)
-WHEN 3 :IF button%<>2 PROCmerge_files(2)
-ENDCASE
+	CASE icon% OF
+		WHEN 0		: PROCmerge_files(0)
+		WHEN 1		: PROCmenu_create(-1, 0, 0)
+		WHEN 2		: IF button% <> 2 THEN PROCmerge_files(1)
+		WHEN 3		: IF button% <> 2 THEN PROCmerge_files(2)
+	ENDCASE
+
 WHEN LoadCSVWindow%
-CASE icon% OF
-WHEN 3  :IF button%=4 PROCcsv_columns(0,-1) ELSEPROCcsv_columns(0,1)
-WHEN 4  :IF button%=4 PROCcsv_columns(0,1) ELSEPROCcsv_columns(0,-1)
-WHEN 5  :IF button%=4 PROCcsv_columns(1,-1) ELSEPROCcsv_columns(1,1)
-WHEN 6  :IF button%=4 PROCcsv_columns(1,1) ELSEPROCcsv_columns(1,-1)
-WHEN 7  :IF button%=4 PROCcsv_columns(2,-1) ELSEPROCcsv_columns(2,1)
-WHEN 8  :IF button%=4 PROCcsv_columns(2,1) ELSEPROCcsv_columns(2,-1)
-WHEN 12 :PROCmenu_create(-1,0,0)
-WHEN 13 :PROCcsv_load
-ENDCASE
+	CASE icon% OF
+		WHEN 3		: IF button% = 4 THEN PROCcsv_columns(0, -1) ELSE PROCcsv_columns(0, 1)
+		WHEN 4		: IF button% = 4 THEN PROCcsv_columns(0, 1) ELSE PROCcsv_columns(0, -1)
+		WHEN 5		: IF button% = 4 THEN PROCcsv_columns(1, -1) ELSE PROCcsv_columns(1, 1)
+		WHEN 6		: IF button% = 4 THEN PROCcsv_columns(1, 1) ELSE PROCcsv_columns(1, -1)
+		WHEN 7		: IF button% = 4 THEN PROCcsv_columns(2, -1) ELSE PROCcsv_columns(2, 1)
+		WHEN 8		: IF button% = 4 THEN PROCcsv_columns(2, 1) ELSE PROCcsv_columns(2, -1)
+		WHEN 12		: PROCmenu_create(-1, 0, 0)
+		WHEN 13		: PROCcsv_load
+	ENDCASE
 ENDCASE
 ENDPROC
 

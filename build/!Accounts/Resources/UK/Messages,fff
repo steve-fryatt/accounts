@@ -39,6 +39,8 @@ FileName:Account
 TextName:TextFile
 CsvName:CSVFile
 
+Column:Column %0
+
 # Error Messages
 
 Err1:The value that you have just tried to enter is too big.

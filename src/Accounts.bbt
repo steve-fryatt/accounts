@@ -208,40 +208,12 @@ size%=VAL($text2%)-VAL($text1%)
 savesize%=size%*80
 savepoint%=tfile%
 CASE icon% OF
-WHEN 0 :IF (button% AND 64) PROCdrag_box(ExpTextWindow%)
-WHEN 2 :IF (button% AND 5 ) PROCquick_save(tfile%)
-WHEN 6
-IF button%=4 THEN
-IF VAL($text1%)<(entries%-1) $text1%=STR$(VAL($text1%)+1)
-PROCredraw_part(ExpTextWindow%,148,-216,88,48)
-ELSE
-IF VAL($text1%)>1            $text1%=STR$(VAL($text1%)-1)
-PROCredraw_part(ExpTextWindow%,148,-216,88,48)
-ENDIF
-WHEN 4
-IF button%=4 THEN
-IF VAL($text1%)>1            $text1%=STR$(VAL($text1%)-1)
-PROCredraw_part(ExpTextWindow%,148,-216,88,48)
-ELSE
-IF VAL($text1%)<(entries%-1) $text1%=STR$(VAL($text1%)+1)
-PROCredraw_part(ExpTextWindow%,148,-216,88,48)
-ENDIF
-WHEN 7
-IF button%=4 THEN
-IF VAL($text2%)<(entries%-1) $text2%=STR$(VAL($text2%)+1)
-PROCredraw_part(ExpTextWindow%,148,-288,88,48)
-ELSE
-IF VAL($text2%)>1            $text2%=STR$(VAL($text2%)-1)
-PROCredraw_part(ExpTextWindow%,148,-288,88,48)
-ENDIF
-WHEN 5
-IF button%=4 THEN
-IF VAL($text2%)>1            $text2%=STR$(VAL($text2%)-1)
-PROCredraw_part(ExpTextWindow%,148,-288,88,48)
-ELSE
-IF VAL($text2%)<(entries%-1) $text2%=STR$(VAL($text2%)+1)
-PROCredraw_part(ExpTextWindow%,148,-288,88,48)
-ENDIF
+	WHEN 0	: IF (button% AND 64) THEN PROCdrag_box(ExpTextWindow%)
+	WHEN 2	: IF (button% AND 5) THEN PROCquick_save(tfile%)
+	WHEN 6	: PROCicon_bump_value(ExpTextWindow%, 10, button% = 4, 1, entries% - 1, 0)
+	WHEN 4	: PROCicon_bump_value(ExpTextWindow%, 10, button% = 1, 1, entries% - 1, 0)
+	WHEN 7	: PROCicon_bump_value(ExpTextWindow%, 11, button% = 4, 1, entries% - 1, 0)
+	WHEN 5	: PROCicon_bump_value(ExpTextWindow%, 11, button% = 4, 1, entries% - 1, 0)
 ENDCASE
 WHEN ExpCSVWindow%
 savetype%=csv_file%
@@ -249,80 +221,24 @@ size%=VAL($csv2%)-VAL($csv1%)
 savesize%=(size%*SUMLEN(text$()))+(size%*18)
 savepoint%=cfile%
 CASE icon% OF
-WHEN 0 :IF (button% AND 64) PROCdrag_box(ExpCSVWindow%)
-WHEN 2 :IF (button% AND 5 ) PROCquick_save(cfile%)
-WHEN 6
-IF button%=4 THEN
-IF VAL($csv1%)<(entries%-1) $csv1%=STR$(VAL($csv1%)+1)
-PROCredraw_part(ExpCSVWindow%,148,-216,88,48)
-ELSE
-IF VAL($csv1%)>1            $csv1%=STR$(VAL($csv1%)-1)
-PROCredraw_part(ExpCSVWindow%,148,-216,88,48)
-ENDIF
-WHEN 4
-IF button%=4 THEN
-IF VAL($csv1%)>1            $csv1%=STR$(VAL($csv1%)-1)
-PROCredraw_part(ExpCSVWindow%,148,-216,88,48)
-ELSE
-IF VAL($csv1%)<(entries%-1) $csv1%=STR$(VAL($csv1%)+1)
-PROCredraw_part(ExpCSVWindow%,148,-216,88,48)
-ENDIF
-WHEN 7
-IF button%=4 THEN
-IF VAL($csv2%)<(entries%-1) $csv2%=STR$(VAL($csv2%)+1)
-PROCredraw_part(ExpCSVWindow%,148,-288,88,48)
-ELSE
-IF VAL($csv2%)>1            $csv2%=STR$(VAL($csv2%)-1)
-PROCredraw_part(ExpCSVWindow%,148,-288,88,48)
-ENDIF
-WHEN 5
-IF button%=4 THEN
-IF VAL($csv2%)>1            $csv2%=STR$(VAL($csv2%)-1)
-PROCredraw_part(ExpCSVWindow%,148,-288,88,48)
-ELSE
-IF VAL($csv2%)<(entries%-1) $csv2%=STR$(VAL($csv2%)+1)
-PROCredraw_part(ExpCSVWindow%,148,-288,88,48)
-ENDIF
+	WHEN 0	: IF (button% AND 64) THEN PROCdrag_box(ExpCSVWindow%)
+	WHEN 2	: IF (button% AND 5) THEN PROCquick_save(cfile%)
+	WHEN 6	: PROCicon_bump_value(ExpCSVWindow%, 10, button% = 4, 1, entries% - 1, 0)
+	WHEN 4	: PROCicon_bump_value(ExpCSVWindow%, 10, button% = 1, 1, entries% - 1, 0)
+	WHEN 7	: PROCicon_bump_value(ExpCSVWindow%, 11, button% = 4, 1, entries% - 1, 0)
+	WHEN 5	: PROCicon_bump_value(ExpCSVWindow%, 11, button% = 4, 1, entries% - 1, 0)
 ENDCASE
 WHEN PrintWindow%
 CASE icon% OF
-WHEN 3
-IF button%=4 THEN
-IF VAL($print1%)<(entries%-1) $print1%=STR$(VAL($print1%)+1)
-PROCredraw_part(PrintWindow%,150,-108,88,48)
-ELSE
-IF VAL($print1%)>1            $print1%=STR$(VAL($print1%)-1)
-PROCredraw_part(PrintWindow%,150,-108,88,48)
-ENDIF
-WHEN 1
-IF button%=4 THEN
-IF VAL($print1%)>1            $print1%=STR$(VAL($print1%)-1)
-PROCredraw_part(PrintWindow%,150,-108,88,48)
-ELSE
-IF VAL($print1%)<(entries%-1) $print1%=STR$(VAL($print1%)+1)
-PROCredraw_part(PrintWindow%,150,-108,88,48)
-ENDIF
-WHEN 4
-IF button%=4 THEN
-IF VAL($print2%)<(entries%-1) $print2%=STR$(VAL($print2%)+1)
-PROCredraw_part(PrintWindow%,150,-180,88,48)
-ELSE
-IF VAL($print2%)>1            $print2%=STR$(VAL($print2%)-1)
-PROCredraw_part(PrintWindow%,150,-180,88,48)
-ENDIF
-WHEN 2
-IF button%=4 THEN
-IF VAL($print2%)>1            $print2%=STR$(VAL($print2%)-1)
-PROCredraw_part(PrintWindow%,150,-180,88,48)
-ELSE
-IF VAL($print2%)<(entries%-1) $print2%=STR$(VAL($print2%)+1)
-PROCredraw_part(PrintWindow%,150,-180,88,48)
-ENDIF
-WHEN 11
-PROCprint
-PROCmenu_create(-1,0,0)
-WHEN 12
-PROCmenu_create(-1,0,0)
+	WHEN 3	: PROCicon_bump_value(PrintWindow%, 7, button% = 4, 1, entries% - 1, 0)
+	WHEN 1	: PROCicon_bump_value(PrintWindow%, 7, button% = 1, 1, entries% - 1, 0)
+	WHEN 4	: PROCicon_bump_value(PrintWindow%, 8, button% = 4, 1, entries% - 1, 0)
+	WHEN 2	: PROCicon_bump_value(PrintWindow%, 8, button% = 4, 1, entries% - 1, 0)
+	WHEN 11
+		PROCprint
+		PROCmenu_create(-1, 0, 0)
+	WHEN 12
+		PROCmenu_create(-1, 0, 0)
 ENDCASE
 WHEN GotoWindow%
 IF icon%=1 PROCgoto
@@ -354,23 +270,11 @@ WHEN 3 :PROCmenu_create(-1,0,0)
 ENDCASE
 WHEN PrintSetupWindow%
 CASE icon% OF
-WHEN 18 :PROCcancel_printcodes
-WHEN 19 :PROCsave_printcodes
-WHEN 20 :PROCset_printcodes
-WHEN 21
-IF button%=4 THEN
-IF VAL($page_length%)<999 $page_length%=STR$(VAL($page_length%)+1)
-PROCredraw_part(PrintSetupWindow%,220,-68,80,48)
-ELSE
-IF VAL($page_length%)>1   $page_length%=STR$(VAL($page_length%)-1)
-PROCredraw_part(PrintSetupWindow%,220,-68,80,48)
-WHEN 22
-IF button%=4 THEN
-IF VAL($page_length%)>1   $page_length%=STR$(VAL($page_length%)-1)
-PROCredraw_part(PrintSetupWindow%,220,-68,80,48)
-ELSE
-IF VAL($page_length%)<999 $page_length%=STR$(VAL($page_length%)+1)
-PROCredraw_part(PrintSetupWindow%,220,-68,80,48)
+	WHEN 18	: PROCcancel_printcodes
+	WHEN 19	: PROCsave_printcodes
+	WHEN 20	: PROCset_printcodes
+	WHEN 21	: PROCicon_bump_value(PrintSetupWindow%, 1, button% = 4, 1, 999, 0)
+	WHEN 22	: PROCicon_bump_value(PrintSetupWindow%, 1, button% = 1, 1, 999, 0)
 ENDCASE
 WHEN PrefsWindow%
 CASE icon% OF
@@ -453,25 +357,25 @@ WHEN ColourMenu%
 
 	CASE prefs_menu% OF
 	WHEN 34
-		$entry_c% = STR$(b%!0)
-		PROCredraw_part(PrefsPaneWindow%, 42, -1352, 50, 48)
-		PROCmenu_set_state(ColourMenu%, VAL($entry_c%), 1, 0)
+		PROCicon_set_indirected_text(PrefsPaneWindow%, 23, STR$(b%!0))
+		PROCicon_redraw(PrefsPaneWindow%, 23)
+		PROCmenu_set_state(ColourMenu%, b%!0, 1, 0)
 	WHEN 35
-		$numb_c%=STR$(b%!0)
-		PROCredraw_part(PrefsPaneWindow%,42,-1428,50,48)
-		PROCmenu_set_state(ColourMenu%,VAL($numb_c%),1,0)
+		PROCicon_set_indirected_text(PrefsPaneWindow%, 25, STR$(b%!0))
+		PROCicon_redraw(PrefsPaneWindow%, 25)
+		PROCmenu_set_state(ColourMenu%, b%!0, 1, 0)
 	WHEN 36
-		$sel_c%=STR$(b%!0)
-		PROCredraw_part(PrefsPaneWindow%,42,-1508,50,48)
-		PROCmenu_set_state(ColourMenu%,VAL($sel_c%),1,0)
+		PROCicon_set_indirected_text(PrefsPaneWindow%, 27, STR$(b%!0))
+		PROCicon_redraw(PrefsPaneWindow%, 27)
+		PROCmenu_set_state(ColourMenu%, b%!0, 1, 0)
 	WHEN 37
-		$unused_c%=STR$(b%!0)
-		PROCredraw_part(PrefsPaneWindow%,42,-1588,50,48)
-		PROCmenu_set_state(ColourMenu%,VAL($unused_c%),1,0)
+		PROCicon_set_indirected_text(PrefsPaneWindow%, 29, STR$(b%!0))
+		PROCicon_redraw(PrefsPaneWindow%, 29)
+		PROCmenu_set_state(ColourMenu%, b%!0, 1, 0)
 	WHEN 52
-		$overdrawn_c%=STR$(b%!0)
-		PROCredraw_part(PrefsPaneWindow%,42,-1668,50,48)
-		PROCmenu_set_state(ColourMenu%,VAL($overdrawn_c%),1,0)
+		PROCicon_set_indirected_text(PrefsPaneWindow%, 50, STR$(b%!0))
+		PROCicon_redraw(PrefsPaneWindow%, 50)
+		PROCmenu_set_state(ColourMenu%, b%!0, 1, 0)
 	ENDCASE
 
 WHEN MainMenu%
@@ -1841,14 +1745,9 @@ ENDCASE
 IF val%>0 AND val%<100 val%+=dir%
 IF val%=0 THENval%=1
 IF val%=100 THENval%=100
-CASE icon% OF
-WHEN 0 :$cl_desc%="Column "+STR$(val%)
-PROCredraw_part(LoadCSVWindow%,282,-108,170,48)
-WHEN 1 :$cl_cred%="Column "+STR$(val%)
-PROCredraw_part(LoadCSVWindow%,282,-168,170,48)
-WHEN 2 :$cl_pay%="Column "+STR$(val%)
-PROCredraw_part(LoadCSVWindow%,282,-228,170,48)
-ENDCASE
+
+PROCicon_set_indirected_text(LoadCSVWindow%, icon%, FNmessage_param_lookup("Column", STR$(val%), "", "", ""))
+PROCicon_redraw(LoadCSVWindow%, icon%)
 ENDPROC
 :
 DEF PROCcsv_load
@@ -2634,21 +2533,22 @@ PROCicon_set_state(PrefsPaneWindow%,20,1,0,0)
 ELSE
 PROCicon_set_state(PrefsPaneWindow%,20,0,0,0)
 ENDIF
-INPUT#in%,data%
-$entry_c%=STR$(data%)
-INPUT#in%,data%
-$numb_c%=STR$(data%)
-INPUT#in%,data%
-$sel_c%=STR$(data%)
-INPUT#in%,data%
-$unused_c%=STR$(data%)
-INPUT#in%,data%
-$overdrawn_c%=STR$(data%)
-INPUT#in%,data%
-PROCredraw_part(PrefsPaneWindow%,42,-1352,50,48)
-PROCredraw_part(PrefsPaneWindow%,42,-1428,50,48)
-PROCredraw_part(PrefsPaneWindow%,42,-1508,50,48)
-PROCredraw_part(PrefsPaneWindow%,42,-1588,50,48)
+INPUT#in%, data%
+PROCicon_set_indirected_text(PrefsPaneWindow%, 23, STR$(data%))
+PROCicon_redraw(PrefsPaneWindow%, 23)
+INPUT#in%, data%
+PROCicon_set_indirected_text(PrefsPaneWindow%, 25, STR$(data%))
+PROCicon_redraw(PrefsPaneWindow%, 25)
+INPUT#in%, data%
+PROCicon_set_indirected_text(PrefsPaneWindow%, 27, STR$(data%))
+PROCicon_redraw(PrefsPaneWindow%, 27)
+INPUT#in%, data%
+PROCicon_set_indirected_text(PrefsPaneWindow%, 29, STR$(data%))
+PROCicon_redraw(PrefsPaneWindow%, 29)
+INPUT#in%, data%
+PROCicon_set_indirected_text(PrefsPaneWindow%, 50, STR$(data%))
+PROCicon_redraw(PrefsPaneWindow%, 50)
+
 IF data% THEN
 PROCicon_set_state(PrefsPaneWindow%,33,1,0,0)
 ELSE
@@ -2695,8 +2595,8 @@ WHEN (chr%>=97 AND chr%<=122) :chr%=chr%-32
 ENDCASE
 MID$(text$,caret%+1,1)=CHR$(chr%)
 $(b%!28)=text$
-PROCicon_put_caret(window%,icon%,caret%+1)
-PROCredraw_part(window%,b%!8+8,b%!12+8,b%!16-b%!8-16,b%!20-b%!12-16)
+PROCicon_put_caret(window%, icon%, caret% + 1)
+PROCicon_redraw(window%, icon%)
 ENDPROC
 :
 DEF PROCdate(window%,icon%,caret%)
@@ -2710,7 +2610,7 @@ text$=$(b%!28)
 length%=(b%!36)-1
 text$=FNadd_date(text$,length%,caret%,date_format%,date_option%,date_fit%)
 $(b%!28)=text$
-PROCredraw_part(window%,b%!8+2,b%!12+4,b%!16-b%!8-4,b%!20-b%!12-8)
+PROCicon_redraw(window%, icon%)
 ENDPROC
 :
 DEF PROCnew_date(window%,icon%)
@@ -2748,7 +2648,7 @@ ENDIF
 IF flag% THEN PROCwimperror_report(FNmessage_lookup("Dat0"), 0, 1, "") : ENDPROC
 text$=FNadd_date(text$,length%,pos%,type%,2,0)
 $(b%!28)=text$
-PROCredraw_part(window%,b%!8+2,b%!12+4,b%!16-b%!8-4,b%!20-b%!12-8)
+PROCicon_redraw(window%, icon%)
 ENDPROC
 :
 DEF FNmonth_in(t$)
@@ -3313,12 +3213,6 @@ clear%=eor%
 q%!8=eor%
 q%!12=clear%
 SYS "Wimp_SetIconState",,q%
-ENDPROC
-
-
-:
-DEF PROCredraw_part(h%,x%,y%,a%,b%)
-SYS "Wimp_ForceRedraw",h%,x%,y%,x%+a%,y%+b%
 ENDPROC
 
 

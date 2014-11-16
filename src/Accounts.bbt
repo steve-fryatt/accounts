@@ -1100,124 +1100,148 @@ balance%(entries%)=0
 ENDIF
 ENDPROC
 
+REM Hadle redraw events for the main window.
 :
 DEF PROCredraw
-LOCAL left%,lmargin%,right%,top%,base%,visible%,relleft%,tool%,ts%
-IF FNmenu_ticked(MainMenu%,8) tool%=4 :ts%=3 ELSEtool%=0 :ts%=0
+LOCAL left%, lmargin%, right%, top%, base%, visible%, relleft%, tool%, ts%
+
+IF FNmenu_ticked(MainMenu%, 8) THEN
+	tool% = 4
+	ts% = 3
+ELSE
+	tool% = 0
+	ts% = 0
+ENDIF
+
 SYS "Hourglass_On"
+
 SYS "Wimp_RedrawWindow",,b% TO more%
-ox%=b%!4-b%!20
-oy%=b%!16-b%!24
+ox% = b%!4 - b%!20
+oy% = b%!16 - b%!24
+
 WHILE more%
-top%=((oy%-b%!40) DIV 32)-1
-IF top%<0 top%=0
-base%=(58+oy%-b%!32) DIV 32
-left%=(ox%+b%!28) DIV 16
-relleft%=(b%!28-ox%) DIV 16
-IF left%<0 left%=0
-IF relleft%<0 relleft%=0
-right%=((ox%+b%!36) DIV 16)+1
-visible%=((b%!36-b%!28) DIV 16)+2
-i%=top%
-font_l%=relleft%<<4
-font_v%=visible%<<4
-WHILE i%<=max%+3 AND i%<=base%
-IF i%-ts%=select% AND i%-ts%<>0 THEN
-SYS "Wimp_SetColour",colour_selection%
-RECTANGLE FILL ox%,oy%-((i%)<<5)-40-tool%,1236,28
-ELSE
-IF balance%(i%-ts%)<0 THEN
-SYS "Wimp_SetColour",colour_overdrawn%
-RECTANGLE FILL ox%+962,oy%-((i%)<<5)-40-tool%,272,28
-ENDIF
-ENDIF
-IF i%-ts%=select% AND i%-ts%<>0 THEN
-IF use_font% THEN
-SYS "Wimp_SetFontColours",,colour_selection%,FNinverse_colour(colour_selection%)
-ELSE
-SYS "Wimp_SetColour",FNinverse_colour(colour_selection%)
-ENDIF
-ELSE
-IF use_font% THEN
-SYS "Wimp_SetFontColours",,1,colour_numbers%
-ELSE
-SYS "Wimp_SetColour",colour_numbers%
-ENDIF
-ENDIF
-IF relleft%<5 THEN
-IF use_font% THEN
-IF i%-ts%>0 AND relleft%<5 THEN
-SYS "Font_SetFont",disp_font%
-SYS "Font_Paint",,STR$(i%-ts%),16,ox%+74-FNtext_len(STR$(i%-ts%)),oy%-(i%<<5)-32-tool%
-ENDIF
-ELSE
-MOVE ox%,oy%-(i%<<5)-12-tool%
-IF i%-ts%>0 THEN
-PRINT;FNtext(STR$(i%-ts%),4,FALSE)
-ENDIF
-ENDIF
-ENDIF
-IF i%-ts%>=entries% THEN
-IF use_font% THEN
-SYS "Wimp_SetFontColours",,1,colour_unused%
-ELSE
-SYS "Wimp_SetColour",colour_unused%
-ENDIF
-ELSE
-IF i%-ts%=select% AND i%<>0 THEN
-IF use_font% THEN
-SYS "Wimp_SetFontColours",,colour_selection%,FNinverse_colour(colour_selection%)
-ELSE
-SYS "Wimp_SetColour",FNinverse_colour(colour_selection%)
-ENDIF
-ELSE
-IF use_font% THEN
-SYS "Wimp_SetFontColours",,1,colour_entries%
-ELSE
-SYS "Wimp_SetColour",colour_entries%
-ENDIF
-ENDIF
-ENDIF
-IF use_font% THEN
-IF i%-ts%>0 THEN
-SYS "Font_SetFont",disp_font%
-IF (font_l%<100 AND font_l%+font_v%>100) OR (font_l%>100 AND font_l%<490) THEN
-SYS "Font_Paint",,text$(i%-ts%),16,ox%+100,oy%-(i%<<5)-32-tool%
-ENDIF
-IF (font_l%<490 AND font_l%+font_v%>490) OR (font_l%>490 AND font_l%<686) THEN
-text$=FNpoint(credit%(i%-ts%))
-SYS "Font_Paint",,text$,16,ox%+686-FNtext_len(text$),oy%-(i%<<5)-32-tool%
-ENDIF
-IF (font_l%<686 AND font_l%+font_v%>686) OR (font_l%>686 AND font_l%<958) THEN
-text$=FNpoint(payment%(i%-ts%))
-SYS "Font_Paint",,text$,16,ox%+958-FNtext_len(text$),oy%-(i%<<5)-32-tool%
-ENDIF
-IF (font_l%<958 AND font_l%+font_v%>958) OR (font_l%>958 AND font_l%<1230) THEN
-IF balance%(i%-ts%)<0 THEN
-IF i%-ts%=select% THEN
-SYS"Wimp_SetFontColours",,colour_selection%,colour_overdrawn%
-ELSE
-SYS"Wimp_SetFontColours",,colour_overdrawn%,colour_entries%
-ENDIF
-ENDIF
-text$=FNpoint(balance%(i%-ts%))
-SYS "Font_Paint",,text$,16,ox%+1230-FNtext_len(text$),oy%-(i%<<5)-32-tool%
-ENDIF
-ENDIF
-ELSE
-IF i%-ts%>0 THEN
-line$=FNtext(text$(i%-ts%),20,TRUE)+"  "+FNtext(FNpoint(credit%(i%-ts%)),15,FALSE)+"  "+FNtext(FNpoint(payment%(i%-ts%)),15,FALSE)+"  "+FNtext(FNpoint(balance%(i%-ts%)),15,FALSE)
-ELSE
-line$=STRING$(80," ")
-ENDIF
-IF relleft%<6 THEN lmargin%=6 ELSE lmargin%=relleft%
-MOVE ox%+(lmargin%<<4),oy%-(i%<<5)-12-tool%
-PRINT;MID$(line$,lmargin%-5,visible%)
-ENDIF
-i%+=1
+	top% = ((oy% - b%!40) DIV 32) - 1
+	IF top% < 0 THEN top% = 0
+
+	base% = (58 + oy% - b%!32) DIV 32
+
+	left% = (ox% + b%!28) DIV 16
+	IF left% < 0 THEN left% = 0
+
+	relleft% = (b%!28 - ox%) DIV 16
+	IF relleft% < 0 THEN relleft% = 0
+
+	right% = ((ox% + b%!36) DIV 16) + 1
+
+	visible% = ((b%!36 - b%!28) DIV 16) + 2
+
+	i% = top%
+
+	font_l% = relleft% << 4
+	font_v% = visible% << 4
+
+	WHILE i% <= max% + 3 AND i% <= base%
+		IF i% - ts% = select% AND i% - ts% <> 0 THEN
+			SYS "Wimp_SetColour", colour_selection%
+			RECTANGLE FILL ox%, oy% - (i% << 5) - 40 - tool%, 1236, 28
+		ELSE
+			IF balance%(i% - ts%) < 0 THEN
+				SYS "Wimp_SetColour", colour_overdrawn%
+				RECTANGLE FILL ox% + 962, oy% - (i% << 5) - 40 - tool%, 272, 28
+			ENDIF
+		ENDIF
+
+		IF i% - ts% = select% AND i% -ts% <> 0 THEN
+			IF use_font% THEN
+				SYS "Wimp_SetFontColours",,colour_selection%, FNinverse_colour(colour_selection%)
+			ELSE
+				SYS "Wimp_SetColour", FNinverse_colour(colour_selection%)
+			ENDIF
+		ELSE
+			IF use_font% THEN
+				SYS "Wimp_SetFontColours",,1, colour_numbers%
+			ELSE
+				SYS "Wimp_SetColour", colour_numbers%
+			ENDIF
+		ENDIF
+
+		IF relleft% < 5 THEN
+			IF use_font% THEN
+				IF i% - ts% > 0 AND relleft% < 5 THEN
+					SYS "Font_SetFont", disp_font%
+					SYS "Font_Paint",,STR$(i% - ts%), 16, ox% + 74 - FNtext_len(STR$(i% - ts%)), oy% - (i% << 5) - 32 - tool%
+				ENDIF
+			ELSE
+				MOVE ox%, oy% - (i% << 5) - 12 - tool%
+				IF i% - ts% > 0 THEN PRINT;FNtext(STR$(i% - ts%), 4, FALSE)
+			ENDIF
+		ENDIF
+
+		IF i% - ts% >= entries% THEN
+			IF use_font% THEN
+				SYS "Wimp_SetFontColours",,1, colour_unused%
+			ELSE
+				SYS "Wimp_SetColour", colour_unused%
+			ENDIF
+		ELSE
+			IF i% - ts% = select% AND i% <> 0 THEN
+				IF use_font% THEN
+					SYS "Wimp_SetFontColours",,colour_selection%, FNinverse_colour(colour_selection%)
+				ELSE
+					SYS "Wimp_SetColour", FNinverse_colour(colour_selection%)
+				ENDIF
+			ELSE
+				IF use_font% THEN
+					SYS "Wimp_SetFontColours",,1, colour_entries%
+				ELSE
+					SYS "Wimp_SetColour", colour_entries%
+				ENDIF
+			ENDIF
+		ENDIF
+
+		IF use_font% THEN
+			IF i% - ts% > 0 THEN
+				SYS "Font_SetFont", disp_font%
+				IF (font_l% < 100 AND font_l% + font_v% > 100) OR (font_l% > 100 AND font_l% < 490) THEN
+					SYS "Font_Paint",,text$(i% - ts%), 16, ox% + 100, oy% - (i% << 5) - 32 - tool%
+				ENDIF
+				IF (font_l% < 490 AND font_l% + font_v% > 490) OR (font_l% > 490 AND font_l% < 686) THEN
+					text$ = FNpoint(credit%(i% - ts%))
+					SYS "Font_Paint",,text$, 16, ox% + 686 - FNtext_len(text$), oy% - (i% << 5) - 32 - tool%
+				ENDIF
+				IF (font_l% < 686 AND font_l% + font_v% > 686) OR (font_l% > 686 AND font_l% < 958) THEN
+					text$ = FNpoint(payment%(i% - ts%))
+					SYS "Font_Paint",,text$, 16, ox% + 958 - FNtext_len(text$), oy% - (i% << 5) - 32 - tool%
+				ENDIF
+				IF (font_l% < 958 AND font_l% + font_v% > 958) OR (font_l% > 958 AND font_l% < 1230) THEN
+					IF balance%(i% - ts%) < 0 THEN
+						IF i% - ts% = select% THEN
+							SYS "Wimp_SetFontColours",,colour_selection%, colour_overdrawn%
+						ELSE
+							SYS "Wimp_SetFontColours",,colour_overdrawn%, colour_entries%
+						ENDIF
+					ENDIF
+					text$ = FNpoint(balance%(i% - ts%))
+					SYS "Font_Paint",,text$, 16, ox% + 1230 - FNtext_len(text$), oy% - (i% << 5) - 32 - tool%
+				ENDIF
+			ENDIF
+		ELSE
+			IF i% - ts% > 0 THEN
+				line$ = FNtext(text$(i% - ts%), 20, TRUE) + "  " + FNtext(FNpoint(credit%(i% - ts%)), 15, FALSE) + "  " + FNtext(FNpoint(payment%(i% - ts%)), 15, FALSE) + "  " + FNtext(FNpoint(balance%(i% - ts%)), 15, FALSE)
+			ELSE
+				line$ = STRING$(80, " ")
+			ENDIF
+			IF relleft% < 6 THEN lmargin% = 6 ELSE lmargin% = relleft%
+			MOVE ox% + (lmargin% << 4), oy% - (i% << 5) - 12 - tool%
+			PRINT ;MID$(line$, lmargin% - 5, visible%)
+		ENDIF
+
+		i% += 1
+	ENDWHILE
+
+	SYS "Wimp_GetRectangle",,b% TO more%
 ENDWHILE
-SYS "Wimp_GetRectangle",,b% TO more%
-ENDWHILE
+
 SYS "Hourglass_Off"
 ENDPROC
 :

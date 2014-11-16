@@ -379,7 +379,7 @@ WHEN IconbarMenu%
 		PROCopen_window(PrefsWindow%)
 		PROCicon_put_caret_at_end(PrefsPaneWindow%, 23)
 	WHEN 3
-		Quit% = FNsaved
+		Quit% = FNcheck_file_saved
 	ENDCASE
 
 WHEN ColourMenu%
@@ -856,7 +856,7 @@ PROCredraw_main
 ENDCASE
 PROCupdate_tools(select%)
 PROCredraw_enter
-modified%=TRUE
+FileModified%=TRUE
 PROCupdate_title
 PROCset_extent(0)
 IF opp%=0 THENPROCpage_end
@@ -884,7 +884,7 @@ PROCrecalc
 entries%+=1
 PROCredraw_from(select%)
 entries%-=1
-modified%=TRUE
+FileModified%=TRUE
 PROCupdate_title
 PROCupdate_tools(select%)
 PROCredraw_enter
@@ -916,7 +916,7 @@ SYS "Hourglass_Off"
 PROCclear_select
 PROCrecalc
 PROCredraw_main
-modified%=TRUE
+FileModified%=TRUE
 PROCupdate_title
 PROCupdate_tools(select%)
 PROCredraw_enter
@@ -944,7 +944,7 @@ payment%(entries%-1)=0
 balance%(entries%-1)=0
 entries%-=1
 IF select%=entries% select%-=1
-modified%=TRUE
+FileModified%=TRUE
 PROCrecalc
 IF set_clip% THEN
 PROCicon_set_state(EnterWindow%,0,0,0,0)
@@ -1043,7 +1043,7 @@ ENDPROC
 :
 DEF PROCclear
 err% = 0
-IF modified% THEN
+IF FileModified% THEN
 	err% = FNwimperror_report(FNmessage_lookup("OK3"), 4, 0, FNmessage_lookup("OK3B"))
 	IF err% = 1 THEN ENDPROC
 ENDIF
@@ -1060,7 +1060,7 @@ $cfile% = FNmessage_lookup("CsvName")
 $string% = ""
 $cred% = "0.00"
 $pay% = "0.00"
-modified% = FALSE
+FileModified% = FALSE
 
 PROCupdate_tools(select%)
 PROCupdate_menu
@@ -1316,13 +1316,13 @@ ENDPROC
 :
 DEF PROCupdate_title
 IF $file% <> FNmessage_lookup("FileName") THEN
-IF modified% $title%=$file%+" *" ELSE$title%=$file%
+IF FileModified% $title%=$file%+" *" ELSE$title%=$file%
 $fileinf_name%=$file%
 ELSE
-IF modified% THEN $title% = FNmessage_lookup("Untitled") + " *" ELSE $title% = FNmessage_lookup("Untitled")
+IF FileModified% THEN $title% = FNmessage_lookup("Untitled") + " *" ELSE $title% = FNmessage_lookup("Untitled")
 $fileinf_name% = FNmessage_lookup("Untitled")
 ENDIF
-IF modified% THEN
+IF FileModified% THEN
 	$safe% = FNmessage_lookup("Yes")
 ELSE
 	$safe% = FNmessage_lookup("No")
@@ -1352,7 +1352,7 @@ $units%="K"
 size%=(size% DIV 1024)+1
 ENDIF
 $bfilesize%=STR$(size%)
-IF modified% THEN
+IF FileModified% THEN
 $safe%="Yes"
 ELSE
 $safe%="No"
@@ -1453,7 +1453,7 @@ text$(findno%)=LEFT$(LEFT$(text$(findno%),replace_pos%-1)+$replacetext%+MID$(tex
 ELSE
 text$(findno%)=LEFT$($replacetext%,20)
 ENDIF
-modified%=TRUE
+FileModified%=TRUE
 PROCupdate_title
 ENDIF
 IF all% THENfindno%-=1
@@ -1489,7 +1489,7 @@ text$(findno%)=LEFT$(LEFT$(text$(findno%),replace_pos%-1)+$replacetext%+MID$(tex
 flag%=TRUE
 IF NOT done% THEN
 done%=TRUE
-modified%=TRUE
+FileModified%=TRUE
 PROCupdate_title
 ENDIF
 ENDIF
@@ -1508,7 +1508,7 @@ text$(findno%)=LEFT$($replacetext%,20)
 flag%=TRUE
 IF NOT done% THEN
 done%=TRUE
-modified%=TRUE
+FileModified%=TRUE
 PROCupdate_title
 ENDIF
 ENDIF
@@ -1670,7 +1670,7 @@ SYS "XOS_GenerateError", b%+44 TO tf$
 IF b%!20=MainWindow% THENPROCopen_merge_window :mergef$=tf$ :ENDPROC
 err%=0
 IF b%!40=csv_file% THENcsv%=TRUE
-IF modified% THEN err% = FNwimperror_report(FNmessage_lookup("OK4"), 4, 0, FNmessage_lookup("OK4B"))
+IF FileModified% THEN err% = FNwimperror_report(FNmessage_lookup("OK4"), 4, 0, FNmessage_lookup("OK4B"))
 IF err%=1 THEN ENDPROC
 text$()=""
 credit%()=0
@@ -1682,7 +1682,7 @@ $file%=FNmessage_lookup("FileName")
 $string%=""
 $cred%="0.00"
 $pay%="0.00"
-modified%=FALSE
+FileModified%=FALSE
 PROCupdate_tools(select%)
 PROCupdate_title
 !q%=MainWindow%
@@ -1712,7 +1712,7 @@ CLOSE#i%
 SYS "Hourglass_Off"
 $file%=file$
 entries%=c%+1
-modified%=FALSE
+FileModified%=FALSE
 PROCupdate_title
 PROCupdate_tools(select%)
 !b%=MainWindow%
@@ -1784,7 +1784,7 @@ SYS "Hourglass_Off"
 IF NOT finished% THEN err% = PROCwimperror_report(FNmessage_lookup("Mer0"), 0, 1, "")
 PROCrecalc
 PROCmenu_create(-1,0,0)
-modified%=TRUE
+FileModified%=TRUE
 PROCupdate_title
 PROCupdate_tools(select%)
 PROCredraw_main
@@ -1831,7 +1831,7 @@ IF NOT finished% THEN PROCwimperror_report(FNmessage_lookup("Csv0"), 0, 1, "")
 IF failed% THEN PROCwimperror_report(FNmessage_lookup("Csv1"), 0, 1, "")
 $file%=csvf$
 PROCrecalc
-modified%=FALSE
+FileModified%=FALSE
 PROCupdate_title
 PROCupdate_tools(select%)
 !b%=MainWindow%
@@ -1951,7 +1951,7 @@ NEXT
 CLOSE#o%
 SYS "OS_File",&12,$file%,account_file%
 SYS "Hourglass_Off"
-modified%=FALSE
+FileModified%=FALSE
 PROCupdate_title
 PROCmenu_create(-1,0,0)
 ENDPROC
@@ -2022,16 +2022,36 @@ SYS "Hourglass_Off"
 $cfile%=FNmessage_lookup("CsvName")
 PROCmenu_create(-1,0,0)
 ENDPROC
+
+REM Test to see if the current file has been saved, prompting the user if it
+REM has not and opening a Save dialogue if they wish to start a save. This
+REM would be used for an "are you sure?" on a Quit option.
+REM
+REM \return			TRUE if the file is saved (or can be discarded),
+REM				FALSE if it is 'unsafe'.
 :
-DEF FNsaved
-IF modified% = FALSE THEN =TRUE
+DEF FNcheck_file_saved
+LOCAL oktoquit%
+
+REM If the file isn't modified, there's no problem.
+
+IF FileModified% = FALSE THEN =TRUE
+
+REM Prompt the user that the file is unsaved, and offer the change to save or
+REM abandon the exit.
+
 oktoquit% = FNwimperror_report(FNmessage_lookup("OK5"), 4, 0, FNmessage_lookup("OK5B"))
 IF oktoquit% = 2 THEN
 	SYS "Wimp_GetPointerInfo",,q%
 	PROCwindow_open_as_menu_at(SaveWindow%, !q%, q%!4)
 ENDIF
+
+REM Return TRUE if the user selects "Discard" from the available options.
+
 =(oktoquit% = 3)
-:
+
+
+
 DEF PROCprint
 LOCAL c%,percent%,s%,top_of_form%,current_line%
 IF VAL($print1%)=VAL($print2%) PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Prn0"), 0, 1, ""):ENDPROC
@@ -2807,7 +2827,7 @@ SYS "Wimp_Initialise", 310, &4B534154, task_name$, q%
 RestartShutdown%=FALSE
 
 max%=1000
-modified%=FALSE
+FileModified%=FALSE
 select%=0
 entries%=1
 months$="JanFebMarAprMayJunJulAugSepOctNovDec"
@@ -2904,7 +2924,7 @@ BPUT#b%!20,"Run "+$q%
 ENDPROC
 :
 DEF PROCpre_quit
-IF NOT modified% THEN ENDPROC
+IF NOT FileModified% THEN ENDPROC
 !b%=20
 b%!12=b%!8
 b%!16=0

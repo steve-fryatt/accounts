@@ -2122,35 +2122,35 @@ $uline_off%=GET$#in%
 CLOSE#in%
 PROCicon_set_state(PrintSetupWindow%,3,form_feeds%,0,0)
 pagelength%=VAL($page_length%)
-line_feed$=FNtrans_string($line_feed%)
-form_feed$=FNtrans_string($form_feed%)
-bold_on$=FNtrans_string($bold_on%)
-bold_off$=FNtrans_string($bold_off%)
-uline_on$=FNtrans_string($uline_on%)
-uline_off$=FNtrans_string($uline_off%)
+line_feed$=FNprintcodes_to_text($line_feed%)
+form_feed$=FNprintcodes_to_text($form_feed%)
+bold_on$=FNprintcodes_to_text($bold_on%)
+bold_off$=FNprintcodes_to_text($bold_off%)
+uline_on$=FNprintcodes_to_text($uline_on%)
+uline_off$=FNprintcodes_to_text($uline_off%)
 ENDPROC
 :
 DEF PROCset_printcodes
 IF FNicon_selected(PrintSetupWindow%,3) THENform_feeds%=1 ELSEform_feeds%=0
 pagelength%=VAL($page_length%)
-line_feed$=FNtrans_string($line_feed%)
-form_feed$=FNtrans_string($form_feed%)
-bold_on$=FNtrans_string($bold_on%)
-bold_off$=FNtrans_string($bold_off%)
-uline_on$=FNtrans_string($uline_on%)
-uline_off$=FNtrans_string($uline_off%)
+line_feed$=FNprintcodes_to_text($line_feed%)
+form_feed$=FNprintcodes_to_text($form_feed%)
+bold_on$=FNprintcodes_to_text($bold_on%)
+bold_off$=FNprintcodes_to_text($bold_off%)
+uline_on$=FNprintcodes_to_text($uline_on%)
+uline_off$=FNprintcodes_to_text($uline_off%)
 PROCmenu_create(-1,0,0)
 ENDPROC
 :
 DEF PROCsave_printcodes
 IF FNicon_selected(PrintSetupWindow%,3) THENform_feeds%=1 ELSEform_feeds%=0
 pagelength%=VAL($page_length%)
-line_feed$=FNtrans_string($line_feed%)
-form_feed$=FNtrans_string($form_feed%)
-bold_on$=FNtrans_string($bold_on%)
-bold_off$=FNtrans_string($bold_off%)
-uline_on$=FNtrans_string($uline_on%)
-uline_off$=FNtrans_string($uline_off%)
+line_feed$=FNprintcodes_to_text($line_feed%)
+form_feed$=FNprintcodes_to_text($form_feed%)
+bold_on$=FNprintcodes_to_text($bold_on%)
+bold_off$=FNprintcodes_to_text($bold_off%)
+uline_on$=FNprintcodes_to_text($uline_on%)
+uline_off$=FNprintcodes_to_text($uline_off%)
 out%=OPENOUT("<Account$Dir>.PrintCodes")
 BPUT#out%,$page_length%
 BPUT#out%,STR$(form_feeds%)
@@ -2167,37 +2167,54 @@ ENDPROC
 DEF PROCcancel_printcodes
 PROCicon_set_state(PrintSetupWindow%,3,form_feeds%,0,0)
 $page_length%=STR$(pagelength%)
-$line_feed%=FNtrans_codes(line_feed$)
-$form_feed%=FNtrans_codes(form_feed$)
-$bold_on%=FNtrans_codes(bold_on$)
-$bold_off%=FNtrans_codes(bold_off$)
-$uline_on%=FNtrans_codes(uline_on$)
-$uline_off%=FNtrans_codes(uline_off$)
+$line_feed%=FNtext_to_printcodes(line_feed$)
+$form_feed%=FNtext_to_printcodes(form_feed$)
+$bold_on%=FNtext_to_printcodes(bold_on$)
+$bold_off%=FNtext_to_printcodes(bold_off$)
+$uline_on%=FNtext_to_printcodes(uline_on$)
+$uline_off%=FNtext_to_printcodes(uline_off$)
 PROCmenu_create(-1,0,0)
 ENDPROC
+
+REM Convert a string of ASCII printer codes into a human-readable string
+REM of comma-separated bytes.
+REM
+REM \param codes$		The ASCII code string to be converted.
+REM \return			The corresponding CSV list of bytes.
 :
-DEF FNtrans_string(s$)
-LOCAL o$,pos%
-WHILE LEN(s$)>0
-IF INSTR(s$,",") THEN
-pos%=INSTR(s$,",")
-o$+=CHR$(VAL(LEFT$(s$,pos%-1)))
-s$=MID$(s$,pos%+1)
-ELSE
-o$+=CHR$(VAL(s$))
-s$=""
-ENDIF
+DEF FNprintcodes_to_text(codes$)
+LOCAL list$, inset%
+
+WHILE LEN(codes$) > 0
+	inset% = INSTR(codes$, ",")
+
+	IF inset% THEN
+		list$ += CHR$(VAL(LEFT$(codes$, inset% - 1)))
+		codes$ = MID$(codes$, inset% + 1)
+	ELSE
+		list$ += CHR$(VAL(codes$))
+		codes$=""
+	ENDIF
 ENDWHILE
-=o$
+=list$
+
+REM Convert a human-readable string of comma-separated bytes into a string of
+REM ASCII printer codes.
+REM
+REM \param list$		The CSV list of bytes to be converted.
+REM \return			The corresponding ASCII string.
 :
-DEF FNtrans_codes(s$)
-LOCAL o$
-WHILE LEN(s$)>0
-o$+=STR$(ASC(LEFT$(s$,1)))+","
-s$=MID$(s$,2)
+DEF FNtext_to_printcodes(list$)
+LOCAL codes$
+
+WHILE LEN(list$) > 0
+	codes$ += STR$(ASC(LEFT$(list$, 1))) + ","
+	list$ = MID$(list$, 2)
 ENDWHILE
-=LEFT$(o$,LEN(o$)-1)
-:
+=LEFT$(codes$)
+
+
+
 DEF PROCsave_prefs(save_prefs%)
 LOCAL open%,oj%
 oj%=EnterJoinMain%

@@ -484,259 +484,292 @@ ENDPROC
 
 REM Process incoming key press events.
 REM
-REM
-
+REM \param key%			The code for the pressed key.
+REM \param whan%		The handle of the window receiving the keypress.
+REM \param icon%		The icon receiving the keypress.
 :
-DEF PROCkey_press(key%,whan%,icon%)
+DEF PROCkey_press(key%, whan%, icon%)
 SYS "Wimp_GetPointerInfo",,b%
+
 CASE key% OF
-WHEN 4  :PROCdate(whan%,icon%,b%!20)
-WHEN 13 :
-CASE whan% OF
-WHEN SaveWindow%      :PROCquick_save(file%)
-WHEN ExpTextWindow%      :PROCquick_save(tfile%)
-WHEN ExpCSVWindow%       :PROCquick_save(cfile%)
-WHEN FindWindow%      :PROCfind(TRUE,FALSE,FALSE)
-WHEN HeadWindow%   :PROCnew_header
-WHEN GotoWindow%      :PROCgoto
-WHEN SLineWindow%   :PROCkey_select
-WHEN PrintWindow%     :PROCprint
-WHEN PrintSetupWindow%  :PROCset_printcodes
-WHEN PrefsPaneWindow% :PROCsave_prefs(FALSE)
-WHEN EnterWindow%
-CASE icon% OF
-WHEN 6  :PROCicon_put_caret_at_end(EnterWindow%,7)
-WHEN 7  :PROCicon_put_caret_at_end(EnterWindow%,8)
-WHEN 8
-PROCicon_set_state(EnterWindow%,0,1,0,0)
-PROCicon_set_state(EnterWindow%,1,0,0,0)
-PROCaddval(0)
-IF return_caret% THENPROCicon_put_caret_at_end(EnterWindow%,6)
-WHEN 11 :PROCicon_put_caret_at_end(EnterWindow%,12)
-WHEN 12 :PROCicon_put_caret_at_end(EnterWindow%,13)
+WHEN 4
+	PROCdate(whan%, icon%, b%!20)
+
 WHEN 13
-PROCicon_set_state(EnterWindow%,0,0,0,0)
-PROCicon_set_state(EnterWindow%,1,1,0,0)
-PROCaddval(0)
-IF return_caret% THENPROCicon_put_caret_at_end(EnterWindow%,6)
-ENDCASE
-ENDCASE
-WHEN 19 :PROCswap(whan%,icon%,b%!20)
-WHEN 20 :PROCnew_date(whan%,icon%)
-WHEN 26 :PROCclear_select
+	CASE whan% OF
+		WHEN SaveWindow%	: PROCquick_save(file%)
+		WHEN ExpTextWindow%	: PROCquick_save(tfile%)
+		WHEN ExpCSVWindow%	: PROCquick_save(cfile%)
+		WHEN FindWindow%	: PROCfind(TRUE, FALSE, FALSE)
+		WHEN HeadWindow%	: PROCnew_header
+		WHEN GotoWindow%	: PROCgoto
+		WHEN SLineWindow%	: PROCkey_select
+		WHEN PrintWindow%	: PROCprint
+		WHEN PrintSetupWindow%	: PROCset_printcodes
+		WHEN PrefsPaneWindow%	: PROCsave_prefs(FALSE)
+		WHEN EnterWindow%
+			CASE icon% OF
+			WHEN 6
+				PROCicon_put_caret_at_end(EnterWindow%, 7)
+			WHEN 7
+				PROCicon_put_caret_at_end(EnterWindow%, 8)
+			WHEN 8
+				PROCicon_set_state(EnterWindow%, 0, 1, 0, 0)
+				PROCicon_set_state(EnterWindow%, 1, 0, 0, 0)
+				PROCaddval(0)
+				IF return_caret% THEN PROCicon_put_caret_at_end(EnterWindow%, 6)
+			WHEN 11
+				PROCicon_put_caret_at_end(EnterWindow%, 12)
+			WHEN 12
+				PROCicon_put_caret_at_end(EnterWindow%, 13)
+			WHEN 13
+				PROCicon_set_state(EnterWindow%, 0, 0, 0, 0)
+				PROCicon_set_state(EnterWindow%, 1, 1, 0, 0)
+				PROCaddval(0)
+				IF return_caret% THEN PROCicon_put_caret_at_end(EnterWindow%, 6)
+			ENDCASE
+	ENDCASE
+
+WHEN 19
+	PROCswap(whan%, icon%, b%!20)
+
+WHEN 20
+	PROCnew_date(whan%, icon%)
+
+WHEN 26
+	PROCclear_select
+
 WHEN 30
-CASE home_key% OF
-WHEN 1 :PROCpage_home
-WHEN 2 :PROCicon_put_caret_at_end(EnterWindow%,6)
-WHEN 3 :PROCpage_home :PROCicon_put_caret_at_end(EnterWindow%,6)
-ENDCASE
-WHEN &180 :PROCwindow_open_as_menu_at(PrintWindow%,!b%,b%!4)
-WHEN &190 :PROCwindow_open_as_menu_at(PrintSetupWindow%,!b%,b%!4)
-WHEN &181 :PROCaddval(0)
+	CASE home_key% OF
+		WHEN 1			: PROCpage_home
+		WHEN 2			: PROCicon_put_caret_at_end(EnterWindow%, 6)
+		WHEN 3			: PROCpage_home : PROCicon_put_caret_at_end(EnterWindow%, 6)
+	ENDCASE
+
+WHEN &180
+	PROCwindow_open_as_menu_at(PrintWindow%, !b%, b%!4)
+
+WHEN &190
+	PROCwindow_open_as_menu_at(PrintSetupWindow%, !b%, b%!4)
+
+WHEN &181
+	PROCaddval(0)
+
 WHEN &191
-!b%=TBoxWindow%
-SYS "Wimp_GetWindowState",,b%
-IF b%!32 AND 1<<16 THEN
-PROCwindow_close(TBoxWindow%)
-PROCmenu_set_state(MainMenu%,6,0,0)
-ELSE
-PROCopen_window(TBoxWindow%)
-PROCmenu_set_state(MainMenu%,6,1,0)
-ENDIF
+	IF FNwindow_is_open(TBoxWindow%) THEN
+		PROCwindow_close(TBoxWindow%)
+		PROCmenu_set_state(MainMenu%, 6, FALSE, FALSE)
+	ELSE
+		PROCopen_window(TBoxWindow%)
+		PROCmenu_set_state(MainMenu%, 6, TRUE, FALSE)
+	ENDIF
+
 WHEN &1A1
-!b%=EnterWindow%
-SYS "Wimp_GetWindowState",,b%
-IF b%!32 AND 1<<16 THEN
-PROCwindow_close(EnterWindow%)
-PROCmenu_set_state(MainMenu%,7,0,0)
-ELSE
-!b%=EnterWindow%
-SYS "Wimp_GetWindowState",,b%
-!q%=MainWindow%
-SYS "Wimp_GetWindowState",,q%
-b%!4=q%!4+42
-IF q%!8>236 THENover%=0
-IF q%!8<=236 AND b%!8>0 THENover%=236-b%!8
-IF q%!8<=0 THENover%=236
-b%!16=q%!8-44+over%
-b%!8=q%!8-206+over%
-b%!12=q%!4+1238
-b%!20=0
-b%!24=0
-b%!28=TBarWindow%
-SYS "Wimp_OpenWindow",,b%
-PROCicon_put_caret_at_end(EnterWindow%,6)
-PROCmenu_set_state(MainMenu%,7,1,0)
-ENDIF
+	IF FNwindow_is_open(EnterWindow%) THEN
+		PROCwindow_close(EnterWindow%)
+		PROCmenu_set_state(MainMenu%, 7, FALSE, FALSE)
+	ELSE
+		PROCmenu_set_state(MainMenu%, 7, TRUE, FALSE)
+		PROCopen_window(EnterWindow%)
+		PROCopen_window(MainWindow%)
+		PROCicon_put_caret_at_end(EnterWindow%, 6)
+	ENDIF
+
 WHEN &1A2
-IF FNmenu_ticked(MainMenu%,8) THEN
-!b%=TBarWindow%
-SYS "Wimp_GetWindowState",,b%
-!q%=MainWindow%
-SYS "Wimp_GetWindowState",,q%
-b%!4=q%!4
-b%!16=q%!16
-b%!8=q%!16-36
-b%!12=q%!12
-b%!20=0
-b%!24=0
-b%!28=q%!28
-SYS "Wimp_OpenWindow",,b%
-PROCmenu_set_state(MainMenu%,8,0,0)
-ELSE
-!b%=TBarWindow%
-SYS "Wimp_GetWindowState",,b%
-b%!4=q%!4
-b%!16=q%!16
-b%!8=q%!16-136
-b%!12=q%!12
-b%!20=0
-b%!24=0
-b%!28=q%!28
-SYS "Wimp_OpenWindow",,b%
-PROCmenu_set_state(MainMenu%,8,1,0)
-ENDIF
-PROCredraw_main
-PROCset_extent(0)
-WHEN &182,&1CD :PROCaddval(2)
-WHEN &192,&1DD :PROCaddval(1)
-WHEN &183      :IF F3_qsave% THEN
-PROCquick_save(file%)
-ELSE
-PROCwindow_open_as_menu_at(SaveWindow%,!b%,b%!4)
-ENDIF
-WHEN &193      :PROCwindow_open_as_menu_at(ExpTextWindow%,!b%,b%!4)
-WHEN &1A3      :PROCwindow_open_as_menu_at(ExpCSVWindow%,!b%,b%!4)
-WHEN &184      :PROCwindow_open_as_menu_at(FindWindow%,!b%,b%!4)
-WHEN &194      :PROCwindow_open_as_menu_at(SLineWindow%,!b%,b%!4)
-WHEN &185,24   :PROCdelete
-WHEN &195      :PROCremove
-WHEN &186      :PROCaddval(3)
-WHEN &187,3    :PROCcopy
-WHEN &197      :PROCcurrent
-WHEN &188,22   :PROCcut
-WHEN &189      :PROCclip_clear
-WHEN &18C,&19C
-IF whan%=EnterWindow%
-CASE icon% OF
-WHEN 7  :PROCicon_put_caret_at_end(EnterWindow%,6)
-WHEN 8  :PROCicon_put_caret_at_end(EnterWindow%,7)
-WHEN 12 :PROCicon_put_caret_at_end(EnterWindow%,11)
-WHEN 13 :PROCicon_put_caret_at_end(EnterWindow%,12)
-ENDCASE
-ENDIF
-WHEN &18D,&19D
-IF whan%=EnterWindow%
-CASE icon% OF
-WHEN 6  :PROCicon_put_caret_at_end(EnterWindow%,7)
-WHEN 7  :PROCicon_put_caret_at_end(EnterWindow%,8)
-WHEN 11 :PROCicon_put_caret_at_end(EnterWindow%,12)
-WHEN 12 :PROCicon_put_caret_at_end(EnterWindow%,13)
-ENDCASE
-ENDIF
-WHEN &1AC,&1BC :
-IF whan%=EnterWindow%
-CASE icon% OF
-WHEN 7,8   :PROCicon_put_caret_at_end(EnterWindow%,6)
-WHEN 12,13 :PROCicon_put_caret_at_end(EnterWindow%,11)
-ENDCASE
-ENDIF
-WHEN &1AD,&1BD :
-IF whan%=EnterWindow%
-CASE icon% OF
-WHEN 6,7   :PROCicon_put_caret_at_end(EnterWindow%,8)
-WHEN 11,12 :PROCicon_put_caret_at_end(EnterWindow%,13)
-ENDCASE
-ENDIF
-WHEN &1A9 :PROCclear
-WHEN &1CA :PROCwindow_open_as_menu_at(GotoWindow%,!b%,b%!4)
-WHEN &1CB :PROCwindow_open_as_menu_at(HeadWindow%,!b%,b%!4)
+	PROCmenu_set_state(MainMenu%, 8, NOT FNmenu_ticked(MainMenu%, 8), FALSE)
+	PROCopen_window(MainWindow%)
+	PROCredraw_main
+	PROCset_extent(0)
+
+WHEN &182, &1CD
+	PROCaddval(2)
+
+WHEN &192, &1DD
+	PROCaddval(1)
+
+WHEN &183
+	IF F3_qsave% THEN
+		PROCquick_save(file%)
+	ELSE
+		PROCwindow_open_as_menu_at(SaveWindow%, !b%, b%!4)
+	ENDIF
+
+WHEN &193
+	PROCwindow_open_as_menu_at(ExpTextWindow%, !b%, b%!4)
+
+WHEN &1A3
+	PROCwindow_open_as_menu_at(ExpCSVWindow%, !b%, b%!4)
+
+WHEN &184
+	PROCwindow_open_as_menu_at(FindWindow%, !b%, b%!4)
+
+WHEN &194
+	PROCwindow_open_as_menu_at(SLineWindow%, !b%, b%!4)
+
+WHEN &185, 24
+	PROCdelete
+
+WHEN &195
+	PROCremove
+
+WHEN &186
+	PROCaddval(3)
+
+WHEN &187, 3
+	PROCcopy
+
+WHEN &197
+	PROCcurrent
+
+WHEN &188, 22
+	PROCcut
+
+WHEN &189
+	PROCclip_clear
+
+WHEN &18C, &19C
+	IF whan% = EnterWindow% THEN
+		CASE icon% OF
+			WHEN 7		: PROCicon_put_caret_at_end(EnterWindow%, 6)
+			WHEN 8		: PROCicon_put_caret_at_end(EnterWindow%, 7)
+			WHEN 12		: PROCicon_put_caret_at_end(EnterWindow%, 11)
+			WHEN 13		: PROCicon_put_caret_at_end(EnterWindow%, 12)
+		ENDCASE
+	ENDIF
+
+WHEN &18D, &19D
+	IF whan% = EnterWindow% THEN
+		CASE icon% OF
+			WHEN 6		: PROCicon_put_caret_at_end(EnterWindow%, 7)
+			WHEN 7		: PROCicon_put_caret_at_end(EnterWindow%, 8)
+			WHEN 11		: PROCicon_put_caret_at_end(EnterWindow%, 12)
+			WHEN 12		: PROCicon_put_caret_at_end(EnterWindow%, 13)
+		ENDCASE
+	ENDIF
+
+WHEN &1AC, &1BC
+	IF whan% = EnterWindow% THEN
+		CASE icon% OF
+			WHEN 7, 8	: PROCicon_put_caret_at_end(EnterWindow%, 6)
+			WHEN 12, 13	: PROCicon_put_caret_at_end(EnterWindow%, 11)
+		ENDCASE
+	ENDIF
+
+WHEN &1AD, &1BD
+	IF whan% = EnterWindow% THEN
+		CASE icon% OF
+			WHEN 6, 7	: PROCicon_put_caret_at_end(EnterWindow%, 8)
+			WHEN 11, 12	: PROCicon_put_caret_at_end(EnterWindow%, 13)
+		ENDCASE
+	ENDIF
+
+WHEN &1A9
+	PROCclear
+
+WHEN &1CA
+	PROCwindow_open_as_menu_at(GotoWindow%, !b%, b%!4)
+
+WHEN &1CB
+	PROCwindow_open_as_menu_at(HeadWindow%, !b%, b%!4)
+
 WHEN &18E
-CASE whan% OF
-WHEN EnterWindow% :PROCline_down
-WHEN FindWindow%
-CASE icon% OF
-WHEN 1 :PROCicon_put_caret_at_end(FindWindow%,9)
-WHEN 9 :PROCicon_put_caret_at_end(FindWindow%,1)
-ENDCASE
-WHEN ExpTextWindow%
-CASE icon% OF
-WHEN 1  :PROCicon_put_caret_at_end(ExpTextWindow%,10)
-WHEN 10 :PROCicon_put_caret_at_end(ExpTextWindow%,11)
-WHEN 11 :PROCicon_put_caret_at_end(ExpTextWindow%,1)
-ENDCASE
-WHEN ExpCSVWindow%
-CASE icon% OF
-WHEN 1  :PROCicon_put_caret_at_end(ExpCSVWindow%,10)
-WHEN 10 :PROCicon_put_caret_at_end(ExpCSVWindow%,11)
-WHEN 11 :PROCicon_put_caret_at_end(ExpCSVWindow%,1)
-ENDCASE
-WHEN PrintWindow%
-CASE icon% OF
-WHEN 7 :PROCicon_put_caret_at_end(PrintWindow%,8)
-WHEN 8 :PROCicon_put_caret_at_end(PrintWindow%,7)
-ENDCASE
-WHEN PrintSetupWindow%
-CASE icon% OF
-WHEN 1 :PROCicon_put_caret_at_end(PrintSetupWindow%,12)
-WHEN 12,13,14,15,16 :PROCicon_put_caret_at_end(PrintSetupWindow%,icon%+1)
-WHEN 17 :PROCicon_put_caret_at_end(PrintSetupWindow%,1)
-ENDCASE
-WHEN PrefsPaneWindow%
-CASE icon% OF
-WHEN 23 :PROCicon_put_caret_at_end(PrefsPaneWindow%,25)
-WHEN 25 :PROCicon_put_caret_at_end(PrefsPaneWindow%,27)
-WHEN 27 :PROCicon_put_caret_at_end(PrefsPaneWindow%,29)
-WHEN 29 :PROCicon_put_caret_at_end(PrefsPaneWindow%,23)
-ENDCASE
-ENDCASE
+	CASE whan% OF
+	WHEN EnterWindow%
+		PROCline_down
+	WHEN FindWindow%
+		CASE icon% OF
+			WHEN 1			: PROCicon_put_caret_at_end(FindWindow%, 9)
+			WHEN 9			: PROCicon_put_caret_at_end(FindWindow%, 1)
+		ENDCASE
+	WHEN ExpTextWindow%
+		CASE icon% OF
+			WHEN 1			: PROCicon_put_caret_at_end(ExpTextWindow%, 10)
+			WHEN 10			: PROCicon_put_caret_at_end(ExpTextWindow%, 11)
+			WHEN 11			: PROCicon_put_caret_at_end(ExpTextWindow%, 1)
+		ENDCASE
+	WHEN ExpCSVWindow%
+		CASE icon% OF
+			WHEN 1			: PROCicon_put_caret_at_end(ExpCSVWindow%, 10)
+			WHEN 10			: PROCicon_put_caret_at_end(ExpCSVWindow%, 11)
+			WHEN 11			: PROCicon_put_caret_at_end(ExpCSVWindow%, 1)
+		ENDCASE
+	WHEN PrintWindow%
+		CASE icon% OF
+			WHEN 7			: PROCicon_put_caret_at_end(PrintWindow%, 8)
+			WHEN 8			: PROCicon_put_caret_at_end(PrintWindow%, 7)
+		ENDCASE
+	WHEN PrintSetupWindow%
+		CASE icon% OF
+			WHEN 1			: PROCicon_put_caret_at_end(PrintSetupWindow%, 12)
+			WHEN 12, 13, 14, 15, 16	: PROCicon_put_caret_at_end(PrintSetupWindow%, icon% + 1)
+			WHEN 17			: PROCicon_put_caret_at_end(PrintSetupWindow%, 1)
+		ENDCASE
+	WHEN PrefsPaneWindow%
+		CASE icon% OF
+			WHEN 23			: PROCicon_put_caret_at_end(PrefsPaneWindow%, 25)
+			WHEN 25			: PROCicon_put_caret_at_end(PrefsPaneWindow%, 27)
+			WHEN 27			: PROCicon_put_caret_at_end(PrefsPaneWindow%, 29)
+			WHEN 29			: PROCicon_put_caret_at_end(PrefsPaneWindow%, 23)
+		ENDCASE
+	ENDCASE
+
 WHEN &18F
-CASE whan% OF
-WHEN EnterWindow% :PROCline_up
-WHEN FindWindow%
-CASE icon% OF
-WHEN 1 :PROCicon_put_caret_at_end(FindWindow%,9)
-WHEN 9 :PROCicon_put_caret_at_end(FindWindow%,1)
-ENDCASE
-WHEN ExpTextWindow%
-CASE icon% OF
-WHEN 1  :PROCicon_put_caret_at_end(ExpTextWindow%,11)
-WHEN 10 :PROCicon_put_caret_at_end(ExpTextWindow%,1)
-WHEN 11 :PROCicon_put_caret_at_end(ExpTextWindow%,10)
-ENDCASE
-WHEN ExpCSVWindow%
-CASE icon% OF
-WHEN 1  :PROCicon_put_caret_at_end(ExpCSVWindow%,11)
-WHEN 10 :PROCicon_put_caret_at_end(ExpCSVWindow%,1)
-WHEN 11 :PROCicon_put_caret_at_end(ExpCSVWindow%,10)
-ENDCASE
-WHEN PrintWindow%
-CASE icon% OF
-WHEN 7 :PROCicon_put_caret_at_end(PrintWindow%,8)
-WHEN 8 :PROCicon_put_caret_at_end(PrintWindow%,7)
-ENDCASE
-WHEN PrintSetupWindow%
-CASE icon% OF
-WHEN 1 :PROCicon_put_caret_at_end(PrintSetupWindow%,17)
-WHEN 12 :PROCicon_put_caret_at_end(PrintSetupWindow%,1)
-WHEN 13,14,15,16,17 :PROCicon_put_caret_at_end(PrintSetupWindow%,icon%-1)
-ENDCASE
-WHEN PrefsPaneWindow%
-CASE icon% OF
-WHEN 23 :PROCicon_put_caret_at_end(PrefsPaneWindow%,29)
-WHEN 25 :PROCicon_put_caret_at_end(PrefsPaneWindow%,23)
-WHEN 27 :PROCicon_put_caret_at_end(PrefsPaneWindow%,25)
-WHEN 29 :PROCicon_put_caret_at_end(PrefsPaneWindow%,27)
-ENDCASE
-ENDCASE
-WHEN &19E :PROCpage_down
-WHEN &19F :PROCpage_up
-WHEN &1AE :PROCpage_end
-WHEN &1AF :PROCpage_home
-OTHERWISE :SYS "Wimp_ProcessKey",key%
+	CASE whan% OF
+	WHEN EnterWindow%
+		PROCline_up
+	WHEN FindWindow%
+		CASE icon% OF
+			WHEN 1			: PROCicon_put_caret_at_end(FindWindow%, 9)
+			WHEN 9			: PROCicon_put_caret_at_end(FindWindow%, 1)
+		ENDCASE
+	WHEN ExpTextWindow%
+		CASE icon% OF
+			WHEN 1			: PROCicon_put_caret_at_end(ExpTextWindow%, 11)
+			WHEN 10			: PROCicon_put_caret_at_end(ExpTextWindow%, 1)
+			WHEN 11			: PROCicon_put_caret_at_end(ExpTextWindow%, 10)
+		ENDCASE
+	WHEN ExpCSVWindow%
+		CASE icon% OF
+			WHEN 1			: PROCicon_put_caret_at_end(ExpCSVWindow%, 11)
+			WHEN 10			: PROCicon_put_caret_at_end(ExpCSVWindow%, 1)
+			WHEN 11			: PROCicon_put_caret_at_end(ExpCSVWindow%, 10)
+		ENDCASE
+	WHEN PrintWindow%
+		CASE icon% OF
+			WHEN 7			: PROCicon_put_caret_at_end(PrintWindow%, 8)
+			WHEN 8			: PROCicon_put_caret_at_end(PrintWindow%, 7)
+		ENDCASE
+	WHEN PrintSetupWindow%
+		CASE icon% OF
+			WHEN 1			: PROCicon_put_caret_at_end(PrintSetupWindow%, 17)
+			WHEN 12			: PROCicon_put_caret_at_end(PrintSetupWindow%, 1)
+			WHEN 13, 14, 15, 16, 17	: PROCicon_put_caret_at_end(PrintSetupWindow%, icon% - 1)
+		ENDCASE
+	WHEN PrefsPaneWindow%
+		CASE icon% OF
+			WHEN 23			: PROCicon_put_caret_at_end(PrefsPaneWindow%, 29)
+			WHEN 25			: PROCicon_put_caret_at_end(PrefsPaneWindow%, 23)
+			WHEN 27			: PROCicon_put_caret_at_end(PrefsPaneWindow%, 25)
+			WHEN 29			: PROCicon_put_caret_at_end(PrefsPaneWindow%, 27)
+		ENDCASE
+	ENDCASE
+
+WHEN &19E
+	PROCpage_down
+
+WHEN &19F
+	PROCpage_up
+
+WHEN &1AE
+	PROCpage_end
+
+WHEN &1AF
+	PROCpage_home
+
+OTHERWISE
+	SYS "Wimp_ProcessKey", key%
 ENDCASE
 ENDPROC
-:
 
 
 REM Process incoming user messages.
@@ -1066,6 +1099,7 @@ payment%(entries%)=0
 balance%(entries%)=0
 ENDIF
 ENDPROC
+
 :
 DEF PROCredraw
 LOCAL left%,lmargin%,right%,top%,base%,visible%,relleft%,tool%,ts%

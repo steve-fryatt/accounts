@@ -372,7 +372,7 @@ reopen% = (q%!8 = 1)
 
 CASE FNmenu_current_handle OF
 WHEN IconbarMenu%
-	CASE b%!0 OF
+	CASE block%!0 OF
 	WHEN 1
 		OSCLI("%Filer_Run <Account$Dir>.!Help")
 	WHEN 2
@@ -389,127 +389,87 @@ WHEN ColourMenu%
 
 	CASE prefs_menu% OF
 	WHEN 34
-		PROCicon_set_indirected_text(PrefsPaneWindow%, 23, STR$(b%!0))
+		PROCicon_set_indirected_text(PrefsPaneWindow%, 23, STR$(block%!0))
 		PROCicon_redraw(PrefsPaneWindow%, 23)
-		PROCmenu_set_state(ColourMenu%, b%!0, 1, 0)
+		PROCmenu_set_state(ColourMenu%, block%!0, 1, 0)
 	WHEN 35
-		PROCicon_set_indirected_text(PrefsPaneWindow%, 25, STR$(b%!0))
+		PROCicon_set_indirected_text(PrefsPaneWindow%, 25, STR$(block%!0))
 		PROCicon_redraw(PrefsPaneWindow%, 25)
-		PROCmenu_set_state(ColourMenu%, b%!0, 1, 0)
+		PROCmenu_set_state(ColourMenu%, block%!0, 1, 0)
 	WHEN 36
-		PROCicon_set_indirected_text(PrefsPaneWindow%, 27, STR$(b%!0))
+		PROCicon_set_indirected_text(PrefsPaneWindow%, 27, STR$(block%!0))
 		PROCicon_redraw(PrefsPaneWindow%, 27)
-		PROCmenu_set_state(ColourMenu%, b%!0, 1, 0)
+		PROCmenu_set_state(ColourMenu%, block%!0, 1, 0)
 	WHEN 37
-		PROCicon_set_indirected_text(PrefsPaneWindow%, 29, STR$(b%!0))
+		PROCicon_set_indirected_text(PrefsPaneWindow%, 29, STR$(block%!0))
 		PROCicon_redraw(PrefsPaneWindow%, 29)
-		PROCmenu_set_state(ColourMenu%, b%!0, 1, 0)
+		PROCmenu_set_state(ColourMenu%, block%!0, 1, 0)
 	WHEN 52
-		PROCicon_set_indirected_text(PrefsPaneWindow%, 50, STR$(b%!0))
+		PROCicon_set_indirected_text(PrefsPaneWindow%, 50, STR$(block%!0))
 		PROCicon_redraw(PrefsPaneWindow%, 50)
-		PROCmenu_set_state(ColourMenu%, b%!0, 1, 0)
+		PROCmenu_set_state(ColourMenu%, block%!0, 1, 0)
 	ENDCASE
 
 WHEN MainMenu%
-	CASE b%!0 OF
+	CASE block%!0 OF
 	WHEN 0
-		CASE b%!4 OF
-			WHEN 0 :PROCwindow_open_as_menu_at(InfoWindow%,!b%,b%!4) : reopen% = FALSE
-			WHEN 1 :PROCwindow_open_as_menu_at(FileInfoWindow%,!b%,b%!4) : reopen% = FALSE
-			WHEN 2 :PROCwindow_open_as_menu_at(FindWindow%,!b%,b%!4) : reopen% = FALSE
-			WHEN 3 :PROCwindow_open_as_menu_at(GotoWindow%,!b%,b%!4) : reopen% = FALSE
-			WHEN 4 :PROCwindow_open_as_menu_at(HeadWindow%,!b%,b%!4) : reopen% = FALSE
-			WHEN 5 :PROCclear
+		CASE block%!4 OF
+			WHEN 0		: PROCwindow_open_as_menu_at(InfoWindow%, !q%, q%!4) : reopen% = FALSE
+			WHEN 1		: PROCwindow_open_as_menu_at(FileInfoWindow%,!q%, q%!4) : reopen% = FALSE
+			WHEN 2		: PROCwindow_open_as_menu_at(FindWindow%, !q%, q%!4) : reopen% = FALSE
+			WHEN 3		: PROCwindow_open_as_menu_at(GotoWindow%, !q%, q%!4) : reopen% = FALSE
+			WHEN 4		: PROCwindow_open_as_menu_at(HeadWindow%, !q%, q%!4) : reopen% = FALSE
+			WHEN 5		: PROCclear
 		ENDCASE
 	WHEN 1
-		CASE b%!4 OF
-			WHEN -1,0 :PROCquick_save(file%)
-			WHEN 1 :PROCwindow_open_as_menu_at(ExpTextWindow%,!b%,b%!4) : reopen% = FALSE
-			WHEN 2 :PROCwindow_open_as_menu_at(ExpCSVWindow%,!b%,b%!4) : reopen% = FALSE
+		CASE block%!4 OF
+			WHEN -1, 0	: PROCquick_save(file%)
+			WHEN 1		: PROCwindow_open_as_menu_at(ExpTextWindow%, !q%, q%!4) : reopen% = FALSE
+			WHEN 2		: PROCwindow_open_as_menu_at(ExpCSVWindow%, !q%, q%!4) : reopen% = FALSE
 		ENDCASE
 	WHEN 2
-		IF b%!4 > -1 THEN PROCaddval(b%!4)
+		IF block%!4 > -1 THEN PROCaddval(block%!4)
 	WHEN 3
-		CASE b%!4 OF
-			WHEN -1,0 : PROCwindow_open_as_menu_at(SLineWindow%,!b%,b%!4) : reopen% = FALSE
-			WHEN 1 :PROCremove
-			WHEN 2 :PROCdelete
-			WHEN 3 :PROCaddval(3)
-			WHEN 4 :PROCclear_select
+		CASE block%!4 OF
+			WHEN -1, 0	: PROCwindow_open_as_menu_at(SLineWindow%, !q%, q%!4) : reopen% = FALSE
+			WHEN 1		: PROCremove
+			WHEN 2		: PROCdelete
+			WHEN 3		: PROCaddval(3)
+			WHEN 4		: PROCclear_select
 		ENDCASE
 	WHEN 4
-		CASE b%!4 OF
-			WHEN 0 :PROCcut
-			WHEN 1 :PROCcopy
-			WHEN 2 :PROCcurrent
-			WHEN 3 :PROCclip_clear
+		CASE block%!4 OF
+			WHEN 0		: PROCcut
+			WHEN 1		: PROCcopy
+			WHEN 2		: PROCcurrent
+			WHEN 3		: PROCclip_clear
 		ENDCASE
 	WHEN 5
-		CASE b%!4 OF
-			WHEN -1,0 :PROCwindow_open_as_menu_at(PrintWindow%,!b%,b%!4) : reopen% = FALSE
-			WHEN 1 :PROCwindow_open_as_menu_at(PrintSetupWindow%,!b%,b%!4) : reopen% = FALSE
+		CASE block%!4 OF
+			WHEN -1, 0	: PROCwindow_open_as_menu_at(PrintWindow%, !q%, q%!4) : reopen% = FALSE
+			WHEN 1		: PROCwindow_open_as_menu_at(PrintSetupWindow%, !q%, q%!4) : reopen% = FALSE
 		ENDCASE
 	WHEN 6
-		!b%=TBoxWindow%
-		SYS "Wimp_GetWindowState",,b%
-		IF b%!32 AND 1<<16 THEN
+		IF FNwindow_is_open(TBoxWindow%) THEN
 			PROCwindow_close(TBoxWindow%)
-			PROCmenu_set_state(MainMenu%,6,0,0)
+			PROCmenu_set_state(MainMenu%, 6, FALSE, FALSE)
 		ELSE
 			PROCopen_window(TBoxWindow%)
-			PROCmenu_set_state(MainMenu%,6,1,0)
+			PROCmenu_set_state(MainMenu%, 6, TRUE, FALSE)
 		ENDIF
 	WHEN 7
-		!b%=EnterWindow%
-		SYS "Wimp_GetWindowState",,b%
-		IF b%!32 AND 1<<16 THEN
+		IF FNwindow_is_open(EnterWindow%) THEN
 			PROCwindow_close(EnterWindow%)
-			PROCmenu_set_state(MainMenu%,7,0,0)
+			PROCmenu_set_state(MainMenu%, 7, FALSE, FALSE)
 		ELSE
-			!b%=EnterWindow%
-			SYS "Wimp_GetWindowState",,b%
-			!q%=MainWindow%
-			SYS "Wimp_GetWindowState",,q%
-			b%!4=q%!4+40
-			b%!16=q%!8-44
-			b%!8=q%!8-236
-			b%!12=q%!4+1236
-			b%!20=0
-			b%!24=0
-			b%!28=TBarWindow%
-			SYS "Wimp_OpenWindow",,b%
-			PROCicon_put_caret_at_end(EnterWindow%,6)
-			PROCmenu_set_state(MainMenu%,7,1,0)
+			PROCmenu_set_state(MainMenu%, 7, TRUE, FALSE)
+			PROCopen_window(EnterWindow%)
+			PROCopen_window(MainWindow%)
+			PROCicon_put_caret_at_end(EnterWindow%, 6)
 		ENDIF
 	WHEN 8
-		IF FNmenu_ticked(MainMenu%,8) THEN
-			!b%=TBarWindow%
-			SYS "Wimp_GetWindowState",,b%
-			!q%=MainWindow%
-			SYS "Wimp_GetWindowState",,q%
-			b%!4=q%!4
-			b%!16=q%!16
-			b%!8=q%!16-36
-			b%!12=q%!12
-			b%!20=0
-			b%!24=0
-			b%!28=q%!28
-			SYS "Wimp_OpenWindow",,b%
-			PROCmenu_set_state(MainMenu%,8,0,0)
-		ELSE
-			!b%=TBarWindow%
-			SYS "Wimp_GetWindowState",,b%
-			b%!4=q%!4
-			b%!16=q%!16-100
-			b%!8=q%!16-136
-			b%!12=q%!12
-			b%!20=0
-			b%!24=0
-			b%!28=q%!28
-			SYS "Wimp_OpenWindow",,b%
-			PROCmenu_set_state(MainMenu%,8,1,0)
-		ENDIF
-
+		PROCmenu_set_state(MainMenu%, 8, NOT FNmenu_ticked(MainMenu%, 8), FALSE)
+		PROCopen_window(MainWindow%)
 		PROCredraw_main
 		PROCset_extent(0)
 	ENDCASE
@@ -520,6 +480,12 @@ IF reopen% THEN
 	PROCmenu_create(FNmenu_current_handle, 0, 0)
 ENDIF
 ENDPROC
+
+
+REM Process incoming key press events.
+REM
+REM
+
 :
 DEF PROCkey_press(key%,whan%,icon%)
 SYS "Wimp_GetPointerInfo",,b%
@@ -2156,7 +2122,7 @@ ENDWHILE
 :
 DEF PROCsave_prefs(save_prefs%)
 LOCAL open%,oj%
-oj%=join_main%
+oj%=EnterJoinMain%
 IF save_prefs% THENout%=OPENOUT("<Account$Dir>.Choices")
 IF FNicon_selected(PrefsPaneWindow%,2) THEN
 return_caret%=TRUE
@@ -2173,10 +2139,10 @@ set_clip%=FALSE
 IF save_prefs% THENPRINT#out%,FALSE
 ENDIF
 IF FNicon_selected(PrefsPaneWindow%,4) THEN
-join_main%=TRUE
+EnterJoinMain%=TRUE
 IF save_prefs% THENPRINT#out%,TRUE
 ELSE
-join_main%=FALSE
+EnterJoinMain%=FALSE
 IF save_prefs% THENPRINT#out%,FALSE
 ENDIF
 IF FNicon_selected(PrefsPaneWindow%,7) THEN
@@ -2296,8 +2262,8 @@ IF save_prefs% THENCLOSE#out%
 SYS "Wimp_GetWindowState",,b%
 IF (b%!32 AND (1<<16)) THENopen%=TRUE ELSEopen%=FALSE
 IF open% THENPROCwindow_close(EnterWindow%)
-IF oj%<>join_main% THEN
-IF join_main% THEN
+IF oj%<>EnterJoinMain% THEN
+IF EnterJoinMain% THEN
 EnterWindow%=enter1%
 string%=string1%
 cred%=cred1%
@@ -2352,7 +2318,7 @@ ENDPROC
 :
 DEF PROCload_prefs(load%)
 LOCAL loop%,open%,oj%
-oj%=join_main%
+oj%=EnterJoinMain%
 IF load% THENin%=OPENIN("<Account$Dir>.Choices")
 IF load% THENINPUT#in%,return_caret%
 IF return_caret% THEN
@@ -2366,8 +2332,8 @@ PROCicon_set_state(PrefsPaneWindow%,3,1,0,0)
 ELSE
 PROCicon_set_state(PrefsPaneWindow%,3,0,0,0)
 ENDIF
-IF load% THENINPUT#in%,join_main%
-IF join_main% THEN
+IF load% THENINPUT#in%,EnterJoinMain%
+IF EnterJoinMain% THEN
 PROCicon_set_state(PrefsPaneWindow%,4,1,0,0)
 ELSE
 PROCicon_set_state(PrefsPaneWindow%,4,0,0,0)
@@ -2451,8 +2417,8 @@ IF load% THENCLOSE#in%
 SYS "Wimp_GetWindowState",,b%
 IF (b%!32 AND (1<<16)) THENopen%=TRUE ELSEopen%=FALSE
 IF open% THENPROCwindow_close(EnterWindow%)
-IF oj%<>join_main% THEN
-IF join_main% THEN
+IF oj%<>EnterJoinMain% THEN
+IF EnterJoinMain% THEN
 EnterWindow%=enter1%
 string%=string1%
 cred%=cred1%
@@ -2790,7 +2756,7 @@ months$="JanFebMarAprMayJunJulAugSepOctNovDec"
 account_file%=&1AC
 text_file%=&FFF
 csv_file%=&DFE
-join_main%=1
+EnterJoinMain% = 1
 PROCget_mode_vars
 DIM text$(max%),credit%(max%),payment%(max%),balance%(max%)
 
@@ -3204,7 +3170,7 @@ REM \param item%		The item to test (no bounds checking is performed).
 REM \return			TRUE if the item is ticked; FALSE if not.
 :
 DEF FNmenu_ticked(menu%, item%)
-=((menu%?(28 + (item% + 24))) AND 1) = 1
+=((menu%?(28 + (item% * 24))) AND 1) = 1
 
 
 
@@ -3294,7 +3260,7 @@ WHEN MainWindow%
 	q%!28 = block%!28
 	SYS "Wimp_OpenWindow",,q%
 
-	IF FNmenu_ticked(MainMenu%, 7) AND join_main% THEN
+	IF FNmenu_ticked(MainMenu%, 7) AND EnterJoinMain% THEN
 		!q% = EnterWindow%
 		SYS "Wimp_GetWindowState",,q%
 		q%!4 = block%!4+40

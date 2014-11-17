@@ -288,7 +288,7 @@ WHEN HeadWindow%
 
 WHEN PrintSetupWindow%
 	CASE icon% OF
-		WHEN 18		: PROCcancel_printcodes
+		WHEN 18		: PROCprintcode_cancel_window
 		WHEN 19		: PROCsave_printcodes
 		WHEN 20		: PROCset_printcodes
 		WHEN 21		: PROCicon_bump_value(PrintSetupWindow%, 1, button% = 4, 1, 999, 0)
@@ -2051,130 +2051,195 @@ REM Return TRUE if the user selects "Discard" from the available options.
 =(oktoquit% = 3)
 
 
-
+REM Print all or part of the current file via an internal text-based
+REM interface.
+:
 DEF PROCprint
-LOCAL c%,percent%,s%,top_of_form%,current_line%
-IF VAL($print1%)=VAL($print2%) PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Prn0"), 0, 1, ""):ENDPROC
-IF VAL($print1%)>VAL($print2%) PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Prn1"), 0, 1, ""):ENDPROC
-IF VAL($print1%)>=entries% OR VAL($print2%)>=entries% PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Prn2"), 0, 1, ""):ENDPROC
-IF VAL($print1%)<=0 OR VAL($print2%)<=0 PROCmenu_create(-1,0,0):PROCwimperror_report(FNmessage_lookup("Prn3"), 0, 1, ""):ENDPROC
-SYS &80140 TO,s%
+LOCAL c%, percent%, s%, top_of_form%, current_line%
+
+REM Sanity check the print parameters from the print dialogue.
+
+IF VAL($print1%) = VAL($print2%) THEN
+	PROCmenu_create(-1, 0, 0)
+	PROCwimperror_report(FNmessage_lookup("Prn0"), 0, 1, "")
+	ENDPROC
+ENDIF
+
+IF VAL($print1%) > VAL($print2%) THEN
+	PROCmenu_create(-1, 0, 0)
+	PROCwimperror_report(FNmessage_lookup("Prn1"), 0, 1, "")
+	ENDPROC
+ENDIF
+
+IF VAL($print1%) >= entries% OR VAL($print2%) >= entries% THEN
+	PROCmenu_create(-1, 0, 0)
+	PROCwimperror_report(FNmessage_lookup("Prn2"), 0, 1, "")
+	ENDPROC
+ENDIF
+
+IF VAL($print1%) <= 0 OR VAL($print2%) <= 0 THEN
+	PROCmenu_create(-1, 0, 0)
+	PROCwimperror_report(FNmessage_lookup("Prn3"), 0, 1, "")
+	ENDPROC
+ENDIF
+
+REM 
+
+SYS &80140 TO ,s%
 SYS "Hourglass_On"
-o%=OPENOUT("<Account$PrintFile>")
-current_line%=pagelength%
-top_of_form%=TRUE
-FOR c%=VAL($print1%) TO VAL($print2%)
-IF top_of_form% AND FNicon_selected(PrintWindow%,9) THEN
-BPUT#o%,"      "+FNtext("Date: "+LEFT$(TIME$,15),34,TRUE);
-BPUT#o%,FNtext("File: "+LEFT$(FNstring_leafname($file%),LEN(FNstring_leafname($file%))-1),32,FALSE)+CHR$(13)
-current_line%-=1
-ENDIF
-IF top_of_form% THEN
-BPUT#o%,uline_on$+bold_on$;
-BPUT#o%,STRING$(79," ");
-BPUT#o%,uline_off$+bold_off$+line_feed$
-current_line%-=1
-ENDIF
-IF top_of_form% AND FNicon_selected(PrintWindow%,10) THEN
-BPUT#o%,uline_on$+bold_on$;
-BPUT#o%,FNtext("No.",4,FALSE)+" | ";
-BPUT#o%,FNtext("Description",20,TRUE)+"  ";
-BPUT#o%,FNtext("Credits",15,FALSE)+"  ";
-BPUT#o%,FNtext("Payments",15,FALSE)+"  ";
-BPUT#o%,FNtext("Balance",15,FALSE)+" ";
-BPUT#o%,uline_off$+bold_off$+line_feed$
-current_line%-=1
-ENDIF
-IF top_of_form% THENtop_of_form%=FALSE
-IF current_line%=1 OR c%=VAL($print2%) THENBPUT#o%,uline_on$;
-BPUT#o%,FNtext(STR$c%,4,FALSE)+" | ";
-BPUT#o%,FNtext(text$(c%),20,TRUE)+"  ";
-BPUT#o%,FNtext(FNpoint(credit%(c%)),15,FALSE)+"  ";
-BPUT#o%,FNtext(FNpoint(payment%(c%)),15,FALSE)+"  ";
-BPUT#o%,FNtext(FNpoint(balance%(c%)),15,FALSE)+" "+line_feed$
-IF current_line%=1 OR c%=VAL($print2%) THENBPUT#o%,uline_off$
-percent%=(c%-VAL($text1%))/(VAL($text2%)-VAL($text1%))*100
-SYS "Hourglass_Percentage",percent%
-current_line%-=1
-IF current_line%=0 THEN
-current_line%=pagelength%
-top_of_form%=TRUE
-IF form_feeds% THENBPUT#o%,form_feed$
-ENDIF
-NEXT
-IF form_feeds% AND top_of_form%=FALSE THENBPUT#o%,form_feed$
+
+o% = OPENOUT("<Account$PrintFile>")
+
+current_line% = PrintPageLength%
+top_of_form% = TRUE
+FOR c% = VAL($print1%) TO VAL($print2%)
+	IF top_of_form% THEN
+		IF FNicon_selected(PrintWindow%, 9) THEN
+			BPUT#o%, "      " + FNtext("Date: " + LEFT$(TIME$, 15), 34, TRUE);
+			BPUT#o%, FNtext("File: " + LEFT$(FNstring_leafname($file%), LEN(FNstring_leafname($file%)) - 1), 32, FALSE) + PrintLineFeed$
+			current_line% -= 1
+		ENDIF
+		
+		BPUT#o%, PrintUnderlineOn$ + PrintBoldOn$;
+		BPUT#o%, STRING$(79, " ");
+		BPUT#o%, PrintUnderlineOff$ + PrintBoldOff$ + PrintLineFeed$
+		current_line% -= 1
+		
+		IF FNicon_selected(PrintWindow%, 10) THEN
+			BPUT#o%, PrintUnderlineOn$ + PrintBoldOn$;
+			BPUT#o%, FNtext("No.", 4, FALSE) + " | ";
+			BPUT#o%, FNtext("Description", 20, TRUE) + "  ";
+			BPUT#o%, FNtext("Credits", 15, FALSE) + "  ";
+			BPUT#o%, FNtext("Payments", 15, FALSE) + "  ";
+			BPUT#o%, FNtext("Balance", 15, FALSE) + " ";
+			BPUT#o%, PrintUnderlineOff$ + PrintBoldOff$ + PrintLineFeed$
+			current_line% -= 1
+		ENDIF
+		
+		top_of_form% = FALSE
+	ENDIF
+
+	IF current_line% = 1 OR c% = VAL($print2%) THEN BPUT#o%, PrintUnderlineOn$;
+
+	BPUT#o%, FNtext(STR$c%, 4, FALSE) + " | ";
+	BPUT#o%, FNtext(text$(c%), 20, TRUE) + "  ";
+	BPUT#o%, FNtext(FNpoint(credit%(c%)), 15, FALSE) + "  ";
+	BPUT#o%, FNtext(FNpoint(payment%(c%)), 15, FALSE) + "  ";
+	BPUT#o%, FNtext(FNpoint(balance%(c%)), 15, FALSE) + " " + PrintLineFeed$
+
+	IF current_line%=1 OR c%=VAL($print2%) THEN BPUT#o%, PrintUnderlineOff$
+
+	percent% = (c% - VAL($text1%)) / (VAL($text2%) - VAL($text1%)) * 100
+	SYS "Hourglass_Percentage", percent%
+	current_line% -= 1
+	IF current_line% = 0 THEN
+		current_line% = PrintPageLength%
+		top_of_form% = TRUE
+		IF PrintFormFeeds% THEN BPUT#o%, PrintFormFeed$
+	ENDIF
+NEXT c%
+
+IF PrintFormFeeds% AND top_of_form% = FALSE THEN BPUT#o%, PrintFormFeed$
 CLOSE#o%
+
 SYS "Hourglass_Off"
+
 PROCwindow_close(PrintWindow%)
 PROCmenu_create(-1,0,0)
 ENDPROC
+
+
+
+
+REM Load the print code definitions from file.
 :
 DEF PROCload_printcodes
-in%=OPENIN("<Account$Dir>.PrintCodes")
-$page_length%=GET$#in%
-form_feeds%=VAL(GET$#in%)
-$line_feed%=GET$#in%
-$form_feed%=GET$#in%
-$bold_on%=GET$#in%
-$bold_off%=GET$#in%
-$uline_on%=GET$#in%
-$uline_off%=GET$#in%
+LOCAL in%
+
+in% = OPENIN("<Account$Dir>.PrintCodes")
+IF in% = 0 THEN ENDPROC
+
+PrintPageLength% = VAL(GET$#in%)
+PrintFormFeeds% = (VAL(GET$#in%) <> 0)
+PrintLineFeed$ = FNtext_to_printcodes(GET$#in%)
+PrintFormFeed$ = FNtext_to_printcodes(GET$#in%)
+PrintBoldOn$ = FNtext_to_printcodes(GET$#in%)
+PrintBoldOff$ = FNtext_to_printcodes(GET$#in%)
+PrintUnderlineOn$ = FNtext_to_printcodes(GET$#in%)
+PrintUnderlineOff$ = FNtext_to_printcodes(GET$#in%)
 CLOSE#in%
-PROCicon_set_state(PrintSetupWindow%,3,form_feeds%,0,0)
-pagelength%=VAL($page_length%)
-line_feed$=FNprintcodes_to_text($line_feed%)
-form_feed$=FNprintcodes_to_text($form_feed%)
-bold_on$=FNprintcodes_to_text($bold_on%)
-bold_off$=FNprintcodes_to_text($bold_off%)
-uline_on$=FNprintcodes_to_text($uline_on%)
-uline_off$=FNprintcodes_to_text($uline_off%)
+
+PROCprintcode_fill_window
 ENDPROC
+
+
+REM Handle clicks on Set in the printcode dialogue.
 :
 DEF PROCset_printcodes
-IF FNicon_selected(PrintSetupWindow%,3) THENform_feeds%=1 ELSEform_feeds%=0
-pagelength%=VAL($page_length%)
-line_feed$=FNprintcodes_to_text($line_feed%)
-form_feed$=FNprintcodes_to_text($form_feed%)
-bold_on$=FNprintcodes_to_text($bold_on%)
-bold_off$=FNprintcodes_to_text($bold_off%)
-uline_on$=FNprintcodes_to_text($uline_on%)
-uline_off$=FNprintcodes_to_text($uline_off%)
-PROCmenu_create(-1,0,0)
+PROCprintcode_read_window
+PROCmenu_create(-1, 0, 0)
 ENDPROC
+
+
+REM Handle clicks on Save in the printcode dialogue.
 :
 DEF PROCsave_printcodes
-IF FNicon_selected(PrintSetupWindow%,3) THENform_feeds%=1 ELSEform_feeds%=0
-pagelength%=VAL($page_length%)
-line_feed$=FNprintcodes_to_text($line_feed%)
-form_feed$=FNprintcodes_to_text($form_feed%)
-bold_on$=FNprintcodes_to_text($bold_on%)
-bold_off$=FNprintcodes_to_text($bold_off%)
-uline_on$=FNprintcodes_to_text($uline_on%)
-uline_off$=FNprintcodes_to_text($uline_off%)
+LOCAL out%
+
+PROCprintcode_read_window
+PROCmenu_create(-1, 0, 0)
+
 out%=OPENOUT("<Account$Dir>.PrintCodes")
-BPUT#out%,$page_length%
-BPUT#out%,STR$(form_feeds%)
-BPUT#out%,$line_feed%
-BPUT#out%,$form_feed%
-BPUT#out%,$bold_on%
-BPUT#out%,$bold_off%
-BPUT#out%,$uline_on%
-BPUT#out%,$uline_off%
-CLOSE#in%
-PROCmenu_create(-1,0,0)
+IF out% = 0 THEN ENDPROC
+
+BPUT#out%, STR$(PrintPageLength%)
+BPUT#out%, STR$(PrintFormFeeds%)
+BPUT#out%, FNprintcodes_to_text(PrintLineFeed$)
+BPUT#out%, FNprintcodes_to_text(PrintFormFeed$)
+BPUT#out%, FNprintcodes_to_text(PrintBoldOn$)
+BPUT#out%, FNprintcodes_to_text(PrintBoldOff$)
+BPUT#out%, FNprintcodes_to_text(PrintUnderlineOn$)
+BPUT#out%, FNprintcodes_to_text(PrintUnderlineOff$)
+CLOSE#out%
 ENDPROC
+
+
+REM Handle clicks on Cancel in the printcode dialogue.
 :
-DEF PROCcancel_printcodes
-PROCicon_set_state(PrintSetupWindow%,3,form_feeds%,0,0)
-$page_length%=STR$(pagelength%)
-$line_feed%=FNtext_to_printcodes(line_feed$)
-$form_feed%=FNtext_to_printcodes(form_feed$)
-$bold_on%=FNtext_to_printcodes(bold_on$)
-$bold_off%=FNtext_to_printcodes(bold_off$)
-$uline_on%=FNtext_to_printcodes(uline_on$)
-$uline_off%=FNtext_to_printcodes(uline_off$)
-PROCmenu_create(-1,0,0)
+DEF PROCprintcode_cancel_window
+PROCprintcode_fill_window
+PROCmenu_create(-1, 0, 0)
 ENDPROC
+
+
+REM Set the contents of the printcode dialogue from the source variables.
+:
+DEF PROCprintcode_fill_window
+PROCicon_set_selected(PrintSetupWindow%, 3, PrintFormFeeds%)
+PROCicon_set_indirected_text(PrintSetupWindow%, 1, STR$(PrintPageLength%))
+PROCicon_set_indirected_text(PrintSetupWindow%, 12, FNprintcodes_to_text(PrintLineFeed$))
+PROCicon_set_indirected_text(PrintSetupWindow%, 13, FNprintcodes_to_text(PrintFormFeed$))
+PROCicon_set_indirected_text(PrintSetupWindow%, 14, FNprintcodes_to_text(PrintBoldOn$))
+PROCicon_set_indirected_text(PrintSetupWindow%, 15, FNprintcodes_to_text(PrintBoldOff$))
+PROCicon_set_indirected_text(PrintSetupWindow%, 16, FNprintcodes_to_text(PrintUnderlineOn$))
+PROCicon_set_indirected_text(PrintSetupWindow%, 17, FNprintcodes_to_text(PrintUnderlineOff$))
+ENDPROC
+
+
+REM Read the contents of the printcode dialogue into variables for future
+REM reference.
+:
+DEF PROCprintcode_read_window
+PrintFormFeeds% = FNicon_selected(PrintSetupWindow%, 3)
+PrintPageLength% = VAL($FNicon_indirection(PrintSetupWindow%, 1))
+PrintLineFeed$ = FNtext_to_printcodes($FNicon_indirection(PrintSetupWindow%, 12))
+PrintFormFeed$ = FNtext_to_printcodes($FNicon_indirection(PrintSetupWindow%, 13))
+PrintBoldOn$ = FNtext_to_printcodes($FNicon_indirection(PrintSetupWindow%, 14))
+PrintBoldOff$ = FNtext_to_printcodes($FNicon_indirection(PrintSetupWindow%, 15))
+PrintUnderlineOn$ = FNtext_to_printcodes($FNicon_indirection(PrintSetupWindow%, 16))
+PrintUnderlineOff$ = FNtext_to_printcodes($FNicon_indirection(PrintSetupWindow%, 17))
+ENDPROC
+
 
 REM Convert a string of ASCII printer codes into a human-readable string
 REM of comma-separated bytes.
@@ -2197,6 +2262,7 @@ WHILE LEN(codes$) > 0
 	ENDIF
 ENDWHILE
 =list$
+
 
 REM Convert a human-readable string of comma-separated bytes into a string of
 REM ASCII printer codes.
@@ -3121,16 +3187,6 @@ print1%=FNicon_indirection(PrintWindow%,7)
 print2%=FNicon_indirection(PrintWindow%,8)
 $print1%="1"
 $print2%="1"
-:
-REM Print Set Up
-page_length%=FNicon_indirection(PrintSetupWindow%,1)
-$page_length%="62"
-form_feed%=FNicon_indirection(PrintSetupWindow%,13)
-line_feed%=FNicon_indirection(PrintSetupWindow%,12)
-bold_on%=FNicon_indirection(PrintSetupWindow%,14)
-bold_off%=FNicon_indirection(PrintSetupWindow%,15)
-uline_on%=FNicon_indirection(PrintSetupWindow%,16)
-uline_off%=FNicon_indirection(PrintSetupWindow%,17)
 :
 REM Preferences
 entry_c%=FNicon_indirection(PrefsPaneWindow%,23)

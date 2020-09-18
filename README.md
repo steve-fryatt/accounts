@@ -9,7 +9,7 @@ Introduction
 
 Accounts is a simple Bank Account Manager which can track a single bank account.
 
-It is not under active development, and there is currently no release in anything other than source form.
+It is not under active development, and there is currently no release in anything other than source form. Potential users are instead directed towards CashBook.
 
 
 Building

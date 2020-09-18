@@ -60,7 +60,7 @@ menu(main_menu, "Accounts")
 		submenu(main_print_menu);
 		dotted;
 	}
-	item("Show tools ï¿½F1");
+	item("Show tools ‹F1");
 	item("Show enter ^F1");
 	item("Toolbar    ^F2");
 }
@@ -101,7 +101,7 @@ menu(main_save_menu, "Save")
 		d_box(save_file);
 		dotted;
 	}
-	item("Text   ï¿½F3") {
+	item("Text   ‹F3") {
 		d_box(save_text);
 	}
 	item("CSV    ^F3") {
@@ -119,7 +119,7 @@ menu(main_enter_menu, "Enter")
 		dotted;
 	}
 	item("Insert above  INSERT/ F2");
-	item("Insert below ï¿½INSERT/ï¿½F2");
+	item("Insert below ‹INSERT/‹F2");
 }
 
 /**
@@ -128,11 +128,11 @@ menu(main_enter_menu, "Enter")
 
 menu(main_select_menu, "Select")
 {
-	item("Select   ï¿½F4") {
+	item("Select   ‹F4") {
 		d_box(select_line);
 		dotted;
 	}
-	item("Remove   ï¿½F5");
+	item("Remove   ‹F5");
 	item("Delete ^X/F5");
 	item("Modify    F6");
 	item("Clear     ^Z");
@@ -146,7 +146,7 @@ menu(main_clip_menu, "Clipboard")
 {
 	item("Cut    ^V/F8");
 	item("Copy   ^C/F7");
-	item("Select   ï¿½F7");
+	item("Select   ‹F7");
 	item("Clear     F9");
 }
 
@@ -159,7 +159,7 @@ menu(main_print_menu, "Printer")
 	item("Print   PRINT") {
 		d_box(print);
 	}
-	item("Set up ï¿½PRINT") {
+	item("Set up ‹PRINT") {
 		d_box(print_setup);
 	}
 }

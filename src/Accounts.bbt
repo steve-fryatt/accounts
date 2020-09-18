@@ -2881,11 +2881,14 @@ DIM b% 4000, q% 255, a% 255
 
 REM Locate the application resources.
 
-resources$ = FNresources_find_territory_folder("<Account$Dir>.Resources")
+PROCresources_initialise_paths("<Account$Dir>.Resources", "UK", "Account$Language")
 
 REM Load the messages file.
 
-PROCmessage_initialise(resources$ + "Messages")
+resources$ = FNresources_find_file("Messages", &FFF)
+IF resources$ = "" THEN ERROR 255, "Unable to find Messages file"
+
+PROCmessage_initialise(resources$)
 
 task_name$ = FNmessage_lookup("TaskName")
 task_sprite$ = FNmessage_lookup("TaskSpr")
@@ -2904,9 +2907,6 @@ q%!28 = 0
 
 SYS "Wimp_Initialise", 310, &4B534154, task_name$, q%
 
-
-
-
 RestartShutdown%=FALSE
 
 max%=1000
@@ -2921,14 +2921,17 @@ EnterJoinMain% = 1
 PROCget_mode_vars
 DIM text$(max%),credit%(max%),payment%(max%),balance%(max%)
 
+resources$ = FNresources_find_file("Templates", &FEC)
+IF resources$ = "" THEN ERROR 255, "Unable to find Templates file"
 
-
-:
 PROCintro
 PROCdefine_windows(resources$)
 PROCdefine_icons
 
 REM Initialise and load the menu templates.
+
+resources$ = FNresources_find_file("Menus", &FFD)
+IF resources$ = "" THEN ERROR 255, "Unable to find Menus file"
 
 PROCmenu_initialise
 
@@ -2944,7 +2947,7 @@ b%!32 = ExpCSVWindow%
 b%!36 = SLineWindow%
 b%!40 = PrintWindow%
 b%!44 = PrintSetupWindow%
-PROCmenu_load_templates(resources$ + "Menus", b%)
+PROCmenu_load_templates(resources$, b%)
 IconbarMenu% = b%!0
 MainMenu% = b%!4
 REM gmenu% = b%!8
@@ -3047,7 +3050,7 @@ DIM ind_data% ind_size%
 
 sprite_area% = FNwimpsprite_load_user_sprites("<Account$Dir>.Sprites")
 
-PROCtemplate_open(resources$ + "Templates")
+PROCtemplate_open(resources$)
 
 PROCtemplate_load("Main", b%, ind_data%, ind_size%, -1)
 title% = b%!72

@@ -153,7 +153,7 @@ whether the tool bar appears when Accounts is first loaded.
 The Preferences Window
 ----------------------
 
-    Two new icons have been added to this window: "Load" and "Defaults". 
+    Two new icons have been added to this window: "Load" and "Defaults".
 "Load" will load the preferences that are saved to disc bakc into the window
 for either changing or accepting; while "Defaults" will do the same for a
 new file called "Defaults" that is also found in the !Accounts directory,
@@ -181,14 +181,14 @@ meanings:
         and
 
     'Home both' does both these actions together.
-    
+
 Version 5.19
 ============
 
 Desktop Boot Files
 ------------------
 
-    Accounts now responds to the desktop boot file feature of Risc OS 3.1. 
+    Accounts now responds to the desktop boot file feature of Risc OS 3.1.
 This allows desktop boot files to be automaticaly created by the user from
 the Task Manager menu.
 
@@ -216,6 +216,6 @@ Updates and Contacting Me
   on my website at http://www.stevefryatt.org.uk/software/
 
   Stephen Fryatt
-  email: steve@stevefryatt.org.uk
+  email: info@stevefryatt.org.uk
 </literal>
 
